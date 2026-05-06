@@ -126,14 +126,14 @@ def _resolve_type(name: str, registry: Dict[str, Any]) -> str:
 def _computed_extras(n: int) -> Dict[str, int]:
     """Return a small dict of directly computed values for display."""
     try:
-        from numclassify.digital import digit_sum, digital_root
+        from numclassify._core.digital import digit_sum, digital_root
         ds = digit_sum(n)
         dr = digital_root(n)
     except Exception:
         ds = sum(int(d) for d in str(abs(n))) if n != 0 else 0
         dr = ds  # fallback
     try:
-        from numclassify.divisors import count_divisors
+        from numclassify._core.divisors import count_divisors
         nd = count_divisors(n)
     except Exception:
         nd = sum(1 for i in range(1, abs(n) + 1) if n % i == 0) if n != 0 else 0

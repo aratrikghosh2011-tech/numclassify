@@ -9,6 +9,7 @@ All membership sets are precomputed at module load time up to 10^9
 from __future__ import annotations
 
 from typing import Set
+from math import comb
 
 from numclassify._registry import register
 
@@ -197,13 +198,11 @@ def _gen_catalan_triangle() -> Set[int]:
     # T(n,0)=1 for all n; T(n,n) = Catalan(n)
     for n in range(0, 60):
         for k in range(0, n + 1):
-            from math import comb
             val = comb(n + k, k) - (comb(n + k, k - 1) if k > 0 else 0)
             if val > _LIMIT:
                 break
             s.add(val)
         if n > 0:
-            from math import comb
             check = comb(2 * n, n) - comb(2 * n, n - 1) if n > 0 else 1
             if check > _LIMIT:
                 break

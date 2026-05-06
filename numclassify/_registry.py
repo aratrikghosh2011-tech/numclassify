@@ -379,7 +379,7 @@ def find_any_in_range(
     Example
     -------
     >>> find_any_in_range(["prime", "palindrome"], 1, 15)
-    [2, 3, 5, 7, 11, 11, 13]
+    [2, 3, 5, 7, 11, 13]
     """
     funcs = [_resolve(f) for f in funcs_or_names]
     return [n for n in range(start, end + 1) if any(f(n) for f in funcs)]
