@@ -21,6 +21,9 @@ info <type_name>
 
 list [--category <cat>]
     List all registered types, optionally filtered by category.
+
+compare <a> <b> [--json]
+    Compare two numbers: show shared and exclusive properties.
 """
 
 from __future__ import annotations
@@ -345,6 +348,46 @@ def cmd_list(args: argparse.Namespace) -> None:
     print()
 
 
+def cmd_compare(args: argparse.Namespace) -> None:
+    """Handle: numclassify compare <a> <b> [--json]."""
+    nc, _, _ = _lazy_import()
+
+    try:
+        a = int(args.a)
+        b = int(args.b)
+    except ValueError:
+        _die("a and b must be integers.")
+
+    props_a = set(nc.get_true_properties(a))
+    props_b = set(nc.get_true_properties(b))
+
+    shared = sorted(props_a & props_b)
+    only_a = sorted(props_a - props_b)
+    only_b = sorted(props_b - props_a)
+
+    if args.json:
+        payload = {
+            "a": a,
+            "b": b,
+            "shared": shared,
+            "only_a": only_a,
+            "only_b": only_b,
+        }
+        print(json.dumps(payload, indent=2))
+        return
+
+    header = f"Comparing {a} and {b}"
+    print(_bold(header))
+    print(_rule(len(header)))
+
+    def _fmt_list(items: List[str]) -> str:
+        return ", ".join(items) if items else "(none)"
+
+    print(f"Shared ({len(shared)}): {_fmt_list(shared)}")
+    print(f"Only in {a} ({len(only_a)}): {_fmt_list(only_a)}")
+    print(f"Only in {b} ({len(only_b)}): {_fmt_list(only_b)}")
+
+
 # ---------------------------------------------------------------------------
 # Argument parser
 # ---------------------------------------------------------------------------
@@ -475,8 +518,28 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_list.set_defaults(func=cmd_list)
 
-    return parser
+    # -- compare -------------------------------------------------------------
+    p_compare = sub.add_parser(
+        "compare",
+        help="Compare properties of two numbers side by side.",
+        description=(
+            "Show shared and exclusive properties between two integers.\n\n"
+            "Examples:\n"
+            "  numclassify compare 6 28\n"
+            "  numclassify compare 6 28 --json"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    p_compare.add_argument("a", help="First integer.")
+    p_compare.add_argument("b", help="Second integer.")
+    p_compare.add_argument(
+        "--json",
+        action="store_true",
+        help="Output results as JSON with keys a, b, shared, only_a, only_b.",
+    )
+    p_compare.set_defaults(func=cmd_compare)
 
+    return parser
 
 # ---------------------------------------------------------------------------
 # Entry point
@@ -500,7 +563,20 @@ def main() -> None:
         )
 
     # ------------------------------------------------------------------
-    # 2. Enable colour + Unicode only when writing to a real terminal.
+    # 2. Enable VT100 ANSI escape processing on Windows consoles.
+    #    On older Windows 10 builds and Wine, ANSI codes are printed
+    #    literally unless the console mode flag is set explicitly.
+    # ------------------------------------------------------------------
+    if sys.platform == "win32":
+        import ctypes
+        try:
+            kernel32 = ctypes.windll.kernel32
+            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+        except Exception:
+            pass
+
+    # ------------------------------------------------------------------
+    # 3. Enable colour + Unicode only when writing to a real terminal.
     #    Subprocesses/pipes get plain ASCII — no ✓, no ─, no ANSI codes.
     # ------------------------------------------------------------------
     if sys.stdout.isatty():

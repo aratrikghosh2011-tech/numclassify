@@ -1,25 +1,26 @@
 # numclassify
 
-> The most comprehensive Python library for number classification — 3000+ number types, zero dependencies.
+The most comprehensive Python library for number classification — 3000+ number types, zero dependencies.
 
 [![PyPI version](https://img.shields.io/pypi/v/numclassify)](https://pypi.org/project/numclassify/)
+[![Downloads](https://img.shields.io/pypi/dm/numclassify)](https://pypi.org/project/numclassify/)
 [![Python versions](https://img.shields.io/pypi/pyversions/numclassify)](https://pypi.org/project/numclassify/)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/aratrikghosh2011-tech/numclassify/blob/main/LICENSE)
 [![Tests](https://img.shields.io/github/actions/workflow/status/aratrikghosh2011-tech/numclassify/ci.yml?label=tests)](https://github.com/aratrikghosh2011-tech/numclassify/actions/workflows/ci.yml)
 
 ---
 
-## Why numclassify?
+## Overview
 
-Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — answer *computational* questions: factor this, find the GCD, generate primes up to N.
+Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — are built around computation: factoring integers, finding GCDs, generating primes. `numclassify` solves a different problem: **given a number, what is it?**
 
-`numclassify` answers a different question: **what kind of number is this?**
+```
+153   →  Armstrong, Harshad, Triangular, Abundant ...
+1729  →  Taxicab (Hardy-Ramanujan), Carmichael, Zeisel ...
+28    →  Perfect, Triangular, Hexagonal, Semiprime ...
+```
 
-- `153` → Armstrong, Narcissistic, Harshad, Triangular, Abundant…
-- `1729` → Taxicab (Hardy-Ramanujan), Zeisel, Carmichael…
-- `28` → Perfect, Triangular, Hexagonal, Semiprime…
-
-Over **3000 named number types**, instant lookup, no external dependencies.
+Over **3000 named number types** are supported, with instant lookup, no external dependencies, and a fully typed API.
 
 ---
 
@@ -29,7 +30,7 @@ Over **3000 named number types**, instant lookup, no external dependencies.
 pip install numclassify
 ```
 
-Or clone and install in editable mode:
+To install from source in editable mode:
 
 ```bash
 git clone https://github.com/aratrikghosh2011-tech/numclassify.git
@@ -45,20 +46,32 @@ pip install -e .
 import numclassify as nc
 
 # Boolean checks
-nc.is_prime(17)          # True
-nc.is_armstrong(153)     # True
-nc.is_perfect(28)        # True
+nc.is_prime(17)            # True
+nc.is_perfect(28)          # True
+
+# Classify a single number
+nc.classify(1729)
+# {'number': 1729, 'true_properties': ['Taxicab', 'Carmichael', ...], 'score': 22}
+
+# Classify multiple numbers at once
+nc.classify_batch([6, 28, 496])
+
+# Query by property
+nc.find_by_property(start=1, end=1000, Perfect=True)
+# [6, 28, 496]
+
+# Memory-safe streaming over large ranges
+for result in nc.stream(1, 1_000_000):
+    if result['score'] > 30:
+        print(result)
+
+# Random number classification
+nc.random_number()
 
 # All true properties of a number
 nc.get_true_properties(1729)
-# ['taxicab', 'zeisel', 'carmichael', 'odd', 'composite',
-#  'deficient', 'squarefree', 'cubefree', 'powerful_not_perfect_power']
 
-# Search a range
-nc.find_in_range(nc.is_armstrong, 1, 10000)
-# [1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407, 1634, 8208, 9474]
-
-# Pretty-print everything about a number
+# Pretty-print everything
 nc.print_properties(153)
 # ┌─────────────────────────────────────────┐
 # │  Properties of 153                      │
@@ -106,6 +119,16 @@ $ numclassify range 1 20 --filter prime
 2, 3, 5, 7, 11, 13, 17, 19
 ```
 
+**Compare two numbers:**
+```bash
+$ numclassify compare 6 28
+Comparing 6 and 28
+──────────────────
+Shared (13): Perfect, Triangular, Hexagonal, ...
+Only in 6 (21): Armstrong, Factorial, Palindrome, ...
+Only in 28 (8): Happy, Keith, Padovan, ...
+```
+
 **List all registered types in a category:**
 ```bash
 $ numclassify list --category primes
@@ -130,23 +153,23 @@ Examples:    1, 2, 3, 153, 370, 371, 407, 1634, 8208, 9474
 
 | Category | Count | Examples |
 |---|---|---|
-| Polygonal (figurate) | 998 | Triangular, Square, Pentagonal … Chiliagonal |
-| Centered Polygonal | 998 | Centered Triangular, Centered Hexagonal … |
-| Prime families | 41 | Twin, Mersenne, Sophie Germain, Wilson, Safe… |
-| Digital invariants | 10 | Armstrong, Spy, Harshad, Disarium, Happy, Neon… |
-| Divisor-based | 27 | Perfect, Abundant, Weird, Amicable, Practical… |
-| Sequences | 15 | Fibonacci, Lucas, Catalan, Bell, Padovan… |
-| Powers | 13 | Perfect Square, Taxicab, Sum of Two Squares… |
-| Number theory | 14 | Evil, Carmichael, Keith, Autobiographical… |
-| Combinatorial | 10 | Factorial, Primorial, Subfactorial, Catalan… |
-| Recreational | 5 | Kaprekar, Automorphic, Palindrome… |
+| Polygonal (figurate) | 998 | Triangular, Square, Pentagonal, Chiliagonal |
+| Centered Polygonal | 998 | Centered Triangular, Centered Hexagonal |
+| Prime families | 41 | Twin, Mersenne, Sophie Germain, Wilson, Safe |
+| Digital invariants | 10 | Armstrong, Spy, Harshad, Disarium, Happy, Neon |
+| Divisor-based | 27 | Perfect, Abundant, Weird, Amicable, Practical |
+| Sequences | 15 | Fibonacci, Lucas, Catalan, Bell, Padovan |
+| Powers | 13 | Perfect Square, Taxicab, Sum of Two Squares |
+| Number theory | 14 | Evil, Carmichael, Keith, Autobiographical |
+| Combinatorial | 10 | Factorial, Primorial, Subfactorial, Catalan |
+| Recreational | 5 | Kaprekar, Automorphic, Palindrome |
 | **Total** | **3000+** | |
 
 ---
 
-## Adding Your Own Number Type
+## Adding Custom Number Types
 
-The `@register` decorator lets you plug in custom types in 6 lines:
+The `@register` decorator lets you define and integrate your own number types in a few lines. Once registered, the type is automatically available through the full API and CLI.
 
 ```python
 from numclassify import register
@@ -155,7 +178,6 @@ from numclassify import register
 def is_my_type(n: int) -> bool:
     return n > 0 and n % 7 == 0 and str(n)[0] == "4"
 
-# Now works everywhere
 import numclassify as nc
 nc.is_my_type(49)              # False  (doesn't start with 4)
 nc.is_my_type(42)              # True
@@ -168,24 +190,28 @@ nc.get_true_properties(42)     # [..., 'my_type', ...]
 
 | Function | Description |
 |---|---|
-| `is_prime(n)` | Returns `True` if `n` is a standard prime |
-| `is_armstrong(n)` | Returns `True` if `n` is a narcissistic/Armstrong number |
-| `get_all_properties(n)` | Dict of every registered type → `True`/`False` |
-| `get_true_properties(n)` | List of only the properties that are `True` |
+| `classify(n)` | Returns a dict with the number, its true properties, and a score |
+| `classify_batch(numbers)` | Classify a list of numbers; returns a list of dicts |
+| `random_number(max_n)` | Classify a randomly selected number up to `max_n` |
+| `find_by_property(start, end, **filters)` | Find numbers in a range matching given property filters |
+| `stream(start, end)` | Generator yielding classify results one at a time; memory-safe |
+| `is_prime(n)` | Returns `True` if `n` is prime |
+| `is_armstrong(n)` | Returns `True` if `n` is an Armstrong (narcissistic) number |
+| `get_all_properties(n)` | Dict mapping every registered type to `True` or `False` |
+| `get_true_properties(n)` | List of only the properties that hold for `n` |
 | `print_properties(n)` | Pretty-prints a formatted property table to stdout |
 | `find_in_range(fn, lo, hi)` | All integers in `[lo, hi]` where `fn` returns `True` |
-| `find_all_in_range(lo, hi)` | Dict mapping every number in range to its true properties |
-| `count_properties(n)` | Count of how many types apply to `n` |
-| `most_special_in_range(lo, hi)` | The number in `[lo, hi]` with the most true properties |
+| `count_properties(n)` | Number of types that apply to `n` |
+| `most_special_in_range(lo, hi)` | Number in `[lo, hi]` with the greatest count of true properties |
 
-Full API docs: [github.com/aratrikghosh2011-tech/numclassify](https://github.com/aratrikghosh2011-tech/numclassify)
+Full API documentation: [github.com/aratrikghosh2011-tech/numclassify](https://github.com/aratrikghosh2011-tech/numclassify)
 
 ---
 
 ## Requirements
 
 - Python 3.8 or higher
-- Zero external dependencies
+- No external dependencies
 
 ---
 

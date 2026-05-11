@@ -18,10 +18,18 @@ Public API
    find_all_in_range
    count_properties
    most_special_in_range
+   classify
+   classify_batch
+   random_number
+   find_by_property
+   stream
 """
 from __future__ import annotations
 
-__version__ = "0.1.0"
+import random as _random
+from typing import Generator, Iterator, List, Dict, Optional, Any
+
+__version__ = "0.2.0"
 
 # --- Import all _core submodules so @register decorators fire at import time ---
 from numclassify._core import primes        # noqa: F401
@@ -48,8 +56,103 @@ from numclassify._registry import (                   # noqa: F401
     most_special_in_range,
 )
 
+
+# ---------------------------------------------------------------------------
+# New features
+# ---------------------------------------------------------------------------
+
+def classify(n: int) -> Dict[str, Any]:
+    """
+    Returns a summary dict for a single integer.
+
+    Returns
+    -------
+    {
+        "number": n,
+        "true_properties": [list of property names that are True],
+        "score": int,   # count of True properties
+    }
+    """
+    raw = get_true_properties(n)
+    # get_true_properties returns dict[str, bool] — extract just the names
+    if isinstance(raw, dict):
+        true_props = [k for k, v in raw.items() if v]
+    else:
+        true_props = list(raw)   # already a list, keep as-is
+
+    return {
+        "number": n,
+        "true_properties": true_props,
+        "score": len(true_props),
+    }
+
+
+def classify_batch(numbers: List[int]) -> List[Dict[str, Any]]:
+    """
+    Accepts a list of ints.
+    Returns a list of classify(n) dicts, one per number, same order.
+    """
+    return [classify(n) for n in numbers]
+
+
+def random_number(max_n: int = 10000) -> Dict[str, Any]:
+    """
+    Picks a random int between 1 and max_n inclusive.
+    Returns the classify(n) result for that number.
+    """
+    n = _random.randint(1, max_n)
+    return classify(n)
+
+
+def find_by_property(start: int = 1, end: int = 1000,
+                     limit: Optional[int] = None, **filters: bool) -> List[int]:
+    """
+    Query numbers by property values within [start, end].
+
+    Parameters
+    ----------
+    start, end : int
+        Inclusive search range.
+    limit : int, optional
+        Stop after finding this many matches.
+    **filters : bool
+        Property name → required bool value.
+        Names must match keys in get_all_properties() exactly.
+
+    Returns
+    -------
+    list of int
+
+    Example
+    -------
+    find_by_property(start=1, end=1000, Perfect=True, Odious=True)
+    """
+    results = []
+    for n in range(start, end + 1):
+        if not filters:
+            results.append(n)
+        else:
+            props = get_all_properties(n)
+            if all(props.get(k) == v for k, v in filters.items()):
+                results.append(n)
+        if limit is not None and len(results) >= limit:
+            break
+    return results
+
+
+def stream(start: int, end: int) -> Generator[Dict[str, Any], None, None]:
+    """Generator. Yields classify(n) for each n in [start, end]. Memory-safe for large ranges."""
+    for n in range(start, end + 1):
+        yield classify(n)
+
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
+
 __all__ = [
     "__version__",
+    # existing
     "is_prime",
     "is_armstrong",
     "is_perfect",
@@ -60,4 +163,10 @@ __all__ = [
     "find_all_in_range",
     "count_properties",
     "most_special_in_range",
+    # new
+    "classify",
+    "classify_batch",
+    "random_number",
+    "find_by_property",
+    "stream",
 ]

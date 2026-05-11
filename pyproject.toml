@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "numclassify"
-version = "0.1.1"
+version = "0.2.0"
 description = "The most comprehensive Python library for number classification — 3000+ number types"
 authors = [{name = "Aratrik Ghosh", email = "aratrikghosh2011@gmail.com"}]
 readme = "README.md"
@@ -33,3 +33,9 @@ Issues = "https://github.com/aratrikghosh2011-tech/numclassify/issues"
 
 [project.scripts]
 numclassify = "numclassify.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["numclassify"]
+
+[tool.setuptools.package-data]
+numclassify = ["py.typed"]

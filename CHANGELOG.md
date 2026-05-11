@@ -6,6 +6,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.2.0] - 2026-05-11
+
+### Added
+- `classify(n)` — returns `{"number": n, "true_properties": [...], "score": int}`
+- `classify_batch(numbers)` — classify a list of numbers in one call
+- `random_number(max_n=10000)` — classify a random number
+- `find_by_property(start, end, **filters)` — query numbers by property name/value
+- `stream(start, end)` — memory-safe generator yielding classify results
+- `numclassify compare <a> <b> [--json]` — new CLI command showing shared/exclusive properties
+- Windows ANSI color fix via `SetConsoleMode` VT100 flag
+- `py.typed` marker added (PEP 561 compliant)
+- Full type hints on all public API functions
+
 ## [0.1.1] - 2026-05-06
 ### Fixed
 - cli.py: Fixed imports to use numclassify._core instead of numclassify
