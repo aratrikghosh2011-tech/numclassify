@@ -4,15 +4,15 @@ build-backend = "hatchling.build"
 
 [project]
 name = "numclassify"
-version = "0.2.0"
-description = "The most comprehensive Python library for number classification — 3000+ number types"
+version = "0.2.1"
+description = "The most comprehensive Python library for number classification - 3000+ number types"
 authors = [{name = "Aratrik Ghosh", email = "aratrikghosh2011@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}
 keywords = ["number-theory", "mathematics", "classification", "armstrong", "prime", "figurate"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Mathematics",
@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
@@ -29,6 +30,7 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/aratrikghosh2011-tech/numclassify"
 Repository = "https://github.com/aratrikghosh2011-tech/numclassify"
+Documentation = "https://aratrikghosh2011-tech.github.io/numclassify/"
 Issues = "https://github.com/aratrikghosh2011-tech/numclassify/issues"
 
 [project.scripts]
@@ -36,6 +38,4 @@ numclassify = "numclassify.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["numclassify"]
-
-[tool.setuptools.package-data]
-numclassify = ["py.typed"]
+include = ["numclassify/py.typed"]

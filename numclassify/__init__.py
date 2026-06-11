@@ -24,23 +24,22 @@ Public API
    find_by_property
    stream
 """
+
 from __future__ import annotations
+del annotations
 
-import random as _random
-from typing import Generator, Iterator, List, Dict, Optional, Any
-
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 # --- Import all _core submodules so @register decorators fire at import time ---
-from numclassify._core import primes        # noqa: F401
-from numclassify._core import figurate      # noqa: F401
-from numclassify._core import digital       # noqa: F401
-from numclassify._core import recreational  # noqa: F401
-from numclassify._core import divisors      # noqa: F401
-from numclassify._core import sequences     # noqa: F401
-from numclassify._core import powers        # noqa: F401
-from numclassify._core import number_theory # noqa: F401
-from numclassify._core import combinatorial # noqa: F401
+from numclassify._core import primes as _primes        # noqa: F401
+from numclassify._core import figurate as _figurate      # noqa: F401
+from numclassify._core import digital as _digital       # noqa: F401
+from numclassify._core import recreational as _recreational  # noqa: F401
+from numclassify._core import divisors as _divisors      # noqa: F401
+from numclassify._core import sequences as _sequences     # noqa: F401
+from numclassify._core import powers as _powers        # noqa: F401
+from numclassify._core import number_theory as _number_theory # noqa: F401
+from numclassify._core import combinatorial as _combinatorial # noqa: F401
 
 # --- Re-export key functions at top level ---
 from numclassify._core.primes import is_prime         # noqa: F401
@@ -56,7 +55,6 @@ from numclassify._registry import (                   # noqa: F401
     count_properties,
     most_special_in_range,
 )
-
 
 # ---------------------------------------------------------------------------
 # Dynamic attribute fallback — allows nc.<any_registered_type>() to work
@@ -76,7 +74,7 @@ def __getattr__(name: str):
 # New features
 # ---------------------------------------------------------------------------
 
-def classify(n: int) -> Dict[str, Any]:
+def classify(n: int) -> dict:
     """
     Returns a summary dict for a single integer.
 
@@ -89,11 +87,10 @@ def classify(n: int) -> Dict[str, Any]:
     }
     """
     raw = get_true_properties(n)
-    # get_true_properties returns dict[str, bool] — extract just the names
     if isinstance(raw, dict):
         true_props = [k for k, v in raw.items() if v]
     else:
-        true_props = list(raw)   # already a list, keep as-is
+        true_props = list(raw)
 
     return {
         "number": n,
@@ -102,25 +99,20 @@ def classify(n: int) -> Dict[str, Any]:
     }
 
 
-def classify_batch(numbers: List[int]) -> List[Dict[str, Any]]:
-    """
-    Accepts a list of ints.
-    Returns a list of classify(n) dicts, one per number, same order.
-    """
+def classify_batch(numbers: list) -> list:
+    """Returns a list of classify(n) dicts, one per number, same order."""
     return [classify(n) for n in numbers]
 
 
-def random_number(max_n: int = 10000) -> Dict[str, Any]:
-    """
-    Picks a random int between 1 and max_n inclusive.
-    Returns the classify(n) result for that number.
-    """
+def random_number(max_n: int = 10000) -> dict:
+    """Picks a random int between 1 and max_n inclusive, returns classify(n)."""
+    import random as _random
     n = _random.randint(1, max_n)
     return classify(n)
 
 
 def find_by_property(start: int = 1, end: int = 1000,
-                     limit: Optional[int] = None, **filters: bool) -> List[int]:
+                     limit: int | None = None, **filters: bool) -> list:
     """
     Query numbers by property values within [start, end].
 
@@ -131,8 +123,7 @@ def find_by_property(start: int = 1, end: int = 1000,
     limit : int, optional
         Stop after finding this many matches.
     **filters : bool
-        Property name → required bool value.
-        Names must match keys in get_all_properties() exactly.
+        Property name to required bool value mapping.
 
     Returns
     -------
@@ -155,7 +146,7 @@ def find_by_property(start: int = 1, end: int = 1000,
     return results
 
 
-def stream(start: int, end: int) -> Generator[Dict[str, Any], None, None]:
+def stream(start: int, end: int):
     """Generator. Yields classify(n) for each n in [start, end]. Memory-safe for large ranges."""
     for n in range(start, end + 1):
         yield classify(n)
@@ -167,7 +158,6 @@ def stream(start: int, end: int) -> Generator[Dict[str, Any], None, None]:
 
 __all__ = [
     "__version__",
-    # existing
     "is_prime",
     "is_armstrong",
     "is_perfect",
@@ -178,10 +168,14 @@ __all__ = [
     "find_all_in_range",
     "count_properties",
     "most_special_in_range",
-    # new
     "classify",
     "classify_batch",
     "random_number",
     "find_by_property",
     "stream",
 ]
+
+# Clean up internal names that leak into dir(nc)
+del (_primes, _figurate, _digital, _recreational,
+     _divisors, _sequences, _powers, _number_theory,
+     _combinatorial, _core, _registry)
