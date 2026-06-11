@@ -7,6 +7,9 @@ The most comprehensive Python library for number classification — 3000+ number
 [![Python versions](https://img.shields.io/pypi/pyversions/numclassify)](https://pypi.org/project/numclassify/)
 [![License MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/aratrikghosh2011-tech/numclassify/blob/main/LICENSE)
 [![Tests](https://img.shields.io/github/actions/workflow/status/aratrikghosh2011-tech/numclassify/ci.yml?label=tests)](https://github.com/aratrikghosh2011-tech/numclassify/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/numclassify?label=version)](https://pypi.org/project/numclassify/)
+
+> **Latest version: 0.2.1** — See [CHANGELOG](CHANGELOG.md) for what's new.
 
 ---
 
@@ -184,12 +187,20 @@ nc.is_my_type(42)              # True
 nc.get_true_properties(42)     # [..., 'my_type', ...]
 ```
 
+See the [`examples/`](examples/) folder for runnable scripts demonstrating all major features:
+- [`basic_usage.py`](examples/basic_usage.py) — classify, batch, streaming
+- [`custom_type.py`](examples/custom_type.py) — registering custom types
+- [`find_perfect_numbers.py`](examples/find_perfect_numbers.py) — property-based search
+- [`stream_large_range.py`](examples/stream_large_range.py) — memory-safe range streaming
+- [`random_classify.py`](examples/random_classify.py) — random number classification
+
 ---
 
 ## API Reference
 
 | Function | Description |
 |---|---|
+| `register(name, category, ...)` | Decorator to add custom number types to the full API |
 | `classify(n)` | Returns a dict with the number, its true properties, and a score |
 | `classify_batch(numbers)` | Classify a list of numbers; returns a list of dicts |
 | `random_number(max_n)` | Classify a randomly selected number up to `max_n` |
