@@ -46,6 +46,7 @@ from numclassify._core import combinatorial # noqa: F401
 from numclassify._core.primes import is_prime         # noqa: F401
 from numclassify._core.digital import is_armstrong    # noqa: F401
 from numclassify._core.divisors import is_perfect     # noqa: F401
+from numclassify._registry import register             # noqa: F401
 from numclassify._registry import (                   # noqa: F401
     get_all_properties,
     get_true_properties,
@@ -55,6 +56,20 @@ from numclassify._registry import (                   # noqa: F401
     count_properties,
     most_special_in_range,
 )
+
+
+# ---------------------------------------------------------------------------
+# Dynamic attribute fallback — allows nc.<any_registered_type>() to work
+# ---------------------------------------------------------------------------
+
+def __getattr__(name: str):
+    """Fallback: look up *name* in the global registry as a normalised key."""
+    from numclassify._registry import REGISTRY, _normalize
+
+    key = _normalize(name)
+    if key in REGISTRY:
+        return REGISTRY[key].func
+    raise AttributeError(f"module 'numclassify' has no attribute {name!r}")
 
 
 # ---------------------------------------------------------------------------

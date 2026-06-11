@@ -123,6 +123,9 @@ def register(
         key = _normalize(name)
         with _REGISTRY_LOCK:
             REGISTRY[key] = entry
+            # Also register under the function's __name__ so
+            # nc.<func_name>() works via __getattr__ fallback
+            REGISTRY[_normalize(func.__name__)] = entry
             for alias in _aliases:
                 REGISTRY[_normalize(alias)] = entry
         return func
