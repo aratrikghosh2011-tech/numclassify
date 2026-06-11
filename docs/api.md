@@ -15,6 +15,9 @@ Find numbers matching property filters.
 ## stream(start, end)
 Memory-safe generator over large ranges.
 
+## register(name, category, ...)
+Decorator to register custom number types. See [examples/custom_type.py](https://github.com/aratrikghosh2011-tech/numclassify/blob/main/examples/custom_type.py).
+
 ## Utilities
 - get_all_properties(n)
 - get_true_properties(n)
