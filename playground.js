@@ -228,12 +228,18 @@ json.dumps(m)
     console.warn('Could not load category map', e);
   }
 
-  // Fetch version number
+  // Fetch version number — prefer local source version as canonical
+  const badge = $('version-badge');
+  const srcVersion = badge ? badge.dataset.version : null;
   try {
-    const ver = await pyodide.runPythonAsync('nc.__version__');
-    $('version-text').textContent = ver;
+    const pypiVer = await pyodide.runPythonAsync('nc.__version__');
+    // Use the source version (from pyproject.toml) since PyPI may lag behind
+    $('version-text').textContent = srcVersion || pypiVer;
+    if (srcVersion && pypiVer !== srcVersion) {
+      badge.title = 'Source: v' + srcVersion + '  |  PyPI: v' + pypiVer;
+    }
   } catch(e) {
-    $('version-text').textContent = '?';
+    $('version-text').textContent = srcVersion || '?';
   }
 
   setProgress(100, 'Ready!');
