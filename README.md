@@ -1,32 +1,22 @@
 # numclassify
 
 [![PyPI version](https://img.shields.io/pypi/v/numclassify.svg?color=FF9933&style=flat-square)](https://pypi.org/project/numclassify/)
-[![PyPI downloads](https://img.shields.io/pypi/dm/numclassify.svg?color=FF9933&style=flat-square)](https://pypi.org/project/numclassify/)
+[![Downloads](https://img.shields.io/pypi/dm/numclassify.svg?color=FF9933&style=flat-square)](https://pypi.org/project/numclassify/)
+[![Python](https://img.shields.io/pypi/pyversions/numclassify?style=flat-square&color=FF9933)](https://pypi.org/project/numclassify/)
+[![Tests](https://img.shields.io/github/actions/workflow/status/aratrikghosh2011-tech/numclassify/ci.yml?label=tests&style=flat-square&color=FF9933)](https://github.com/aratrikghosh2011-tech/numclassify/actions/workflows/ci.yml)
+[![License](https://img.shields.io/badge/license-MIT-FF9933?style=flat-square)](LICENSE)
 
-The most comprehensive Python library for number classification — 3000+ number types, zero dependencies.
+**Given a number, what is it?**
 
-[![PyPI version](https://img.shields.io/pypi/v/numclassify)](https://pypi.org/project/numclassify/)
-[![Downloads](https://img.shields.io/pypi/dm/numclassify)](https://pypi.org/project/numclassify/)
-[![Python versions](https://img.shields.io/pypi/pyversions/numclassify)](https://pypi.org/project/numclassify/)
-[![License MIT](https://img.shields.io/badge/license-MIT-blue)](https://github.com/aratrikghosh2011-tech/numclassify/blob/main/LICENSE)
-[![Tests](https://img.shields.io/github/actions/workflow/status/aratrikghosh2011-tech/numclassify/ci.yml?label=tests)](https://github.com/aratrikghosh2011-tech/numclassify/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/numclassify?label=version)](https://pypi.org/project/numclassify/)
-
-> **Latest version: 0.2.1** — See [CHANGELOG](CHANGELOG.md) for what's new.
-
----
-
-## Overview
-
-Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — are built around computation: factoring integers, finding GCDs, generating primes. `numclassify` solves a different problem: **given a number, what is it?**
+Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it a number and it tells you every named mathematical type that number belongs to, across 3000+ categories, with zero external dependencies.
 
 ```
-153   →  Armstrong, Harshad, Triangular, Abundant ...
-1729  →  Taxicab (Hardy-Ramanujan), Carmichael, Zeisel ...
-28    →  Perfect, Triangular, Hexagonal, Semiprime ...
+153   →  Armstrong, Harshad, Triangular, Abundant, ...
+1729  →  Taxicab (Hardy-Ramanujan), Carmichael, Zeisel, ...
+28    →  Perfect, Triangular, Hexagonal, Semiprime, ...
 ```
 
-Over **3000 named number types** are supported, with instant lookup, no external dependencies, and a fully typed API.
+Try it in your browser: **[numclassify Playground](https://aratrikghosh2011-tech.github.io/numclassify/playground.html)**
 
 ---
 
@@ -36,13 +26,7 @@ Over **3000 named number types** are supported, with instant lookup, no external
 pip install numclassify
 ```
 
-To install from source in editable mode:
-
-```bash
-git clone https://github.com/aratrikghosh2011-tech/numclassify.git
-cd numclassify
-pip install -e .
-```
+Python 3.8+ required. No external dependencies.
 
 ---
 
@@ -52,32 +36,29 @@ pip install -e .
 import numclassify as nc
 
 # Boolean checks
-nc.is_prime(17)            # True
-nc.is_perfect(28)          # True
+nc.is_prime(17)       # True
+nc.is_perfect(28)     # True
 
-# Classify a single number
+# Classify a single number — returns number, true properties, and a score
 nc.classify(1729)
 # {'number': 1729, 'true_properties': ['Taxicab', 'Carmichael', ...], 'score': 22}
 
-# Classify multiple numbers at once
+# Batch classify
 nc.classify_batch([6, 28, 496])
 
-# Query by property
+# Find numbers in a range with a given property
 nc.find_by_property(start=1, end=1000, Perfect=True)
 # [6, 28, 496]
 
-# Memory-safe streaming over large ranges
+# Stream over large ranges without loading everything into memory
 for result in nc.stream(1, 1_000_000):
     if result['score'] > 30:
         print(result)
 
-# Random number classification
-nc.random_number()
-
 # All true properties of a number
 nc.get_true_properties(1729)
 
-# Pretty-print everything
+# Pretty-print a formatted table
 nc.print_properties(153)
 # ┌─────────────────────────────────────────┐
 # │  Properties of 153                      │
@@ -93,64 +74,27 @@ nc.print_properties(153)
 
 ## CLI
 
-numclassify ships with a fully-featured command-line interface.
-
-**Check a number:**
 ```bash
-$ numclassify check 1729
-1729 properties:
-  taxicab         ✓
-  carmichael      ✓
-  zeisel          ✓
-  odd             ✓
-  deficient       ✓
-  squarefree      ✓
-```
+# Classify a number
+numclassify check 1729
 
-**JSON output (pipe-friendly):**
-```bash
-$ numclassify check 153 --json
-{"armstrong": true, "harshad": true, "triangular": true, "abundant": true, ...}
-```
+# JSON output for piping
+numclassify check 153 --json
 
-**Find numbers of a type:**
-```bash
-$ numclassify find armstrong --limit 10
-1, 2, 3, 4, 5, 6, 7, 8, 9, 153
-```
+# Find numbers of a type
+numclassify find armstrong --limit 10
 
-**Filter a range:**
-```bash
-$ numclassify range 1 20 --filter prime
-2, 3, 5, 7, 11, 13, 17, 19
-```
+# Filter a range
+numclassify range 1 20 --filter prime
 
-**Compare two numbers:**
-```bash
-$ numclassify compare 6 28
-Comparing 6 and 28
-──────────────────
-Shared (13): Perfect, Triangular, Hexagonal, ...
-Only in 6 (21): Armstrong, Factorial, Palindrome, ...
-Only in 28 (8): Happy, Keith, Padovan, ...
-```
+# Compare two numbers
+numclassify compare 6 28
 
-**List all registered types in a category:**
-```bash
-$ numclassify list --category primes
-twin_prime, mersenne_prime, sophie_germain_prime, safe_prime,
-wilson_prime, fermat_prime, ... (41 total)
-```
+# List all types in a category
+numclassify list --category primes
 
-**Get info about a type:**
-```bash
-$ numclassify info armstrong
-Name:        armstrong
-Category:    digital_invariants
-Description: A number equal to the sum of its digits each raised to the power
-             of the number of digits. Also called narcissistic numbers.
-OEIS:        A005188
-Examples:    1, 2, 3, 153, 370, 371, 407, 1634, 8208, 9474
+# Get info and OEIS reference for a type
+numclassify info armstrong
 ```
 
 ---
@@ -159,23 +103,23 @@ Examples:    1, 2, 3, 153, 370, 371, 407, 1634, 8208, 9474
 
 | Category | Count | Examples |
 |---|---|---|
-| Polygonal (figurate) | 998 | Triangular, Square, Pentagonal, Chiliagonal |
-| Centered Polygonal | 998 | Centered Triangular, Centered Hexagonal |
+| Polygonal figurate | ~998 | Triangular, Square, Pentagonal, Chiliagonal |
+| Centered polygonal | ~998 | Centered Triangular, Centered Hexagonal |
 | Prime families | 41 | Twin, Mersenne, Sophie Germain, Wilson, Safe |
 | Digital invariants | 10 | Armstrong, Spy, Harshad, Disarium, Happy, Neon |
 | Divisor-based | 27 | Perfect, Abundant, Weird, Amicable, Practical |
 | Sequences | 15 | Fibonacci, Lucas, Catalan, Bell, Padovan |
 | Powers | 13 | Perfect Square, Taxicab, Sum of Two Squares |
 | Number theory | 14 | Evil, Carmichael, Keith, Autobiographical |
-| Combinatorial | 10 | Factorial, Primorial, Subfactorial, Catalan |
+| Combinatorial | 10 | Factorial, Primorial, Subfactorial |
 | Recreational | 5 | Kaprekar, Automorphic, Palindrome |
 | **Total** | **3000+** | |
 
 ---
 
-## Adding Custom Number Types
+## Custom Types
 
-The `@register` decorator lets you define and integrate your own number types in a few lines. Once registered, the type is automatically available through the full API and CLI.
+The `@register` decorator lets you add your own number types. Once registered, the type appears everywhere — `classify()`, `find_by_property()`, the CLI, all of it.
 
 ```python
 from numclassify import register
@@ -185,17 +129,11 @@ def is_my_type(n: int) -> bool:
     return n > 0 and n % 7 == 0 and str(n)[0] == "4"
 
 import numclassify as nc
-nc.is_my_type(49)              # False  (doesn't start with 4)
-nc.is_my_type(42)              # True
-nc.get_true_properties(42)     # [..., 'my_type', ...]
+nc.is_my_type(42)           # True
+nc.get_true_properties(42)  # [..., 'my_type', ...]
 ```
 
-See the [`examples/`](examples/) folder for runnable scripts demonstrating all major features:
-- [`basic_usage.py`](examples/basic_usage.py) — classify, batch, streaming
-- [`custom_type.py`](examples/custom_type.py) — registering custom types
-- [`find_perfect_numbers.py`](examples/find_perfect_numbers.py) — property-based search
-- [`stream_large_range.py`](examples/stream_large_range.py) — memory-safe range streaming
-- [`random_classify.py`](examples/random_classify.py) — random number classification
+See [`examples/`](examples/) for runnable scripts covering all major features.
 
 ---
 
@@ -203,29 +141,24 @@ See the [`examples/`](examples/) folder for runnable scripts demonstrating all m
 
 | Function | Description |
 |---|---|
-| `register(name, category, ...)` | Decorator to add custom number types to the full API |
-| `classify(n)` | Returns a dict with the number, its true properties, and a score |
-| `classify_batch(numbers)` | Classify a list of numbers; returns a list of dicts |
-| `random_number(max_n)` | Classify a randomly selected number up to `max_n` |
-| `find_by_property(start, end, **filters)` | Find numbers in a range matching given property filters |
-| `stream(start, end)` | Generator yielding classify results one at a time; memory-safe |
-| `is_prime(n)` | Returns `True` if `n` is prime |
-| `is_armstrong(n)` | Returns `True` if `n` is an Armstrong (narcissistic) number |
-| `get_all_properties(n)` | Dict mapping every registered type to `True` or `False` |
-| `get_true_properties(n)` | List of only the properties that hold for `n` |
-| `print_properties(n)` | Pretty-prints a formatted property table to stdout |
-| `find_in_range(fn, lo, hi)` | All integers in `[lo, hi]` where `fn` returns `True` |
-| `count_properties(n)` | Number of types that apply to `n` |
-| `most_special_in_range(lo, hi)` | Number in `[lo, hi]` with the greatest count of true properties |
+| `classify(n)` | Returns `{number, true_properties, score}` |
+| `classify_batch(numbers)` | Classify a list; returns list of dicts |
+| `random_number(max_n)` | Classify a randomly selected number |
+| `find_by_property(start, end, **filters)` | Numbers in range matching property filters |
+| `stream(start, end)` | Generator — memory-safe range classification |
+| `get_all_properties(n)` | Dict of every type mapped to True/False |
+| `get_true_properties(n)` | List of True property names only |
+| `print_properties(n)` | Pretty-print property table to stdout |
+| `count_properties(n)` | Count of True properties |
+| `most_special_in_range(lo, hi)` | Number in range with the most True properties |
+| `find_in_range(fn, lo, hi)` | Numbers where `fn` returns True |
+| `find_all_in_range(lo, hi)` | Dict mapping each number to its true properties |
+| `register` | Decorator to add custom number types |
+| `is_prime(n)` | Convenience boolean |
+| `is_armstrong(n)` | Convenience boolean |
+| `is_perfect(n)` | Convenience boolean |
 
-Full API documentation: [github.com/aratrikghosh2011-tech/numclassify](https://github.com/aratrikghosh2011-tech/numclassify)
-
----
-
-## Requirements
-
-- Python 3.8 or higher
-- No external dependencies
+Full docs: [aratrikghosh2011-tech.github.io/numclassify](https://aratrikghosh2011-tech.github.io/numclassify/)
 
 ---
 
