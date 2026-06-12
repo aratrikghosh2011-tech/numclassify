@@ -5,6 +5,7 @@ let allProperties = [];
 let searchPage = 0;
 const SEARCH_PAGE_SIZE = 50;
 let searchResultsAll = [];
+let batchMode = false;
 
 // ── Utility ──────────────────────────────────────────────────────────────
 
@@ -166,20 +167,22 @@ function makeTags(props, container, delayBase = 0) {
 
 // ── Score Counter Animation ──────────────────────────────────────────────
 
-function animateScore(el, target, duration = 400) {
+function animateScore(target, duration = 400) {
+  const counter = document.querySelector('#classify-score .score-count');
+  if (!counter) return;
   const start = performance.now();
-  const startVal = 0;
   function step(now) {
     const t = Math.min((now - start) / duration, 1);
     const ease = 1 - Math.pow(1 - t, 3);
-    const current = Math.round(startVal + (target - startVal) * ease);
-    el.textContent = current + ' properties';
+    const current = Math.round(target * ease);
+    counter.textContent = current;
     if (t < 1) requestAnimationFrame(step);
     else {
-      el.textContent = target + ' properties';
-      el.classList.remove('pulse');
-      void el.offsetWidth;
-      el.classList.add('pulse');
+      counter.textContent = target;
+      const badge = $('classify-score');
+      badge.classList.remove('pulse');
+      void badge.offsetWidth;
+      badge.classList.add('pulse');
     }
   }
   requestAnimationFrame(step);
@@ -230,7 +233,7 @@ json.dumps(m)
     const ver = await pyodide.runPythonAsync('nc.__version__');
     $('version-text').textContent = ver;
   } catch(e) {
-    $('version-text').textContent = '0.3.0';
+    $('version-text').textContent = '?';
   }
 
   setProgress(100, 'Ready!');
@@ -256,6 +259,13 @@ json.dumps(m)
 
 async function doClassify(n = null) {
   if (!requireReady()) return;
+  // If no explicit number and input contains commas/spaces, go to batch mode
+  if (n === null) {
+    const raw = $('input-classify').value.trim();
+    if (raw.includes(',') || /\s/.test(raw)) {
+      return doBatchClassify();
+    }
+  }
   const val = n !== null ? n : parseInt($('input-classify').value);
   if (isNaN(val)) { toast('Enter a valid integer.'); return; }
 
@@ -271,9 +281,11 @@ json.dumps({"number": r["number"], "score": r["score"], "props": r["true_propert
 `);
     const data = JSON.parse(result);
 
+    batchMode = false;
     renderNumber($('classify-number'), data.number);
-    animateScore($('classify-score'), data.score);
+    animateScore(data.score);
     makeTags(data.props, $('classify-tags'));
+    $('batch-actions').style.display = '';
 
     const res = $('result-classify');
     res.style.display = 'block';
@@ -327,6 +339,7 @@ json.dumps(results)
 `);
     const results = JSON.parse(result);
 
+    batchMode = true;
     const res = $('result-classify');
     res.style.display = 'block';
     res.classList.remove('show');
@@ -334,7 +347,8 @@ json.dumps(results)
     res.classList.add('show');
 
     $('classify-number').innerHTML = `<span style="font-size:24px;background:none;-webkit-text-fill-color:var(--saffron);color:var(--saffron)">Batch (${results.length})</span>`;
-    $('classify-score').textContent = '';
+    $('classify-score').innerHTML = '<span class="score-count"></span>';
+    $('batch-actions').style.display = 'none';
 
     let html = '<table class="batch-table"><thead><tr><th>Number</th><th>Score</th><th>Properties</th></tr></thead><tbody>';
     results.forEach(r => {
@@ -538,6 +552,7 @@ json.dumps({"only_a": only_a, "only_b": only_b, "shared": shared})
 // ── Number of the Day ────────────────────────────────────────────────────
 
 async function computeNOTD(dateStr) {
+  if (!pyReady) return;
   try {
     if ($('notd-content')) $('notd-content').style.display = 'none';
     if ($('notd-loading')) $('notd-loading').style.display = 'block';
@@ -580,6 +595,7 @@ function onNotdDateChange(input) {
 // ── Copy & Share & Download ──────────────────────────────────────────────
 
 async function copyResults() {
+  if (batchMode) { toast('Cannot copy batch results — classify a single number first.'); return; }
   const num = $('classify-number').textContent;
   const score = $('classify-score').textContent;
   const tags = [...$('classify-tags').querySelectorAll('.tag')].map(t => t.textContent).join(', ');
@@ -606,10 +622,12 @@ function shareURL() {
 }
 
 function downloadJSON() {
+  if (batchMode) { toast('Cannot download batch results — classify a single number first.'); return; }
   const num = $('classify-number').textContent;
-  const score = $('classify-score').textContent.replace(' properties', '');
+  const scoreEl = document.querySelector('#classify-score .score-count');
+  const score = scoreEl ? parseInt(scoreEl.textContent) || 0 : 0;
   const tags = [...$('classify-tags').querySelectorAll('.tag')].map(t => t.textContent);
-  const data = { number: parseInt(num) || num, score: parseInt(score) || 0, properties: tags };
+  const data = { number: parseInt(num) || num, score, properties: tags };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -648,11 +666,7 @@ function scrollToTop() {
 document.addEventListener('DOMContentLoaded', () => {
   // Enter key support
   $('input-classify')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const raw = e.target.value.trim();
-      if (raw.includes(',') || raw.includes(' ')) doBatchClassify();
-      else doClassify();
-    }
+    if (e.key === 'Enter') doClassify();
   });
   $('input-property')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') doSearch();
