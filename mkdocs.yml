@@ -19,6 +19,7 @@ nav:
   - API Reference: api.md
   - CLI: cli.md
   - Changelog: changelog.md
+  - Playground: playground.html
 
 markdown_extensions:
   - pymdownx.highlight

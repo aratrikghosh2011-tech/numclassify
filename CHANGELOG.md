@@ -6,6 +6,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.3.0] - 2026-06-12
+
+### Added
+- Interactive Playground page (docs/playground.html) powered by Pyodide
+- Classifier, property search, number comparison, random number, and Number of the Day features
+- Shareable URLs via ?n=<number> query parameter
+- Copy results to clipboard button
+- Auto-deploy GitHub Pages workflow on every push to main and on version tags
+- Version number now dynamically read from package metadata (single source of truth)
+- PyPI version and downloads badges in README
+
 ## [0.2.0] - 2026-05-11
 
 ### Added

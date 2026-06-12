@@ -1,5 +1,8 @@
 # numclassify
 
+[![PyPI version](https://img.shields.io/pypi/v/numclassify.svg?color=FF9933&style=flat-square)](https://pypi.org/project/numclassify/)
+[![PyPI downloads](https://img.shields.io/pypi/dm/numclassify.svg?color=FF9933&style=flat-square)](https://pypi.org/project/numclassify/)
+
 The most comprehensive Python library for number classification — 3000+ number types, zero dependencies.
 
 [![PyPI version](https://img.shields.io/pypi/v/numclassify)](https://pypi.org/project/numclassify/)

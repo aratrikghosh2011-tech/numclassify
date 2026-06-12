@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>numclassify Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
+<style>
+  :root {
+    --saffron: #FF9933;
+    --saffron-light: #FFB366;
+    --saffron-dark: #E6821A;
+    --saffron-glow: rgba(255, 153, 51, 0.3);
+    --saffron-faint: rgba(255, 153, 51, 0.08);
+    --bg: #0A0A0F;
+    --bg-card: #12121A;
+    --bg-input: #1A1A26;
+    --text: #F0F0F5;
+    --text-muted: #8888AA;
+    --border: rgba(255, 153, 51, 0.2);
+    --success: #4CAF7D;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,153,51,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,153,51,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: gridPulse 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes gridPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: orbFloat 12s ease-in-out infinite;
+  }
+  .orb-1 {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,153,51,0.15), transparent 70%);
+    top: -100px; right: -100px;
+    animation-delay: 0s;
+  }
+  .orb-2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,100,0,0.1), transparent 70%);
+    bottom: 100px; left: -80px;
+    animation-delay: -4s;
+  }
+  .orb-3 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(255,200,51,0.08), transparent 70%);
+    top: 50%; left: 50%;
+    animation-delay: -8s;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -20px) scale(1.05); }
+    66% { transform: translate(-20px, 15px) scale(0.95); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--saffron-faint);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--saffron);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    animation: fadeInDown 0.6s ease;
+  }
+
+  .logo-badge::before {
+    content: '●';
+    font-size: 8px;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--saffron), var(--saffron-light), #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 12px;
+    animation: fadeInDown 0.6s ease 0.1s both;
+  }
+
+  .subtitle {
+    color: var(--text-muted);
+    font-size: 16px;
+    font-weight: 400;
+    animation: fadeInDown 0.6s ease 0.2s both;
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  #loader {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .loader-text {
+    color: var(--saffron);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .progress-bar-wrap {
+    background: rgba(255,153,51,0.1);
+    border-radius: 100px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--saffron-dark), var(--saffron), var(--saffron-light));
+    border-radius: 100px;
+    width: 0%;
+    transition: width 0.4s ease;
+    box-shadow: 0 0 12px var(--saffron-glow);
+    animation: shimmer 1.5s linear infinite;
+    background-size: 200% 100%;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    margin-bottom: 20px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.5s ease both;
+  }
+
+  .card:hover {
+    border-color: var(--saffron);
+    box-shadow: 0 0 24px var(--saffron-glow);
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--saffron);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title::before {
+    content: '';
+    display: block;
+    width: 3px;
+    height: 14px;
+    background: var(--saffron);
+    border-radius: 2px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  input[type="number"], input[type="text"] {
+    flex: 1;
+    min-width: 180px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    -moz-appearance: textfield;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  input:focus {
+    border-color: var(--saffron);
+    box-shadow: 0 0 0 3px var(--saffron-glow);
+  }
+
+  .btn {
+    background: linear-gradient(135deg, var(--saffron-dark), var(--saffron));
+    color: #0A0A0F;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 24px;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px var(--saffron-glow);
+  }
+
+  .btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 13px;
+    padding: 10px 18px;
+  }
+
+  .btn-ghost:hover:not(:disabled) {
+    border-color: var(--saffron);
+    color: var(--saffron);
+    box-shadow: 0 0 16px var(--saffron-glow);
+  }
+
+  .btn-icon {
+    background: var(--saffron-faint);
+    border: 1px solid var(--border);
+    color: var(--saffron);
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 6px;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  #result-classify, #result-search, #result-compare {
+    margin-top: 20px;
+    display: none;
+  }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .number-display {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 48px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--saffron), #FFD700);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .score-badge {
+    background: var(--saffron-faint);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 4px 14px;
+    font-size: 13px;
+    color: var(--saffron);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .tags-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .tag {
+    background: var(--saffron-faint);
+    border: 1px solid rgba(255,153,51,0.25);
+    color: var(--saffron-light);
+    border-radius: 6px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.2s ease;
+    animation: tagIn 0.3s ease both;
+    cursor: default;
+  }
+
+  .tag:hover {
+    background: rgba(255,153,51,0.2);
+    border-color: var(--saffron);
+    transform: translateY(-1px);
+  }
+
+  @keyframes tagIn {
+    from { opacity: 0; transform: scale(0.9) translateY(4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .empty-state {
+    color: var(--text-muted);
+    font-size: 14px;
+    padding: 12px 0;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 560px) {
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+
+  .compare-col {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .compare-col-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--saffron);
+    margin-bottom: 8px;
+  }
+
+  .shared-section {
+    margin-top: 16px;
+    background: rgba(76, 175, 125, 0.05);
+    border: 1px solid rgba(76, 175, 125, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .shared-title {
+    color: var(--success);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+  }
+
+  .notd-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 64px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--saffron), #FFD700, var(--saffron-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    line-height: 1;
+    margin: 12px 0;
+    animation: glow 3s ease-in-out infinite;
+  }
+
+  @keyframes glow {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(1.2); }
+  }
+
+  .search-result-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .search-num {
+    background: var(--saffron-faint);
+    border: 1px solid var(--border);
+    color: var(--saffron);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .search-num:hover {
+    background: var(--saffron);
+    color: #0A0A0F;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--saffron-glow);
+  }
+
+  #toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--saffron);
+    color: #0A0A0F;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    pointer-events: none;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,153,51,0.3);
+    border-top-color: var(--saffron);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-input);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+    animation: fadeInDown 0.5s ease 0.3s both;
+  }
+
+  .tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .tab.active {
+    background: linear-gradient(135deg, var(--saffron-dark), var(--saffron));
+    color: #0A0A0F;
+    font-weight: 700;
+    box-shadow: 0 2px 8px var(--saffron-glow);
+  }
+
+  .tab:hover:not(.active) {
+    color: var(--saffron);
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  footer a {
+    color: var(--saffron);
+    text-decoration: none;
+  }
+
+  .url-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 12px;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<div class="container">
+  <header>
+    <div class="logo-badge">numclassify playground</div>
+    <h1>Number Intelligence</h1>
+    <p class="subtitle">Classify any integer into 3000+ named mathematical types — powered by real Python in your browser.</p>
+  </header>
+
+  <div id="loader">
+    <p class="loader-text" id="loader-text">⏳ Loading Python runtime...</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progress-bar"></div>
+    </div>
+  </div>
+
+  <div id="app" style="display:none;">
+
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('classify')">Classify</button>
+      <button class="tab" onclick="switchTab('search')">Search</button>
+      <button class="tab" onclick="switchTab('compare')">Compare</button>
+      <button class="tab" onclick="switchTab('notd')">Today's Number</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-classify">
+      <div class="card">
+        <div class="card-title">Classify a Number</div>
+        <div class="input-row">
+          <input type="number" id="input-classify" placeholder="Enter any integer..." min="-999999" max="999999" />
+          <button class="btn" id="btn-classify" onclick="doClassify()">Classify</button>
+          <button class="btn btn-ghost" onclick="doRandom()">Random</button>
+        </div>
+
+        <div id="result-classify">
+          <div class="divider"></div>
+          <div class="result-header">
+            <div class="number-display" id="classify-number"></div>
+            <div>
+              <span class="score-badge" id="classify-score"></span>
+            </div>
+          </div>
+          <div class="tags-wrap" id="classify-tags"></div>
+          <div class="btn-row">
+            <button class="btn btn-icon" onclick="copyResults()">📋 Copy</button>
+            <button class="btn btn-icon" onclick="shareURL()">🔗 Share</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="url-hint" id="share-hint" style="display:none;">
+        URL copied! Share: <span id="share-url-text"></span>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-search">
+      <div class="card">
+        <div class="card-title">Search by Property</div>
+        <div class="input-row">
+          <input type="text" id="input-property" placeholder="Property name (e.g. prime, perfect, triangular)..." />
+        </div>
+        <div class="input-row" style="margin-top:10px;">
+          <input type="number" id="input-range-start" placeholder="From" value="1" />
+          <input type="number" id="input-range-end" placeholder="To" value="1000" />
+          <button class="btn" onclick="doSearch()">Search</button>
+        </div>
+        <div id="result-search">
+          <div class="divider"></div>
+          <div id="search-count" style="color: var(--text-muted); font-size:13px; margin-bottom:10px;"></div>
+          <div class="search-result-list" id="search-results"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-compare">
+      <div class="card">
+        <div class="card-title">Compare Two Numbers</div>
+        <div class="input-row">
+          <input type="number" id="input-compare-a" placeholder="First number..." />
+          <input type="number" id="input-compare-b" placeholder="Second number..." />
+          <button class="btn" onclick="doCompare()">Compare</button>
+        </div>
+        <div id="result-compare">
+          <div class="divider"></div>
+          <div class="compare-grid">
+            <div class="compare-col">
+              <div class="compare-col-title" id="compare-title-a"></div>
+              <div class="tags-wrap" id="compare-only-a"></div>
+            </div>
+            <div class="compare-col">
+              <div class="compare-col-title" id="compare-title-b"></div>
+              <div class="tags-wrap" id="compare-only-b"></div>
+            </div>
+          </div>
+          <div class="shared-section">
+            <div class="shared-title">Shared Properties</div>
+            <div class="tags-wrap" id="compare-shared"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-notd">
+      <div class="card">
+        <div class="card-title">Number of the Day</div>
+        <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">
+          A new number every day, seeded by today's date.
+        </p>
+        <div id="notd-loading" style="color: var(--saffron); font-family: 'JetBrains Mono', monospace; font-size: 14px;">
+          <span class="spinner"></span> Computing...
+        </div>
+        <div id="notd-content" style="display:none;">
+          <div class="notd-number" id="notd-number"></div>
+          <div class="tags-wrap" id="notd-tags" style="justify-content: center;"></div>
+          <div class="btn-row" style="justify-content: center; margin-top: 16px;">
+            <button class="btn btn-ghost" onclick="classifyNotd()">Full Classify</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>Built with <a href="https://pypi.org/project/numclassify/" target="_blank">numclassify</a> + <a href="https://pyodide.org" target="_blank">Pyodide</a> — Python running natively in your browser.</p>
+    <p style="margin-top: 8px;"><a href="https://github.com/aratrikghosh2011-tech/numclassify" target="_blank">GitHub</a> · <a href="." target="_blank">Docs</a></p>
+  </footer>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let pyodide = null;
+let pyReady = false;
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['classify', 'search', 'compare', 'notd'];
+    t.classList.toggle('active', names[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function toast(msg, duration = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), duration);
+}
+
+function setProgress(pct, text) {
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('loader-text').textContent = text;
+}
+
+async function initPyodide() {
+  setProgress(10, '⏳ Loading Python runtime (one-time, ~10MB)...');
+  pyodide = await loadPyodide();
+
+  setProgress(50, '📦 Loading micropip...');
+  await pyodide.loadPackage('micropip');
+
+  setProgress(70, '🔢 Installing numclassify...');
+  await pyodide.runPythonAsync(`
+import micropip
+await micropip.install('numclassify')
+import numclassify as nc
+import json, random, math
+`);
+
+  setProgress(100, '✅ Ready!');
+  await new Promise(r => setTimeout(r, 400));
+
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  pyReady = true;
+
+  const params = new URLSearchParams(window.location.search);
+  const n = params.get('n');
+  if (n !== null && !isNaN(parseInt(n))) {
+    document.getElementById('input-classify').value = n;
+    doClassify();
+  }
+
+  computeNOTD();
+}
+
+function requireReady() {
+  if (!pyReady) { toast('Python still loading...'); return false; }
+  return true;
+}
+
+function makeTags(props, container, delayBase = 0) {
+  container.innerHTML = '';
+  if (!props.length) {
+    container.innerHTML = '<span class="empty-state">No matching properties found.</span>';
+    return;
+  }
+  props.forEach((p, i) => {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = p.replace(/_/g, ' ');
+    tag.style.animationDelay = (delayBase + i * 18) + 'ms';
+    container.appendChild(tag);
+  });
+}
+
+async function doClassify(n = null) {
+  if (!requireReady()) return;
+  const val = n !== null ? n : parseInt(document.getElementById('input-classify').value);
+  if (isNaN(val)) { toast('Enter a valid integer.'); return; }
+
+  const btn = document.getElementById('btn-classify');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Classifying...';
+
+  try {
+    const result = await pyodide.runPythonAsync(`
+import json
+r = nc.classify(${val})
+json.dumps({"number": r["number"], "score": r["score"], "props": r["true_properties"]})
+`);
+    const data = JSON.parse(result);
+
+    document.getElementById('classify-number').textContent = data.number;
+    document.getElementById('classify-score').textContent = `${data.score} properties`;
+    makeTags(data.props, document.getElementById('classify-tags'));
+
+    const res = document.getElementById('result-classify');
+    res.style.display = 'block';
+
+    const url = new URL(window.location);
+    url.searchParams.set('n', val);
+    window.history.replaceState({}, '', url);
+
+  } catch(e) {
+    toast('Error: ' + e.message.slice(0, 80));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Classify';
+  }
+}
+
+async function doRandom() {
+  if (!requireReady()) return;
+  const n = await pyodide.runPythonAsync(`nc.random_number()["number"]`);
+  document.getElementById('input-classify').value = n;
+  await doClassify(n);
+}
+
+async function doSearch() {
+  if (!requireReady()) return;
+  const prop = document.getElementById('input-property').value.trim();
+  const start = parseInt(document.getElementById('input-range-start').value) || 1;
+  const end = parseInt(document.getElementById('input-range-end').value) || 1000;
+
+  if (!prop) { toast('Enter a property name.'); return; }
+  if (end - start > 10000) { toast('Range too large. Max 10000.'); return; }
+
+  document.getElementById('search-count').innerHTML = '<span class="spinner"></span> Searching...';
+  document.getElementById('result-search').style.display = 'block';
+  document.getElementById('search-results').innerHTML = '';
+
+  try {
+    const result = await pyodide.runPythonAsync(`
+import json
+nums = [n for n in range(${start}, ${end}+1) if nc.get_all_properties(n).get("${prop.replace(/"/g, '')}", False)]
+json.dumps(nums[:200])
+`);
+    const nums = JSON.parse(result);
+    document.getElementById('search-count').textContent =
+      `Found ${nums.length} numbers${nums.length === 200 ? ' (showing first 200)' : ''} with property "${prop}"`;
+
+    const container = document.getElementById('search-results');
+    if (!nums.length) {
+      container.innerHTML = '<span class="empty-state">No numbers found. Check the property name (use underscores, e.g. "triangular_number").</span>';
+      return;
+    }
+    nums.forEach(n => {
+      const el = document.createElement('div');
+      el.className = 'search-num';
+      el.textContent = n;
+      el.onclick = () => {
+        document.getElementById('input-classify').value = n;
+        switchTab('classify');
+        doClassify(n);
+      };
+      container.appendChild(el);
+    });
+  } catch(e) {
+    toast('Error: ' + e.message.slice(0, 80));
+    document.getElementById('search-count').textContent = 'Error during search.';
+  }
+}
+
+async function doCompare() {
+  if (!requireReady()) return;
+  const a = parseInt(document.getElementById('input-compare-a').value);
+  const b = parseInt(document.getElementById('input-compare-b').value);
+  if (isNaN(a) || isNaN(b)) { toast('Enter two valid integers.'); return; }
+
+  try {
+    const result = await pyodide.runPythonAsync(`
+import json
+pa = set(nc.get_true_properties(${a}))
+pb = set(nc.get_true_properties(${b}))
+shared = sorted(pa & pb)
+only_a = sorted(pa - pb)
+only_b = sorted(pb - pa)
+json.dumps({"only_a": only_a, "only_b": only_b, "shared": shared})
+`);
+    const data = JSON.parse(result);
+
+    document.getElementById('compare-title-a').textContent = a;
+    document.getElementById('compare-title-b').textContent = b;
+    makeTags(data.only_a, document.getElementById('compare-only-a'));
+    makeTags(data.only_b, document.getElementById('compare-only-b'));
+    makeTags(data.shared, document.getElementById('compare-shared'));
+
+    document.getElementById('result-compare').style.display = 'block';
+  } catch(e) {
+    toast('Error: ' + e.message.slice(0, 80));
+  }
+}
+
+async function computeNOTD() {
+  try {
+    const result = await pyodide.runPythonAsync(`
+import json, math
+today = __import__('datetime').date.today()
+seed = today.year * 10000 + today.month * 100 + today.day
+__import__('random').seed(seed)
+n = __import__('random').randint(1, 9999)
+r = nc.classify(n)
+json.dumps({"number": r["number"], "score": r["score"], "props": r["true_properties"][:12]})
+`);
+    const data = JSON.parse(result);
+    document.getElementById('notd-number').textContent = data.number;
+    makeTags(data.props, document.getElementById('notd-tags'));
+    document.getElementById('notd-loading').style.display = 'none';
+    document.getElementById('notd-content').style.display = 'block';
+  } catch(e) {
+    document.getElementById('notd-loading').textContent = 'Could not compute today\'s number.';
+  }
+}
+
+function classifyNotd() {
+  const n = parseInt(document.getElementById('notd-number').textContent);
+  document.getElementById('input-classify').value = n;
+  switchTab('classify');
+  doClassify(n);
+}
+
+async function copyResults() {
+  const num = document.getElementById('classify-number').textContent;
+  const score = document.getElementById('classify-score').textContent;
+  const tags = [...document.getElementById('classify-tags').querySelectorAll('.tag')].map(t => t.textContent).join(', ');
+  const text = `numclassify: ${num}\n${score}\n\n${tags}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    toast('Copied to clipboard!');
+  } catch {
+    toast('Copy failed — try selecting manually.');
+  }
+}
+
+function shareURL() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    const hint = document.getElementById('share-hint');
+    document.getElementById('share-url-text').textContent = url;
+    hint.style.display = 'inline-block';
+    toast('Share URL copied!');
+    setTimeout(() => hint.style.display = 'none', 5000);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('input-classify')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doClassify();
+  });
+  document.getElementById('input-property')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSearch();
+  });
+  document.getElementById('input-compare-b')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doCompare();
+  });
+  initPyodide();
+});
+</script>
+</body>
+</html>

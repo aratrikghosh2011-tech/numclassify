@@ -28,7 +28,11 @@ Public API
 from __future__ import annotations
 del annotations
 
-__version__ = "0.2.1"
+from importlib.metadata import version as _version, PackageNotFoundError as _PackageNotFoundError
+try:
+    __version__ = _version("numclassify")
+except _PackageNotFoundError:
+    __version__ = "0.0.0"
 
 # --- Import all _core submodules so @register decorators fire at import time ---
 from numclassify._core import primes as _primes        # noqa: F401
