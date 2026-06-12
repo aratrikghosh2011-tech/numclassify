@@ -286,6 +286,7 @@ json.dumps({"number": r["number"], "score": r["score"], "props": r["true_propert
     animateScore(data.score);
     makeTags(data.props, $('classify-tags'));
     $('batch-actions').style.display = '';
+    if (data.score > 50) burstConfetti();
 
     const res = $('result-classify');
     res.style.display = 'block';
@@ -661,6 +662,113 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// ── Search Autocomplete ───────────────────────────────────────────────────
+
+function setupAutocomplete() {
+  const input = $('input-property');
+  if (!input) return;
+  const dropdown = $('ac-dropdown');
+  let selectedIdx = -1;
+
+  input.addEventListener('input', () => {
+    const val = input.value.trim().toLowerCase();
+    if (!val) { dropdown.classList.remove('open'); return; }
+    const matches = allProperties
+      .filter(p => p.includes(val))
+      .slice(0, 10);
+    if (!matches.length) { dropdown.classList.remove('open'); return; }
+    selectedIdx = -1;
+    dropdown.innerHTML = matches.map((p, i) =>
+      `<div class="ac-item${i === 0 ? ' selected' : ''}" data-prop="${p}" onclick="pickAutocomplete('${p}')">
+        ${p.replace(/_/g, ' ')}
+        <span class="ac-cat">${(categoryMap[p] || '').replace(/_/g, ' ')}</span>
+      </div>`
+    ).join('');
+    dropdown.classList.add('open');
+  });
+
+  input.addEventListener('keydown', e => {
+    const items = dropdown.querySelectorAll('.ac-item');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      selectedIdx = Math.min(selectedIdx + 1, items.length - 1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      selectedIdx = Math.max(selectedIdx - 1, -1);
+    } else if (e.key === 'Enter' && selectedIdx >= 0) {
+      e.preventDefault();
+      items[selectedIdx].click();
+      return;
+    } else return;
+    items.forEach((el, i) => el.classList.toggle('selected', i === selectedIdx));
+  });
+
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('open');
+    }
+  });
+}
+
+function pickAutocomplete(prop) {
+  $('input-property').value = prop;
+  $('ac-dropdown').classList.remove('open');
+  doSearch();
+}
+
+// ── Confetti ──────────────────────────────────────────────────────────────
+
+function burstConfetti() {
+  const container = document.createElement('div');
+  container.className = 'confetti-container';
+  const colors = ['#FF9933', '#FF6B6B', '#4ECDC4', '#45B7D1', '#F7DC6F', '#DDA0DD', '#98D8C8', '#BB8FCE', '#FFEAA7', '#4CAF7D'];
+  for (let i = 0; i < 80; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    const size = 4 + Math.random() * 8;
+    piece.style.width = size + 'px';
+    piece.style.height = size + 'px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.left = Math.random() * 100 + '%';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+    piece.style.animationDelay = Math.random() * 0.5 + 's';
+    container.appendChild(piece);
+  }
+  document.body.appendChild(container);
+  setTimeout(() => container.remove(), 3500);
+}
+
+// ── Keyboard Shortcuts ────────────────────────────────────────────────────
+
+const SHORTCUT_MAP = {
+  c: 'classify',
+  s: 'search',
+  n: 'notd',
+};
+
+function setupShortcuts() {
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    const key = e.key.toLowerCase();
+    if (key === '?' || key === 'h') {
+      e.preventDefault();
+      $('shortcuts-overlay').classList.toggle('open');
+      return;
+    }
+    const tab = SHORTCUT_MAP[key];
+    if (tab) {
+      e.preventDefault();
+      switchTab(tab);
+    }
+  });
+}
+
+function closeShortcuts() {
+  $('shortcuts-overlay').classList.remove('open');
+}
+
 // ── Init ─────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -682,5 +790,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if ($('theme-icon')) $('theme-icon').textContent = savedTheme === 'light' ? '☀️' : '🌙';
   }
 
+  setupAutocomplete();
+  setupShortcuts();
   initPyodide();
 });

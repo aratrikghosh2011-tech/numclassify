@@ -88,7 +88,10 @@
       <div class="card">
         <div class="card-title">Search by Property</div>
         <div class="input-row">
-          <input type="text" id="input-property" placeholder="Property name (e.g. prime, perfect, triangular)..." />
+          <div class="autocomplete-wrap">
+            <input type="text" id="input-property" placeholder="Property name (e.g. prime, perfect, triangular)..." autocomplete="off" />
+            <div id="ac-dropdown"></div>
+          </div>
         </div>
         <div class="input-row" style="margin-top:10px;">
           <input type="number" id="input-range-start" placeholder="From" value="1" />
@@ -165,6 +168,17 @@
 
 <button id="scroll-top" onclick="scrollToTop()" title="Scroll to top">&uarr;</button>
 <div id="toast"></div>
+
+<div class="shortcuts-overlay" id="shortcuts-overlay" onclick="closeShortcuts()">
+  <div class="shortcuts-panel" onclick="event.stopPropagation()">
+    <h2>Keyboard Shortcuts</h2>
+    <div class="shortcut-row"><span class="sk-key">C</span><span class="sk-desc">Classify tab</span></div>
+    <div class="shortcut-row"><span class="sk-key">S</span><span class="sk-desc">Search tab</span></div>
+    <div class="shortcut-row"><span class="sk-key">N</span><span class="sk-desc">Number of the Day</span></div>
+    <div class="shortcut-row"><span class="sk-key">?</span><span class="sk-desc">Toggle this panel</span></div>
+    <button class="btn shortcuts-close" onclick="closeShortcuts()">Close</button>
+  </div>
+</div>
 
 <script src="playground.js"></script>
 </body>
