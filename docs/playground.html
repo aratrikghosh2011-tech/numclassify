@@ -45,7 +45,7 @@
       <div class="card">
         <div class="card-title">Classify a Number</div>
         <div class="input-row">
-          <input type="number" id="input-classify" placeholder="Enter any integer... (or 6, 28, 496 for batch)" min="-999999" max="999999" />
+          <input type="text" id="input-classify" inputmode="numeric" pattern="-?[0-9\s,]*" placeholder="Enter any integer... (or 6, 28, 496 for batch)" />
           <button class="btn" id="btn-classify" onclick="doClassify()">Classify</button>
           <button class="btn btn-ghost" onclick="doRandom()">Random</button>
         </div>

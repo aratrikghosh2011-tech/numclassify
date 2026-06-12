@@ -9,7 +9,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 ## [0.3.2.1] - 2026-06-12
 
 ### Fixed
+- Batch classify input rejected commas/spaces — changed `type="number"` to `type="text"` with `inputmode="numeric"`
 - Search autocomplete dropdown not appearing — added fallback fetch of property names if initial Pyodide load fails, plus visible "Loading..." state in dropdown
+
+### Changed
+- MkDocs site theme changed from indigo to saffron (#FF9933) via custom CSS
 
 ## [0.3.2] - 2026-06-12
 

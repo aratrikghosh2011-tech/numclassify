@@ -10,3 +10,4 @@ dist/
 .env
 .venv 
 site/
+.offline-markdown-preview/
