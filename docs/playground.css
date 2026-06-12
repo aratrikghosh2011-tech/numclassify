@@ -136,6 +136,21 @@ header {
   box-shadow: 0 0 12px var(--saffron-glow);
 }
 
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 100px;
+  padding: 3px 12px;
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  letter-spacing: 0.03em;
+}
+
 .logo-badge {
   display: inline-flex;
   align-items: center;

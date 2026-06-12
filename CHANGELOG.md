@@ -6,6 +6,35 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.3.1] - 2026-06-12
+
+### Added
+- Version number displayed on playground page (fetched live from installed package)
+- Category-colored tags on playground (distinct accent color per property category)
+- Batch classify — enter comma/space-separated numbers for a mini-table of results
+- Recent classification history panel (last 20 numbers, persisted in localStorage)
+- Property tooltips on tag hover (shows category name)
+- Fuzzy search suggestion ("Did you mean X?") on property misspellings
+- Search pagination with "Load More" button (50 results per page)
+- Number of the Day date picker — pick any past date for that day's number
+- Scroll-to-top floating button (appears after 400px scroll)
+- Light theme toggle (sun/moon button, saved to localStorage)
+- Download classification results as JSON file
+- Keyboard shortcut hints displayed on buttons
+
+### Changed
+- Split playground.html into 3 files: HTML skeleton, CSS (~1000 lines), JS (~660 lines)
+- Tab switching now has slide-in animation (translateX + opacity)
+- Result panels slide up on reveal (translateY + opacity)
+- Score counter animates from 0 to final count (cubic ease-out, 400ms)
+- Number digits fade in sequentially (40ms stagger per digit)
+- Score badge pulses green on update
+- Tags enter with random rotation (-3° to +3°) per tag
+- Search results stagger in with 25ms delay per item
+- Buttons have click ripple effect (radial gradient at cursor position)
+- Toast slides in from the right instead of appearing in place
+- All backgrounds and text colors transition smoothly on theme switch
+
 ## [0.3.0] - 2026-06-12
 
 ### Added

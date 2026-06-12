@@ -225,6 +225,14 @@ json.dumps(m)
     console.warn('Could not load category map', e);
   }
 
+  // Fetch version number
+  try {
+    const ver = await pyodide.runPythonAsync('nc.__version__');
+    $('version-text').textContent = ver;
+  } catch(e) {
+    $('version-text').textContent = '0.3.0';
+  }
+
   setProgress(100, 'Ready!');
   await new Promise(r => setTimeout(r, 400));
 
