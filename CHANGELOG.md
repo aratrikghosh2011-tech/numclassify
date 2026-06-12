@@ -6,6 +6,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.3.2] - 2026-06-12
+
+### Added
+- Search autocomplete dropdown — suggests property names as you type in the search field
+- Confetti celebration burst when a number scores >50 properties
+- Keyboard shortcuts: `C` (classify), `S` (search), `N` (Number of the Day), `?`/`H` (show shortcuts overlay)
+- `prefers-reduced-motion` support — disables all animations for accessibility
+
+### Fixed
+- No bugs reported since v0.3.1
+
 ## [0.3.1] - 2026-06-12
 
 ### Added
