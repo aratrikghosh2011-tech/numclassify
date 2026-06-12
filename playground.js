@@ -676,13 +676,43 @@ function setupAutocomplete() {
   const dropdown = $('ac-dropdown');
   let selectedIdx = -1;
 
-  input.addEventListener('input', () => {
+  input.addEventListener('input', async () => {
     const val = input.value.trim().toLowerCase();
     if (!val) { dropdown.classList.remove('open'); return; }
+
+    // Fallback: if allProperties is empty (Pyodide category fetch failed), try on-the-fly
+    if (!allProperties.length && pyReady && pyodide) {
+      try {
+        const sample = await pyodide.runPythonAsync(`
+import json
+from numclassify._registry import REGISTRY
+keys = list(REGISTRY.keys())
+json.dumps(keys)
+`);
+        const keys = JSON.parse(sample);
+        if (keys.length) {
+          allProperties = keys;
+          categoryMap = {};
+          keys.forEach(k => { categoryMap[k] = ''; });
+          console.log('Autocomplete: fallback loaded', keys.length, 'properties');
+        }
+      } catch(e) {
+        console.warn('Autocomplete fallback failed', e);
+      }
+    }
+
     const matches = allProperties
       .filter(p => p.includes(val))
       .slice(0, 10);
-    if (!matches.length) { dropdown.classList.remove('open'); return; }
+    if (!matches.length) {
+      if (!allProperties.length) {
+        dropdown.innerHTML = '<div class="ac-item" style="cursor:default;color:var(--text-muted)">Loading properties...</div>';
+        dropdown.classList.add('open');
+      } else {
+        dropdown.classList.remove('open');
+      }
+      return;
+    }
     selectedIdx = -1;
     dropdown.innerHTML = matches.map((p, i) =>
       `<div class="ac-item${i === 0 ? ' selected' : ''}" data-prop="${p}" onclick="pickAutocomplete('${p}')">
