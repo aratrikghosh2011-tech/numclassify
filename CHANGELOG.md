@@ -6,6 +6,25 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.3.3] - 2026-06-13
+
+### Added
+- 8 new exam number types in `numclassify/_core/exam_types.py`:
+  Strong, Sunny, Buzz, Magic, Fascinating, Trimorphic, Twisted Prime, Unique
+- `classify()` now returns a `"categories"` dict grouping true properties by category
+- `classify()` true_properties list is now sorted by category then name
+- `stream()` now accepts `min_score` and `has_property` filter parameters
+- `most_special_in_range()` now accepts `verbose=True` for progress output
+- `find_any_in_range()` exported in public API (was implemented but not accessible)
+- Auto-generated crash tests: every registered type tested on inputs 0, 1, 2, -1
+
+### Fixed
+- Removed dead `else` branch in `classify()` (unreachable code)
+- Removed `del annotations` no-op in `__init__.py`
+- Fixed wrong docstring example in `is_leyland_prime` (593 is True, not False)
+- Removed dead `pass` block in `is_centered_k_gonal` in `figurate.py`
+- Documented `is_sociable` cycle detection cap (chains > 6 not detected)
+
 ## [0.3.2.1] - 2026-06-12
 
 ### Fixed

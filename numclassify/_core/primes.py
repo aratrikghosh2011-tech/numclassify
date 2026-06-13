@@ -799,8 +799,8 @@ def is_leyland_prime(n: int) -> bool:
     -------
     >>> is_leyland_prime(17)    # 2^3 + 3^2 = 8 + 9 = 17
     True
-    >>> is_leyland_prime(593)   # 2^7 + 7^2 = 128 + 49... wait, that's 177
-    False
+    >>> is_leyland_prime(593)   # 2^9 + 9^2 = 512 + 81 = 593
+    True
     >>> is_leyland_prime(32993) # 2^15 + 15^2 ... verified Leyland prime
     True
 

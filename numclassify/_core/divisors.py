@@ -273,7 +273,7 @@ def is_amicable(n: int) -> bool:
 
 
 @register(name="Sociable", category="divisors", oeis="A003416",
-          description="Part of an aliquot cycle of length > 2 (checked up to length 6).")
+          description="Part of an aliquot cycle of length 3–6 (longer chains not detected).")
 def is_sociable(n: int) -> bool:
     """Return True if n is part of a sociable cycle of length 3–6.
 

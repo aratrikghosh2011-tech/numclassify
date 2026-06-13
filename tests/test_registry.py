@@ -346,3 +346,33 @@ def test_is_keith():
 def test_is_factorial():
     assert is_factorial(24) is True
     assert is_factorial(25) is False
+
+
+# ---------------------------------------------------------------------------
+# Auto-generated crash tests — every registered type, 4 inputs
+# ---------------------------------------------------------------------------
+
+def _get_all_registered_funcs():
+    """Return list of (name, func) for every canonical registry entry."""
+    from numclassify._registry import REGISTRY, _normalize
+    seen = set()
+    result = []
+    for key, entry in REGISTRY.items():
+        if key == _normalize(entry.name):  # canonical key only
+            if key not in seen:
+                seen.add(key)
+                result.append((entry.name, entry.func))
+    return result
+
+
+@pytest.mark.parametrize("name,func", _get_all_registered_funcs())
+@pytest.mark.parametrize("n", [0, 1, 2, -1])
+def test_no_crash_on_edge_inputs(name, func, n):
+    """Every registered type must not raise on inputs 0, 1, 2, -1."""
+    try:
+        result = func(n)
+        assert isinstance(result, bool), (
+            f"{name}({n}) returned {type(result)}, expected bool"
+        )
+    except Exception as e:
+        pytest.fail(f"{name}({n}) raised {type(e).__name__}: {e}")

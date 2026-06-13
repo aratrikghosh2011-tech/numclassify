@@ -26,7 +26,6 @@ Public API
 """
 
 from __future__ import annotations
-del annotations
 
 from importlib.metadata import version as _version, PackageNotFoundError as _PackageNotFoundError
 try:
@@ -44,6 +43,7 @@ from numclassify._core import sequences as _sequences     # noqa: F401
 from numclassify._core import powers as _powers        # noqa: F401
 from numclassify._core import number_theory as _number_theory # noqa: F401
 from numclassify._core import combinatorial as _combinatorial # noqa: F401
+from numclassify._core import exam_types as _exam_types      # noqa: F401
 
 # --- Re-export key functions at top level ---
 from numclassify._core.primes import is_prime         # noqa: F401
@@ -56,6 +56,7 @@ from numclassify._registry import (                   # noqa: F401
     print_properties,
     find_in_range,
     find_all_in_range,
+    find_any_in_range,
     count_properties,
     most_special_in_range,
 )
@@ -86,20 +87,35 @@ def classify(n: int) -> dict:
     -------
     {
         "number": n,
-        "true_properties": [list of property names that are True],
-        "score": int,   # count of True properties
+        "true_properties": [list of property names that are True, sorted by category],
+        "score": int,
+        "categories": {category_name: [list of property names]},
     }
     """
-    raw = get_true_properties(n)
-    if isinstance(raw, dict):
-        true_props = [k for k, v in raw.items() if v]
-    else:
-        true_props = list(raw)
+    from numclassify._registry import REGISTRY, _normalize
+
+    all_props = get_all_properties(n)
+    true_props_with_cat = []
+    for name, val in all_props.items():
+        if val:
+            key = _normalize(name)
+            cat = REGISTRY[key].category if key in REGISTRY else "other"
+            true_props_with_cat.append((name, cat))
+
+    # Sort by category then name
+    true_props_with_cat.sort(key=lambda x: (x[1], x[0]))
+    true_props = [name for name, _ in true_props_with_cat]
+
+    # Build categories dict
+    categories: dict = {}
+    for name, cat in true_props_with_cat:
+        categories.setdefault(cat, []).append(name)
 
     return {
         "number": n,
         "true_properties": true_props,
         "score": len(true_props),
+        "categories": categories,
     }
 
 
@@ -150,10 +166,48 @@ def find_by_property(start: int = 1, end: int = 1000,
     return results
 
 
-def stream(start: int, end: int):
-    """Generator. Yields classify(n) for each n in [start, end]. Memory-safe for large ranges."""
+from typing import Optional
+
+def stream(start: int, end: int, min_score: int = 0, has_property: Optional[str] = None):
+    """Generator. Yields classify(n) for each n in [start, end]. Memory-safe.
+
+    Parameters
+    ----------
+    start, end : int
+        Inclusive range.
+    min_score : int, optional
+        Only yield results with score >= min_score. Default 0 (yield all).
+    has_property : str, optional
+        Only yield results where this property is True.
+        Accepts any registered property name (case-insensitive, spaces or underscores).
+
+    Example
+    -------
+    # Only numbers with more than 20 true properties
+    for result in nc.stream(1, 10000, min_score=20):
+        print(result)
+
+    # Only fibonacci numbers in a range
+    for result in nc.stream(1, 1000, has_property='fibonacci'):
+        print(result['number'])
+    """
+    from numclassify._registry import REGISTRY, _normalize, get_all_properties as _gap
+
+    prop_key = _normalize(has_property) if has_property else None
+
     for n in range(start, end + 1):
-        yield classify(n)
+        result = classify(n)
+        if result["score"] < min_score:
+            continue
+        if prop_key is not None:
+            props = _gap(n)
+            # find by normalized key
+            matched = any(
+                _normalize(k) == prop_key for k, v in props.items() if v
+            )
+            if not matched:
+                continue
+        yield result
 
 
 # ---------------------------------------------------------------------------
@@ -170,6 +224,7 @@ __all__ = [
     "print_properties",
     "find_in_range",
     "find_all_in_range",
+    "find_any_in_range",
     "count_properties",
     "most_special_in_range",
     "classify",
@@ -182,4 +237,4 @@ __all__ = [
 # Clean up internal names that leak into dir(nc)
 del (_primes, _figurate, _digital, _recreational,
      _divisors, _sequences, _powers, _number_theory,
-     _combinatorial, _core, _registry)
+     _combinatorial, _exam_types, _core, _registry)

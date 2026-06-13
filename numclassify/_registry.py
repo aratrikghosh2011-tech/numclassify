@@ -388,7 +388,7 @@ def find_any_in_range(
     return [n for n in range(start, end + 1) if any(f(n) for f in funcs)]
 
 
-def most_special_in_range(start: int, end: int) -> int:
+def most_special_in_range(start: int, end: int, verbose: bool = False) -> int:
     """Return the integer in ``[start, end]`` with the most ``True`` properties.
 
     Ties are broken by returning the smallest such integer.
@@ -399,6 +399,8 @@ def most_special_in_range(start: int, end: int) -> int:
         Lower bound (inclusive).
     end:
         Upper bound (inclusive).
+    verbose : bool, optional
+        If True, prints progress every 1000 numbers. Default False.
 
     Returns
     -------
@@ -412,9 +414,13 @@ def most_special_in_range(start: int, end: int) -> int:
     """
     best_n = start
     best_count = -1
-    for n in range(start, end + 1):
+    total = end - start + 1
+    for i, n in enumerate(range(start, end + 1)):
         c = count_properties(n)
         if c > best_count:
             best_count = c
             best_n = n
+        if verbose and (i + 1) % 1000 == 0:
+            pct = (i + 1) / total * 100
+            print(f"  most_special_in_range: {i+1}/{total} ({pct:.1f}%) — best so far: {best_n} ({best_count} props)")
     return best_n

@@ -73,9 +73,7 @@ def is_centered_k_gonal(m: int, k: int) -> bool:
     # k*n^2 - k*n - 2*(m-1) = 0
     # discriminant: k^2 + 4*k*2*(m-1) = k^2 + 8*k*(m-1)
     val = m - 1
-    if 2 * val % k != 0:
-        # Check if 2*(m-1) is divisible by k for integer n check via disc
-        pass  # disc check handles this
+
     disc = k * k + 8 * k * val
     if not _is_perfect_square(disc):
         return False
