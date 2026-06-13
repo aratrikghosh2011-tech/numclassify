@@ -389,3 +389,46 @@ def test_no_crash_on_edge_inputs(name, func):
             )
         except Exception as e:
             pytest.fail(f"{name}({n}) raised {type(e).__name__}: {e}")
+
+
+# ---------------------------------------------------------------------------
+# v0.4.0 regression tests
+# ---------------------------------------------------------------------------
+
+def test_classify_has_notable_score():
+    """classify() must include 'notable_score' key."""
+    result = nc.classify(7)
+    assert "notable_score" in result
+    assert isinstance(result["notable_score"], int)
+    assert result["notable_score"] <= result["score"]
+
+
+def test_classify_n1_notable_score_reasonable():
+    """n=1 notable_score must be much less than total score (no figurate inflation)."""
+    result = nc.classify(1)
+    # notable_score excludes figurate and figurate_centered
+    assert result["notable_score"] < 100
+    # Total score will still be large (mathematically correct)
+    assert result["score"] > 1000
+
+
+def test_is_unique_negative():
+    """is_unique must return False for negative integers."""
+    from numclassify._core.exam_types import is_unique
+    assert is_unique(-5) is False
+    assert is_unique(-1) is False
+    assert is_unique(-123) is False
+
+
+def test_is_practical_zero():
+    """is_practical(0) must return False."""
+    from numclassify._core.divisors import is_practical
+    assert is_practical(0) is False
+
+
+def test_no_leaked_names():
+    """Optional, _version, _PackageNotFoundError must not be in dir(nc)."""
+    public_names = [n for n in dir(nc) if not n.startswith("__")]
+    assert "Optional" not in public_names
+    assert "_version" not in public_names
+    assert "_PackageNotFoundError" not in public_names

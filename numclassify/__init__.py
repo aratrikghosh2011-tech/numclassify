@@ -115,6 +115,10 @@ def classify(n: int) -> dict:
         "number": n,
         "true_properties": true_props,
         "score": len(true_props),
+        "notable_score": sum(
+            len(v) for k, v in categories.items()
+            if k not in ("figurate", "figurate_centered")
+        ),
         "categories": categories,
     }
 
@@ -216,6 +220,7 @@ def stream(start: int, end: int, min_score: int = 0, has_property: Optional[str]
 
 __all__ = [
     "__version__",
+    "register",
     "is_prime",
     "is_armstrong",
     "is_perfect",
@@ -237,4 +242,5 @@ __all__ = [
 # Clean up internal names that leak into dir(nc)
 del (_primes, _figurate, _digital, _recreational,
      _divisors, _sequences, _powers, _number_theory,
-     _combinatorial, _exam_types, _core, _registry)
+     _combinatorial, _exam_types, _core, _registry,
+     Optional, _version, _PackageNotFoundError)

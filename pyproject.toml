@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "numclassify"
-version = "0.3.3"
+version = "0.4.0"
 description = "The most comprehensive Python library for number classification - 3000+ number types"
 authors = [{name = "Aratrik Ghosh", email = "aratrikghosh2011@gmail.com"}]
 readme = "README.md"
@@ -12,7 +12,7 @@ requires-python = ">=3.8"
 license = {text = "MIT"}
 keywords = ["number-theory", "mathematics", "classification", "armstrong", "prime", "figurate"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Mathematics",

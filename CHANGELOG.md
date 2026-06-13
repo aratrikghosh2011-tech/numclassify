@@ -6,6 +6,25 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.4.0] - 2026-06-13
+
+### Fixed
+- `classify()` now returns `notable_score` field — score excluding figurate/centered-figurate
+  hits. Prevents misleading score inflation for n=1 (which is the first member of every
+  polygonal sequence).
+- `is_unique(n)` now returns `False` for negative `n`. Previously returned `True` due to
+  `abs()` stripping the sign.
+- `is_practical(0)` now returns `False`. Previously returned `True` because
+  `_factorization(0)` returns `[]` and the loop never ran.
+- Removed leaked internal names (`Optional`, `_version`, `_PackageNotFoundError`) from
+  `dir(numclassify)`.
+
+### Changed
+- Development status updated to `5 - Production/Stable` in package classifiers.
+
+### Added
+- `SECURITY.md` with vulnerability reporting instructions.
+
 ## [0.3.3] - 2026-06-13
 
 ### Added

@@ -375,10 +375,14 @@ def is_unique(n: int) -> bool:
     True
     >>> is_unique(0)
     True
+    >>> is_unique(-5)      # negative numbers are not unique
+    False
 
     Notes
     -----
     Single-digit numbers and 0 are always unique.
     """
+    if n < 0:
+        return False
     s = str(abs(n))
     return len(s) == len(set(s))
