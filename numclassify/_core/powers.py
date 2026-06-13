@@ -225,7 +225,9 @@ def is_sum_of_three_squares(n: int) -> bool:
     """
     if n < 0:
         return False
-    # Remove factors of 4
+    if n == 0:
+        return True   # 0 = 0^2 + 0^2 + 0^2
+    # Remove factors of 4 (Legendre's three-square theorem)
     while n % 4 == 0:
         n //= 4
     return n % 8 != 7
