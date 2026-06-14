@@ -409,10 +409,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
+  <a href="#quick-example" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Start
+        Quick example
       
     </span>
   </a>
@@ -420,10 +420,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-numclassify" class="md-nav__link">
+  <a href="#categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why numclassify?
+        Categories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-your-own-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add your own types
       
     </span>
   </a>
@@ -584,10 +595,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
+  <a href="#quick-example" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Start
+        Quick example
       
     </span>
   </a>
@@ -595,10 +606,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#why-numclassify" class="md-nav__link">
+  <a href="#categories" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why numclassify?
+        Categories
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#add-your-own-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add your own types
       
     </span>
   </a>
@@ -626,24 +648,115 @@
 
 
 <h1 id="numclassify">numclassify</h1>
-<p>The most comprehensive Python number classification library - 3000+ types, zero dependencies.</p>
+<p><strong>Given a number, what is it?</strong></p>
+<p>Most number-theory libraries — <code>labmath</code>, <code>eulerlib</code>, <code>pyntlib</code> — compute things: factor integers, find GCDs, generate primes. <code>numclassify</code> solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.</p>
+<div class="highlight"><pre><span></span><code>153   →  Armstrong, Harshad, Triangular, Abundant, ...
+1729  →  Taxicab (Hardy–Ramanujan), Carmichael, Zeisel, ...
+28    →  Perfect, Triangular, Hexagonal, Semiprime, ...
+</code></pre></div>
+<p>Try it live: <strong><a href="playground.html">numclassify Playground</a></strong></p>
+<hr />
 <h2 id="installation">Installation</h2>
-<div class="highlight"><pre><span></span><code>pip install numclassify
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>numclassify
 </code></pre></div>
-<h2 id="quick-start">Quick Start</h2>
-<div class="highlight"><pre><span></span><code>import numclassify as nc
-nc.classify(1729)
-nc.classify_batch([6, 28, 496])
-nc.find_by_property(start=1, end=1000, Perfect=True)
-nc.random_number()
+<p>Python 3.8–3.13. No external dependencies.</p>
+<hr />
+<h2 id="quick-example">Quick example</h2>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">numclassify</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nc</span>
+
+<span class="n">nc</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="mi">1729</span><span class="p">)</span>
+<span class="c1"># {</span>
+<span class="c1">#   &#39;number&#39;: 1729,</span>
+<span class="c1">#   &#39;score&#39;: 22,</span>
+<span class="c1">#   &#39;notable_score&#39;: 18,</span>
+<span class="c1">#   &#39;true_properties&#39;: [&#39;Taxicab&#39;, &#39;Carmichael&#39;, ...],</span>
+<span class="c1">#   &#39;categories&#39;: {&#39;primes&#39;: [...], &#39;sequences&#39;: [...], ...}</span>
+<span class="c1"># }</span>
+
+<span class="n">nc</span><span class="o">.</span><span class="n">is_prime</span><span class="p">(</span><span class="mi">17</span><span class="p">)</span>           <span class="c1"># True</span>
+<span class="n">nc</span><span class="o">.</span><span class="n">is_perfect</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span>         <span class="c1"># True</span>
+<span class="n">nc</span><span class="o">.</span><span class="n">get_true_properties</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="c1"># [&#39;Perfect&#39;, &#39;Triangular&#39;, &#39;Pronic&#39;, ...]</span>
 </code></pre></div>
-<h2 id="why-numclassify">Why numclassify?</h2>
-<ul>
-<li>153: Armstrong, Narcissistic, Harshad, Triangular...</li>
-<li>1729: Taxicab, Carmichael, Dodecagonal...</li>
-<li>28: Perfect, Triangular, Hexagonal, Keith...</li>
-</ul>
-<p>3000+ named number types. Instant lookup. Zero dependencies.</p>
+<hr />
+<h2 id="categories">Categories</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Polygonal figurate</td>
+<td>~1003</td>
+<td>Triangular, Square, Pentagonal</td>
+</tr>
+<tr>
+<td>Centered polygonal</td>
+<td>~998</td>
+<td>Centered Triangular, Centered Hexagonal</td>
+</tr>
+<tr>
+<td>Prime families</td>
+<td>40</td>
+<td>Twin, Mersenne, Sophie Germain, Safe</td>
+</tr>
+<tr>
+<td>Digital invariants</td>
+<td>13</td>
+<td>Armstrong, Harshad, Disarium, Happy</td>
+</tr>
+<tr>
+<td>Divisor-based</td>
+<td>27</td>
+<td>Perfect, Abundant, Weird, Practical</td>
+</tr>
+<tr>
+<td>Sequences</td>
+<td>16</td>
+<td>Fibonacci, Lucas, Catalan, Bell</td>
+</tr>
+<tr>
+<td>Powers</td>
+<td>13</td>
+<td>Perfect Square, Taxicab, Powerful</td>
+</tr>
+<tr>
+<td>Number theory</td>
+<td>14</td>
+<td>Evil, Carmichael, Autobiographical</td>
+</tr>
+<tr>
+<td>Combinatorial</td>
+<td>10</td>
+<td>Factorial, Primorial, Subfactorial</td>
+</tr>
+<tr>
+<td>Recreational</td>
+<td>6</td>
+<td>Kaprekar, Automorphic, Palindrome</td>
+</tr>
+<tr>
+<td>Exam types</td>
+<td>8</td>
+<td>Strong, Sunny, Buzz, Magic, Unique</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="add-your-own-types">Add your own types</h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">numclassify</span><span class="w"> </span><span class="kn">import</span> <span class="n">register</span>
+
+<span class="nd">@register</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;My Type&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="s2">&quot;recreational&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_my_type</span><span class="p">(</span><span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">7</span> <span class="o">==</span> <span class="mi">0</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numclassify</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nc</span>
+<span class="n">nc</span><span class="o">.</span><span class="n">is_my_type</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>  <span class="c1"># True — available everywhere immediately</span>
+</code></pre></div>
+<p>See <a href="api/">API Reference</a> for the full function list, or the <a href="cli/">CLI Reference</a> for command-line usage.</p>
 
 
 

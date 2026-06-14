@@ -694,26 +694,37 @@
 
 
 <h1 id="cli-reference">CLI Reference</h1>
+<p>Install the package and the <code>numclassify</code> command is available immediately.</p>
 <h2 id="check">check</h2>
-<div class="highlight"><pre><span></span><code>numclassify check 1729
-numclassify check 1729 --json
+<p>Classify a single number.</p>
+<div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>check<span class="w"> </span><span class="m">1729</span>
+numclassify<span class="w"> </span>check<span class="w"> </span><span class="m">1729</span><span class="w"> </span>--json<span class="w">     </span><span class="c1"># machine-readable JSON output</span>
 </code></pre></div>
 <h2 id="compare">compare</h2>
-<div class="highlight"><pre><span></span><code>numclassify compare 6 28
-numclassify compare 6 28 --json
+<p>Show properties shared between two numbers and properties unique to each.</p>
+<div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>compare<span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="m">28</span>
+numclassify<span class="w"> </span>compare<span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="m">28</span><span class="w"> </span>--json
 </code></pre></div>
 <h2 id="find">find</h2>
-<div class="highlight"><pre><span></span><code>numclassify find armstrong --limit 10
+<p>Find numbers of a given type, starting from 1.</p>
+<div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>find<span class="w"> </span>armstrong
+numclassify<span class="w"> </span>find<span class="w"> </span>prime<span class="w"> </span>--limit<span class="w"> </span><span class="m">20</span>
 </code></pre></div>
 <h2 id="range">range</h2>
-<div class="highlight"><pre><span></span><code>numclassify range 1 100 --filter prime
+<p>Classify or filter all integers in a range.</p>
+<div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>range<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">100</span>
+numclassify<span class="w"> </span>range<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--filter<span class="w"> </span>prime
 </code></pre></div>
 <h2 id="info">info</h2>
-<div class="highlight"><pre><span></span><code>numclassify info armstrong
+<p>Show the definition, category, and OEIS reference for a number type.</p>
+<div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>info<span class="w"> </span>armstrong
+numclassify<span class="w"> </span>info<span class="w"> </span>taxicab
 </code></pre></div>
 <h2 id="list">list</h2>
-<div class="highlight"><pre><span></span><code>numclassify list
-numclassify list --category primes
+<p>List all registered number types.</p>
+<div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>list
+numclassify<span class="w"> </span>list<span class="w"> </span>--category<span class="w"> </span>primes
+numclassify<span class="w"> </span>list<span class="w"> </span>--category<span class="w"> </span>divisors
 </code></pre></div>
 
 
