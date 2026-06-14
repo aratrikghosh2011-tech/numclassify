@@ -87,13 +87,27 @@ Returns all integers in `[lo, hi]` where callable `fn(n)` returns `True`.
 nc.find_in_range(nc.is_prime, 1, 100)
 ```
 
-## find_all_in_range(lo, hi)
+## find_any_in_range(funcs_or_names, start, end)
 
-Returns a list of all integers in `[lo, hi]` that have at least one True property.
+Returns all integers in `[start, end]` that satisfy **at least one** of the given predicates.
 
-## find_any_in_range(lo, hi)
+```python
+# Numbers that are prime OR palindrome in 1..100
+nc.find_any_in_range(["prime", "palindrome"], 1, 100)
 
-Returns the first integer in `[lo, hi]` that has at least one True property, or `None`.
+# Using callables
+nc.find_any_in_range([nc.is_prime, nc.is_armstrong], 1, 500)
+```
+
+## find_all_in_range(funcs_or_names, start, end)
+
+Returns all integers in `[start, end]` that satisfy **every** predicate given.
+
+```python
+# Numbers that are BOTH prime AND palindrome in 1..1000
+nc.find_all_in_range(["prime", "palindrome"], 1, 1000)
+# => [2, 3, 5, 7, 11, 101, 131, 151, ...]
+```
 
 ## register
 

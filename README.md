@@ -162,8 +162,8 @@ See [`examples/`](examples/) for runnable scripts covering all major features.
 | `count_properties(n)` | Count of True properties |
 | `most_special_in_range(lo, hi, verbose)` | Number in range with the most True properties |
 | `find_in_range(fn, lo, hi)` | Numbers where callable `fn` returns True |
-| `find_all_in_range(lo, hi)` | List of integers with any True property in range |
-| `find_any_in_range(lo, hi)` | First integer in range with any True property |
+| `find_any_in_range(predicates, lo, hi)` | Integers in range satisfying at least one predicate |
+| `find_all_in_range(predicates, lo, hi)` | Integers in range satisfying all predicates |
 | `register` | Decorator to add custom number types |
 | `is_prime(n)` | Convenience boolean |
 | `is_armstrong(n)` | Convenience boolean |

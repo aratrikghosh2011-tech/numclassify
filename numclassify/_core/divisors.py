@@ -97,7 +97,9 @@ def _factorization(n: int) -> List[tuple]:
 
 def _is_perfect_power(n: int) -> bool:
     """Return True if n = k^m for some k>1, m>1."""
-    if n <= 1:
+    if n == 1:
+        return True   # 1 = 1^k for any k >= 2
+    if n <= 0:
         return False
     for exp in range(2, n.bit_length() + 1):
         root = round(n ** (1 / exp))

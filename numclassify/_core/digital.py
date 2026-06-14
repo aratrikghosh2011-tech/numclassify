@@ -151,7 +151,7 @@ def is_spy(n: int) -> bool:
     >>> is_spy(124)    # sum=7, product=8  →  False
     False
     """
-    if n < 0:
+    if n <= 0:
         return False
     digits = [int(d) for d in str(n)]
     s = sum(digits)

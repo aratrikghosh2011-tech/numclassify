@@ -5,6 +5,22 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic V
 
 ---
 
+## [0.4.1] - 2026-06-14
+
+### Fixed
+- `is_achilles(1)` now returns `False`. Previously returned `True` because
+  `_is_perfect_power(1)` incorrectly returned `False` (1 = 1² is a perfect power).
+  First Achilles number is 72, per OEIS A052486.
+- `stream(min_score=N)` now filters on `notable_score` instead of raw `score`.
+  Previously, figurate inflation caused almost all numbers to pass any threshold.
+- `is_spy(0)` now returns `False`. Spy numbers are defined for positive integers only.
+- Playground version badge now always shows live installed version from PyPI
+  instead of the hardcoded version in the HTML source.
+- Fixed `find_any_in_range` and `find_all_in_range` documentation — both functions
+  take a list of predicates as the first argument, not just `(lo, hi)`.
+
+---
+
 ## [0.4.0] - 2026-06-13
 
 ### Fixed

@@ -432,3 +432,41 @@ def test_no_leaked_names():
     assert "Optional" not in public_names
     assert "_version" not in public_names
     assert "_PackageNotFoundError" not in public_names
+
+
+# ---------------------------------------------------------------------------
+# v0.4.1 regression tests
+# ---------------------------------------------------------------------------
+
+
+def test_achilles_not_one():
+    """1 is not an Achilles number — first is 72."""
+    from numclassify._core.divisors import is_achilles
+    assert is_achilles(1) is False
+    assert is_achilles(72) is True
+    assert is_achilles(108) is True
+
+
+def test_perfect_power_one():
+    """1 must be considered a perfect power (1 = 1^2)."""
+    from numclassify._core.divisors import _is_perfect_power
+    assert _is_perfect_power(1) is True
+    assert _is_perfect_power(4) is True
+    assert _is_perfect_power(6) is False
+
+
+def test_stream_min_score_uses_notable():
+    """stream min_score must filter on notable_score, not raw score."""
+    results = list(nc.stream(1, 10, min_score=40))
+    numbers = [r['number'] for r in results]
+    assert 4 not in numbers   # notable_score=35
+    assert 9 not in numbers   # notable_score=38
+    assert 1 in numbers       # notable_score=63
+    assert 2 in numbers       # notable_score=63
+
+
+def test_spy_not_zero():
+    """is_spy(0) must return False."""
+    from numclassify._core.digital import is_spy
+    assert is_spy(0) is False
+    assert is_spy(1) is True

@@ -201,7 +201,7 @@ def stream(start: int, end: int, min_score: int = 0, has_property: Optional[str]
 
     for n in range(start, end + 1):
         result = classify(n)
-        if result["score"] < min_score:
+        if result["notable_score"] < min_score:
             continue
         if prop_key is not None:
             props = _gap(n)
