@@ -548,10 +548,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#find_all_in_rangelo-hi" class="md-nav__link">
+  <a href="#find_any_in_rangefuncs_or_names-start-end" class="md-nav__link">
     <span class="md-ellipsis">
       
-        find_all_in_range(lo, hi)
+        find_any_in_range(funcs_or_names, start, end)
       
     </span>
   </a>
@@ -559,10 +559,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#find_any_in_rangelo-hi" class="md-nav__link">
+  <a href="#find_all_in_rangefuncs_or_names-start-end" class="md-nav__link">
     <span class="md-ellipsis">
       
-        find_any_in_range(lo, hi)
+        find_all_in_range(funcs_or_names, start, end)
       
     </span>
   </a>
@@ -828,10 +828,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#find_all_in_rangelo-hi" class="md-nav__link">
+  <a href="#find_any_in_rangefuncs_or_names-start-end" class="md-nav__link">
     <span class="md-ellipsis">
       
-        find_all_in_range(lo, hi)
+        find_any_in_range(funcs_or_names, start, end)
       
     </span>
   </a>
@@ -839,10 +839,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#find_any_in_rangelo-hi" class="md-nav__link">
+  <a href="#find_all_in_rangefuncs_or_names-start-end" class="md-nav__link">
     <span class="md-ellipsis">
       
-        find_any_in_range(lo, hi)
+        find_all_in_range(funcs_or_names, start, end)
       
     </span>
   </a>
@@ -947,10 +947,20 @@ for progress output on large ranges.</p>
 <p>Returns all integers in <code>[lo, hi]</code> where callable <code>fn(n)</code> returns <code>True</code>.</p>
 <div class="highlight"><pre><span></span><code><span class="n">nc</span><span class="o">.</span><span class="n">find_in_range</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">is_prime</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 </code></pre></div>
-<h2 id="find_all_in_rangelo-hi">find_all_in_range(lo, hi)</h2>
-<p>Returns a list of all integers in <code>[lo, hi]</code> that have at least one True property.</p>
-<h2 id="find_any_in_rangelo-hi">find_any_in_range(lo, hi)</h2>
-<p>Returns the first integer in <code>[lo, hi]</code> that has at least one True property, or <code>None</code>.</p>
+<h2 id="find_any_in_rangefuncs_or_names-start-end">find_any_in_range(funcs_or_names, start, end)</h2>
+<p>Returns all integers in <code>[start, end]</code> that satisfy <strong>at least one</strong> of the given predicates.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Numbers that are prime OR palindrome in 1..100</span>
+<span class="n">nc</span><span class="o">.</span><span class="n">find_any_in_range</span><span class="p">([</span><span class="s2">&quot;prime&quot;</span><span class="p">,</span> <span class="s2">&quot;palindrome&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Using callables</span>
+<span class="n">nc</span><span class="o">.</span><span class="n">find_any_in_range</span><span class="p">([</span><span class="n">nc</span><span class="o">.</span><span class="n">is_prime</span><span class="p">,</span> <span class="n">nc</span><span class="o">.</span><span class="n">is_armstrong</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="find_all_in_rangefuncs_or_names-start-end">find_all_in_range(funcs_or_names, start, end)</h2>
+<p>Returns all integers in <code>[start, end]</code> that satisfy <strong>every</strong> predicate given.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Numbers that are BOTH prime AND palindrome in 1..1000</span>
+<span class="n">nc</span><span class="o">.</span><span class="n">find_all_in_range</span><span class="p">([</span><span class="s2">&quot;prime&quot;</span><span class="p">,</span> <span class="s2">&quot;palindrome&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="c1"># =&gt; [2, 3, 5, 7, 11, 101, 131, 151, ...]</span>
+</code></pre></div>
 <h2 id="register">register</h2>
 <p>Decorator to add a custom number type. Registered types appear everywhere — <code>classify()</code>,
 <code>find_by_property()</code>, the CLI, all of it.</p>
