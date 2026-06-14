@@ -39,9 +39,15 @@ import numclassify as nc
 nc.is_prime(17)       # True
 nc.is_perfect(28)     # True
 
-# Classify a single number — returns number, true properties, and a score
+# Classify a single number
 nc.classify(1729)
-# {'number': 1729, 'true_properties': ['Taxicab', 'Carmichael', ...], 'score': 22}
+# {
+#   'number': 1729,
+#   'score': 22,            # total true properties (incl. figurate)
+#   'notable_score': 18,    # score excluding polygonal figurate noise
+#   'true_properties': ['Taxicab', 'Carmichael', ...],
+#   'categories': {'primes': [...], 'sequences': [...], ...}
+# }
 
 # Batch classify
 nc.classify_batch([6, 28, 496])
@@ -51,9 +57,12 @@ nc.find_by_property(start=1, end=1000, Perfect=True)
 # [6, 28, 496]
 
 # Stream over large ranges without loading everything into memory
-for result in nc.stream(1, 1_000_000):
-    if result['score'] > 30:
-        print(result)
+for result in nc.stream(1, 1_000_000, min_score=20):
+    print(result)
+
+# Stream only numbers with a specific property
+for result in nc.stream(1, 10_000, has_property="prime"):
+    print(result)
 
 # All true properties of a number
 nc.get_true_properties(1729)
@@ -103,17 +112,18 @@ numclassify info armstrong
 
 | Category | Count | Examples |
 |---|---|---|
-| Polygonal figurate | ~998 | Triangular, Square, Pentagonal, Chiliagonal |
+| Polygonal figurate | ~1003 | Triangular, Square, Pentagonal, Chiliagonal |
 | Centered polygonal | ~998 | Centered Triangular, Centered Hexagonal |
-| Prime families | 41 | Twin, Mersenne, Sophie Germain, Wilson, Safe |
-| Digital invariants | 10 | Armstrong, Spy, Harshad, Disarium, Happy, Neon |
+| Prime families | 40 | Twin, Mersenne, Sophie Germain, Wilson, Safe |
+| Digital invariants | 13 | Armstrong, Spy, Harshad, Disarium, Happy, Neon |
 | Divisor-based | 27 | Perfect, Abundant, Weird, Amicable, Practical |
-| Sequences | 15 | Fibonacci, Lucas, Catalan, Bell, Padovan |
+| Sequences | 16 | Fibonacci, Lucas, Catalan, Bell, Padovan |
 | Powers | 13 | Perfect Square, Taxicab, Sum of Two Squares |
 | Number theory | 14 | Evil, Carmichael, Keith, Autobiographical |
 | Combinatorial | 10 | Factorial, Primorial, Subfactorial |
-| Recreational | 5 | Kaprekar, Automorphic, Palindrome |
-| **Total** | **3000+** | |
+| Recreational | 6 | Kaprekar, Automorphic, Palindrome |
+| Exam types | 8 | Armstrong, Strong, Sunny, Buzz, Magic, Unique |
+| **Total** | **2140+** | |
 
 ---
 
@@ -141,18 +151,19 @@ See [`examples/`](examples/) for runnable scripts covering all major features.
 
 | Function | Description |
 |---|---|
-| `classify(n)` | Returns `{number, true_properties, score}` |
+| `classify(n)` | Returns `{number, score, notable_score, true_properties, categories}` |
 | `classify_batch(numbers)` | Classify a list; returns list of dicts |
 | `random_number(max_n)` | Classify a randomly selected number |
 | `find_by_property(start, end, **filters)` | Numbers in range matching property filters |
-| `stream(start, end)` | Generator — memory-safe range classification |
+| `stream(start, end, min_score, has_property)` | Generator — memory-safe range classification |
 | `get_all_properties(n)` | Dict of every type mapped to True/False |
 | `get_true_properties(n)` | List of True property names only |
 | `print_properties(n)` | Pretty-print property table to stdout |
 | `count_properties(n)` | Count of True properties |
-| `most_special_in_range(lo, hi)` | Number in range with the most True properties |
-| `find_in_range(fn, lo, hi)` | Numbers where `fn` returns True |
-| `find_all_in_range(lo, hi)` | Dict mapping each number to its true properties |
+| `most_special_in_range(lo, hi, verbose)` | Number in range with the most True properties |
+| `find_in_range(fn, lo, hi)` | Numbers where callable `fn` returns True |
+| `find_all_in_range(lo, hi)` | List of integers with any True property in range |
+| `find_any_in_range(lo, hi)` | First integer in range with any True property |
 | `register` | Decorator to add custom number types |
 | `is_prime(n)` | Convenience boolean |
 | `is_armstrong(n)` | Convenience boolean |

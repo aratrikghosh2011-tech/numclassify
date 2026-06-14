@@ -283,7 +283,7 @@ async function doClassify(n = null) {
     const result = await pyodide.runPythonAsync(`
 import json
 r = nc.classify(${val})
-json.dumps({"number": r["number"], "score": r["score"], "props": r["true_properties"]})
+json.dumps({"number": r["number"], "score": r["notable_score"], "total_score": r["score"], "props": r["true_properties"]})
 `);
     const data = JSON.parse(result);
 
@@ -361,12 +361,12 @@ json.dumps(results)
     results.forEach(r => {
       const tags = r.true_properties.slice(0, 8).map(p => p.replace(/_/g, ' ')).join(', ');
       const more = r.true_properties.length > 8 ? ` +${r.true_properties.length - 8} more` : '';
-      html += `<tr><td class="b-num" onclick="recallHistory(${r.number})">${r.number}</td><td>${r.score}</td><td class="b-tags">${tags}${more}</td></tr>`;
+      html += `<tr><td class="b-num" onclick="recallHistory(${r.number})">${r.number}</td><td>${r.notable_score}</td><td class="b-tags">${tags}${more}</td></tr>`;
     });
     html += '</tbody></table>';
     $('classify-tags').innerHTML = html;
 
-    results.forEach(r => saveHistory({ n: r.number, score: r.score }));
+    results.forEach(r => saveHistory({ n: r.number, score: r.notable_score }));
 
   } catch(e) {
     toast('Error: ' + e.message.slice(0, 80));
@@ -576,7 +576,7 @@ seed = today.year * 10000 + today.month * 100 + today.day
 _random.seed(seed)
 n = _random.randint(1, 9999)
 r = nc.classify(n)
-json.dumps({"number": r["number"], "score": r["score"], "props": r["true_properties"][:12]})
+json.dumps({"number": r["number"], "score": r["notable_score"], "props": r["true_properties"][:12]})
 `);
     const data = JSON.parse(result);
     $('notd-number').textContent = data.number;
