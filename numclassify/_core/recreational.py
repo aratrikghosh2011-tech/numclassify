@@ -17,19 +17,20 @@ from numclassify._registry import register
     category="recreational",
     oeis="A006886",
     description=(
-        "A number n such that n² can be split into two parts (no leading zero "
-        "on the right part) that sum to n.  n=1 is included by convention."
+        "A number n such that n^2 can be split into two parts (right part nonzero)"
+        " that sum to n.  n=1 is included by convention."
     ),
     aliases=["kaprekar number"],
 )
 def is_kaprekar(n: int) -> bool:
     """Return ``True`` if *n* is a Kaprekar number.
 
-    A positive integer *n* is Kaprekar if its square ``n²`` can be partitioned
-    at some point into a left part *A* and a right part *B* (where *B* > 0 and
-    has no leading zero) such that ``A + B == n``.
+    A positive integer *n* is Kaprekar if its square ``n^2`` can be partitioned
+    into a left part *A* and a right part *B* (where *B* > 0) such that
+    ``A + B == n``. The right part can have leading zeros in its string representation;
+    only the integer value matters.
 
-    Special case: *n* = 1 is Kaprekar by convention (1² = 1, split as 0 + 1).
+    Special case: *n* = 1 is Kaprekar by convention (1^2 = 1, split as 0 + 1).
 
     Parameters
     ----------
@@ -42,9 +43,9 @@ def is_kaprekar(n: int) -> bool:
 
     Example
     -------
-    >>> is_kaprekar(45)   # 45²=2025; split (20, 25) → 20+25=45
+    >>> is_kaprekar(45)   # 45^2=2025; split (20, 25) → 20+25=45
     True
-    >>> is_kaprekar(9)    # 9²=81; split (8, 1) → 8+1=9
+    >>> is_kaprekar(9)    # 9^2=81; split (8, 1) → 8+1=9
     True
     >>> is_kaprekar(1)
     True
@@ -61,12 +62,11 @@ def is_kaprekar(n: int) -> bool:
     for split in range(1, length):
         left_str = sq_str[:length - split]
         right_str = sq_str[length - split:]
-        # Right part must not start with '0' (leading zero check)
-        if right_str[0] == "0":
+        right = int(right_str)
+        if right == 0:
             continue
         left = int(left_str) if left_str else 0
-        right = int(right_str)
-        if right > 0 and left + right == n:
+        if left + right == n:
             return True
     return False
 

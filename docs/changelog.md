@@ -5,6 +5,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic V
 
 ---
 
+## [0.4.2] - 2026-06-15
+
+### Fixed
+- `is_kaprekar(99)`, `is_kaprekar(999)`, `is_kaprekar(9999)` now return `True`.
+  The right-part leading-zero string check was too strict — only the integer value
+  needs to be nonzero, not the string representation. OEIS A006886 includes all three.
+
+---
+
 ## [0.4.1] - 2026-06-14
 
 ### Fixed

@@ -184,6 +184,22 @@ def test_is_kaprekar_false_100():
     assert is_kaprekar(100) is False
 
 
+def test_kaprekar_leading_zero_splits():
+    """Kaprekar numbers whose square splits with a leading zero in right part."""
+    from numclassify._core.recreational import is_kaprekar
+    # 99²=9801 → 98+01=99, 999²=998001 → 998+001=999, 9999²=99980001 → 9998+0001=9999
+    assert is_kaprekar(99) is True
+    assert is_kaprekar(999) is True
+    assert is_kaprekar(9999) is True
+    # Standard ones still work
+    assert is_kaprekar(45) is True
+    assert is_kaprekar(297) is True
+    assert is_kaprekar(703) is True
+    # Non-Kaprekar
+    assert is_kaprekar(100) is False
+    assert is_kaprekar(98) is False
+
+
 # ---------------------------------------------------------------------------
 # is_palindrome
 # ---------------------------------------------------------------------------

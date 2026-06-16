@@ -8,7 +8,7 @@
 
 **Given a number, what is it?**
 
-Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it a number and it tells you every named mathematical type that number belongs to, across 3000+ categories, with zero external dependencies.
+Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it a number and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.
 
 ```
 153   →  Armstrong, Harshad, Triangular, Abundant, ...
@@ -16,7 +16,7 @@ Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute th
 28    →  Perfect, Triangular, Hexagonal, Semiprime, ...
 ```
 
-Try it in your browser: **[numclassify Playground](https://aratrikghosh2011-tech.github.io/numclassify/playground.html)**
+Try it in your browser: **[numclassify Playground](playground.html)**
 
 ---
 
@@ -64,7 +64,7 @@ for result in nc.stream(1, 1_000_000, min_score=20):
 for result in nc.stream(1, 10_000, has_property="prime"):
     print(result)
 
-# All true properties of a number
+# All true properties of a number (returns a dict of True properties)
 nc.get_true_properties(1729)
 
 # Pretty-print a formatted table

@@ -64,7 +64,9 @@ Returns a dict of every registered type mapped to `True` or `False`.
 
 ## get_true_properties(n)
 
-Returns a list of only the `True` property names.
+Returns a dict mapping each True property name to `True`.
+
+Note: `classify(n)["true_properties"]` gives the same names as a sorted list.
 
 ## print_properties(n)
 
