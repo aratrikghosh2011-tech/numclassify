@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "numclassify"
-version = "0.4.1"
+version = "0.4.2"
 description = "Python library for number classification — 2140+ named number types, zero dependencies"
 authors = [{name = "Aratrik Ghosh", email = "aratrikghosh2011@gmail.com"}]
 readme = "README.md"
