@@ -935,7 +935,8 @@ a score of 2000+.</p>
 <h2 id="get_all_propertiesn">get_all_properties(n)</h2>
 <p>Returns a dict of every registered type mapped to <code>True</code> or <code>False</code>.</p>
 <h2 id="get_true_propertiesn">get_true_properties(n)</h2>
-<p>Returns a list of only the <code>True</code> property names.</p>
+<p>Returns a dict mapping each True property name to <code>True</code>.</p>
+<p>Note: <code>classify(n)["true_properties"]</code> gives the same names as a sorted list.</p>
 <h2 id="print_propertiesn">print_properties(n)</h2>
 <p>Pretty-prints a formatted table of all True properties to stdout.</p>
 <h2 id="count_propertiesn">count_properties(n)</h2>
