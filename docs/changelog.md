@@ -5,6 +5,11 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic V
 
 ---
 
+## [0.4.3] - 2026-06-16
+
+### Fixed
+- PyPI README now shows `Harshad` instead of `Zeisel` in the 1729 example.
+
 ## [0.4.2] - 2026-06-15
 
 ### Fixed
