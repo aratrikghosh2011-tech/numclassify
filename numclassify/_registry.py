@@ -39,6 +39,12 @@ class NumberType:
         One-line mathematical description.
     aliases:
         Alternative names under which this entry is also registered.
+    explain:
+        Optional callable ``(n: int) -> str`` that returns a human-readable
+        explanation of why *n* does or does not satisfy the classification.
+    exam_tag:
+        If True, this entry is grouped under the "exam_types" pseudo-category
+        in CLI listings.  The real *category* field is unchanged.
     """
 
     name: str
@@ -47,6 +53,8 @@ class NumberType:
     oeis: str = ""
     description: str = ""
     aliases: List[str] = field(default_factory=list)
+    explain: Optional[Callable[[int], str]] = None
+    exam_tag: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -76,6 +84,8 @@ def register(
     oeis: str = "",
     description: str = "",
     aliases: Optional[List[str]] = None,
+    explain: Optional[Callable[[int], str]] = None,
+    exam_tag: bool = False,
 ) -> Callable[[Callable[[int], bool]], Callable[[int], bool]]:
     """Decorator factory that registers a classification function.
 
@@ -94,6 +104,12 @@ def register(
         Short mathematical description (optional).
     aliases:
         List of alternative lookup names (optional).
+    explain:
+        Optional callable ``(n: int) -> str`` returning a human-readable
+        explanation for *n*.
+    exam_tag:
+        If True, this entry is grouped under the "exam_types" pseudo-category
+        in CLI listings.
 
     Returns
     -------
@@ -119,6 +135,8 @@ def register(
             oeis=oeis,
             description=description,
             aliases=_aliases,
+            explain=explain,
+            exam_tag=exam_tag,
         )
         key = _normalize(name)
         with _REGISTRY_LOCK:
@@ -131,6 +149,17 @@ def register(
         return func
 
     return decorator
+
+
+def get_exam_types() -> list:
+    """Return all NumberType entries tagged exam_tag=True, deduplicated by name."""
+    seen = set()
+    result = []
+    for entry in REGISTRY.values():
+        if entry.exam_tag and entry.name not in seen:
+            seen.add(entry.name)
+            result.append(entry)
+    return result
 
 
 # ---------------------------------------------------------------------------

@@ -16,7 +16,7 @@ range <start> <end> [--filter <name>] [--json]
 find <type_name> [--limit N] [--json]
     Find the first N integers satisfying a named type.
 
-info <type_name>
+info <type_name> [--json]
     Show registry metadata for a type.
 
 list [--category <cat>]
@@ -24,6 +24,12 @@ list [--category <cat>]
 
 compare <a> <b> [--json]
     Compare two numbers: show shared and exclusive properties.
+
+why <type_name> <n> [--json]
+    Explain why a number does or does not satisfy a type.
+
+query <start> <end> [--has TYPE...] [--not-has TYPE...] [--any-of TYPE...] [--json]
+    Query a range with multi-property AND/OR/NOT logic.
 """
 
 from __future__ import annotations
@@ -272,9 +278,31 @@ def cmd_find(args: argparse.Namespace) -> None:
         print(f"No '{label}' numbers found up to {upper:,}.")
 
 
+def cmd_why(args: argparse.Namespace) -> None:
+    """Handle: numclassify why <type_name> <n> [--json]."""
+    nc, registry, _ = _lazy_import()
+
+    key = _resolve_type(args.type_name, registry)
+    n = args.n
+
+    try:
+        explanation = nc.why(key, n)
+    except ValueError as e:
+        _die(str(e))
+        return
+
+    if args.json:
+        print(json.dumps({"number": n, "property": key, "explanation": explanation}))
+        return
+
+    print()
+    print(explanation)
+    print()
+
+
 def cmd_info(args: argparse.Namespace) -> None:
     """Handle: numclassify info <type_name>."""
-    _, registry, _ = _lazy_import()
+    nc, registry, _ = _lazy_import()
 
     key = _resolve_type(args.type_name, registry)
     entry = registry[key]
@@ -286,6 +314,27 @@ def cmd_info(args: argparse.Namespace) -> None:
     description = getattr(entry, "description", None)
     example     = getattr(entry, "example",     None)
 
+    # Auto-generated examples via property_info
+    try:
+        info = nc.property_info(args.type_name)
+        examples_list = info.get("examples", [])
+    except Exception:
+        examples_list = []
+
+    if args.json:
+        payload = {
+            "name": name,
+            "category": category,
+            "oeis": oeis,
+            "description": description,
+        }
+        if examples_list:
+            payload["examples"] = examples_list[:10]
+        elif example is not None:
+            payload["example"] = str(example)
+        print(json.dumps(payload, indent=2))
+        return
+
     col_w = 14
     def row(label: str, value: Optional[str]) -> None:
         if value:
@@ -296,13 +345,35 @@ def cmd_info(args: argparse.Namespace) -> None:
     row("Category",    str(category).capitalize() if category else None)
     row("OEIS",        oeis)
     row("Description", description)
-    row("Example",     str(example) if example else None)
+    if examples_list:
+        row("Examples", ", ".join(str(x) for x in examples_list[:10]))
+    elif example:
+        row("Example", str(example))
     print()
 
 
 def cmd_list(args: argparse.Namespace) -> None:
     """Handle: numclassify list [--category <cat>]."""
-    _, registry, _ = _lazy_import()
+    nc, registry, _ = _lazy_import()
+
+    # Handle special pseudo-category "exam_types"
+    if args.category and args.category.lower().replace(" ", "_") == "exam_types":
+        from numclassify._registry import get_exam_types
+        exam_entries = get_exam_types()
+        names = sorted(e.name for e in exam_entries)
+        print(_bold(f"\nEXAM_TYPES ({len(names)} types)"))
+        line = "  "
+        for i, n in enumerate(names):
+            chunk = n + (", " if i < len(names) - 1 else "")
+            if len(line) + len(chunk) > 78:
+                print(line.rstrip(", "))
+                line = "  " + chunk
+            else:
+                line += chunk
+        if line.strip():
+            print(line)
+        print()
+        return
 
     # Group entries by category
     from collections import defaultdict
@@ -386,6 +457,35 @@ def cmd_compare(args: argparse.Namespace) -> None:
     print(f"Shared ({len(shared)}): {_fmt_list(shared)}")
     print(f"Only in {a} ({len(only_a)}): {_fmt_list(only_a)}")
     print(f"Only in {b} ({len(only_b)}): {_fmt_list(only_b)}")
+
+
+def cmd_query(args: argparse.Namespace) -> None:
+    """Handle: numclassify query <start> <end> [--has TYPE ...] [--not-has TYPE ...] [--any-of TYPE ...] [--json]."""
+    nc, registry, _ = _lazy_import()
+
+    if args.has and args.any_of:
+        _die("Cannot combine --has and --any-of in the same query.")
+
+    has = args.has if args.has else None
+    not_has = args.not_has if args.not_has else None
+    any_of = args.any_of if args.any_of else None
+
+    try:
+        results = nc.find(args.start, args.end, has=has, not_has=not_has, any_of=any_of)
+    except ValueError as e:
+        _die(str(e))
+        return
+
+    if args.json:
+        print(json.dumps(results))
+        return
+
+    print()
+    if results:
+        print(_bold(f"{len(results)} matches in [{args.start}, {args.end}]:") + f" {results}")
+    else:
+        print(f"No matches in [{args.start}, {args.end}].")
+    print()
 
 
 # ---------------------------------------------------------------------------
@@ -483,6 +583,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_find.set_defaults(func=cmd_find)
 
+    # -- why ----------------------------------------------------------------
+    p_why = sub.add_parser(
+        "why",
+        help="Explain why a number does or does not have a given property.",
+        description="Show the step-by-step reasoning for why N does or does not satisfy <type_name>.",
+    )
+    p_why.add_argument("type_name", help="Number type name, e.g. armstrong, perfect, prime.")
+    p_why.add_argument("n", type=int, help="The integer to explain.")
+    p_why.add_argument("--json", action="store_true", help="Output as JSON.")
+    p_why.set_defaults(func=cmd_why)
+
     # -- info ----------------------------------------------------------------
     p_info = sub.add_parser(
         "info",
@@ -496,6 +607,7 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     p_info.add_argument("type_name", help="Registered type name.")
+    p_info.add_argument("--json", action="store_true", help="Output as JSON.")
     p_info.set_defaults(func=cmd_info)
 
     # -- list ----------------------------------------------------------------
@@ -538,6 +650,20 @@ def build_parser() -> argparse.ArgumentParser:
         help="Output results as JSON with keys a, b, shared, only_a, only_b.",
     )
     p_compare.set_defaults(func=cmd_compare)
+
+    # -- query ---------------------------------------------------------------
+    p_query = sub.add_parser(
+        "query",
+        help="Find numbers in a range matching multiple property conditions.",
+        description="Query a range with AND/OR/NOT property logic, e.g. numbers that are prime AND palindrome.",
+    )
+    p_query.add_argument("start", type=int, help="Range start (inclusive).")
+    p_query.add_argument("end", type=int, help="Range end (inclusive).")
+    p_query.add_argument("--has", nargs="+", metavar="TYPE", help="All of these properties must be True.")
+    p_query.add_argument("--not-has", nargs="+", metavar="TYPE", dest="not_has", help="None of these properties may be True.")
+    p_query.add_argument("--any-of", nargs="+", metavar="TYPE", dest="any_of", help="At least one of these properties must be True.")
+    p_query.add_argument("--json", action="store_true", help="Output as JSON.")
+    p_query.set_defaults(func=cmd_query)
 
     return parser
 
@@ -584,6 +710,17 @@ def main() -> None:
         _USE_UNICODE = True
 
     parser = build_parser()
+
+    if len(sys.argv) == 1:
+        print()
+        print(_bold("numclassify") + " — classify any integer into 2140+ named mathematical types")
+        print()
+        print("  GitHub: https://github.com/aratrikghosh2011-tech/numclassify")
+        print("  Docs:   https://aratrikghosh2011-tech.github.io/numclassify/")
+        print()
+        parser.print_help()
+        sys.exit(0)
+
     args = parser.parse_args()
 
     try:

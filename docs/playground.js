@@ -34,7 +34,7 @@ function requireReady() {
 // ── Tab Switching ────────────────────────────────────────────────────────
 
 function switchTab(name) {
-  const names = ['classify', 'search', 'compare', 'notd'];
+  const names = ['classify', 'search', 'compare', 'notd', 'why'];
   document.querySelectorAll('.tab').forEach((t, i) => {
     t.classList.toggle('active', names[i] === name);
   });
@@ -550,6 +550,49 @@ json.dumps({"only_a": only_a, "only_b": only_b, "shared": shared})
   }
 }
 
+// ── Why ──────────────────────────────────────────────────────────────────
+
+async function doWhy() {
+  if (!requireReady()) return;
+  const prop = $('input-why-property').value.trim();
+  const numVal = $('input-why-number').value;
+  if (!prop) { toast('Enter a property name.'); return; }
+  if (numVal === '' || isNaN(parseInt(numVal))) { toast('Enter a valid integer.'); return; }
+  const n = parseInt(numVal);
+
+  const btn = document.querySelector('#tab-why .btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Explaining...';
+
+  try {
+    const result = await pyodide.runPythonAsync(`
+import json
+try:
+    explanation = nc.why(${JSON.stringify(prop)}, ${n})
+    json.dumps({"ok": True, "text": explanation})
+except ValueError as e:
+    json.dumps({"ok": False, "text": str(e)})
+except AttributeError:
+    json.dumps({"ok": False, "text": "why() is not available in this version of numclassify yet. Try the 'Classify' tab instead."})
+`);
+    const data = JSON.parse(result);
+    const out = $('why-output');
+    out.textContent = data.text;
+    out.style.color = data.ok ? '' : 'var(--saffron)';
+
+    const res = $('result-why');
+    res.style.display = 'block';
+    res.classList.remove('show');
+    void res.offsetWidth;
+    res.classList.add('show');
+  } catch(e) {
+    toast('Error: ' + e.message.slice(0, 80));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Explain';
+  }
+}
+
 // ── Number of the Day ────────────────────────────────────────────────────
 
 async function computeNOTD(dateStr) {
@@ -664,10 +707,10 @@ function scrollToTop() {
 
 // ── Search Autocomplete ───────────────────────────────────────────────────
 
-function setupAutocomplete() {
-  const input = $('input-property');
+function setupAutocomplete(inputId, dropdownId, onPick) {
+  const input = $(inputId);
   if (!input) return;
-  const dropdown = $('ac-dropdown');
+  const dropdown = $(dropdownId);
   let selectedIdx = -1;
 
   input.addEventListener('input', async () => {
@@ -709,11 +752,17 @@ json.dumps(keys)
     }
     selectedIdx = -1;
     dropdown.innerHTML = matches.map((p, i) =>
-      `<div class="ac-item${i === 0 ? ' selected' : ''}" data-prop="${p}" onclick="pickAutocomplete('${p}')">
+      `<div class="ac-item${i === 0 ? ' selected' : ''}" data-prop="${p}">
         ${p.replace(/_/g, ' ')}
         <span class="ac-cat">${(categoryMap[p] || '').replace(/_/g, ' ')}</span>
       </div>`
     ).join('');
+    dropdown.querySelectorAll('.ac-item').forEach(el => {
+      el.addEventListener('click', () => {
+        onPick(el.dataset.prop);
+        dropdown.classList.remove('open');
+      });
+    });
     dropdown.classList.add('open');
   });
 
@@ -739,12 +788,6 @@ json.dumps(keys)
       dropdown.classList.remove('open');
     }
   });
-}
-
-function pickAutocomplete(prop) {
-  $('input-property').value = prop;
-  $('ac-dropdown').classList.remove('open');
-  doSearch();
 }
 
 // ── Confetti ──────────────────────────────────────────────────────────────
@@ -776,6 +819,7 @@ const SHORTCUT_MAP = {
   c: 'classify',
   s: 'search',
   n: 'notd',
+  w: 'why',
 };
 
 function setupShortcuts() {
@@ -812,6 +856,12 @@ document.addEventListener('DOMContentLoaded', () => {
   $('input-compare-b')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') doCompare();
   });
+  $('input-why-property')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doWhy();
+  });
+  $('input-why-number')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doWhy();
+  });
 
   // Restore theme
   const savedTheme = localStorage.getItem('nc_theme');
@@ -820,7 +870,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if ($('theme-icon')) $('theme-icon').textContent = savedTheme === 'light' ? '☀️' : '🌙';
   }
 
-  setupAutocomplete();
+  setupAutocomplete('input-property', 'ac-dropdown', prop => { $('input-property').value = prop; doSearch(); });
+  setupAutocomplete('input-why-property', 'why-ac-dropdown', prop => { $('input-why-property').value = prop; doWhy(); });
   setupShortcuts();
   initPyodide();
 });

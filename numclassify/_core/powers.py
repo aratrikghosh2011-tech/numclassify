@@ -41,8 +41,18 @@ def is_perfect_power_check(n: int, exp: int) -> bool:
 # Registered classifiers
 # ---------------------------------------------------------------------------
 
+def _explain_perfect_square(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0, cannot be a perfect square"
+    r = math.isqrt(n)
+    if r * r == n:
+        return f"{n} = {r}^2 -> perfect square"
+    return f"{n} is between {r}^2 = {r*r} and {r+1}^2 = {(r+1)*(r+1)} -> not a perfect square"
+
+
 @register(name="Perfect Square", category="powers", oeis="A000290",
-          description="n = k^2 for some non-negative integer k.")
+          description="n = k^2 for some non-negative integer k.",
+          explain=_explain_perfect_square)
 def is_perfect_square(n: int) -> bool:
     """Return True if n is a perfect square.
 
@@ -67,8 +77,19 @@ def is_perfect_square(n: int) -> bool:
     return r * r == n
 
 
+def _explain_perfect_cube(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0, cannot be a perfect cube"
+    r = round(n ** (1.0 / 3))
+    for cand in (r, r + 1, r - 1):
+        if cand >= 0 and cand ** 3 == n:
+            return f"{n} = {cand}^3 -> perfect cube"
+    return f"{n} is not a perfect cube (between {r-1}^3 = {(r-1)**3} and {r+1}^3 = {(r+1)**3})" if r > 0 else f"{n} is not a perfect cube"
+
+
 @register(name="Perfect Cube", category="powers", oeis="A000578",
-          description="n = k^3 for some positive integer k.")
+          description="n = k^3 for some positive integer k.",
+          explain=_explain_perfect_cube)
 def is_perfect_cube(n: int) -> bool:
     """Return True if n is a perfect cube.
 
@@ -233,10 +254,29 @@ def is_sum_of_three_squares(n: int) -> bool:
     return n % 8 != 7
 
 
+def _explain_taxicab(n: int) -> str:
+    if n < 2:
+        return f"{n} < 2, cannot be a taxicab number"
+    ways = []
+    a = 1
+    while a ** 3 < n:
+        rem = n - a ** 3
+        b = round(rem ** (1.0 / 3))
+        for r in (b - 1, b, b + 1):
+            if r >= a and r > 0 and r ** 3 == rem:
+                ways.append(f"({a}^3 + {r}^3 = {a**3} + {r**3} = {a**3 + r**3})")
+                break
+        a += 1
+    if len(ways) >= 2:
+        return f"{n} can be expressed as sum of two positive cubes in {len(ways)} ways: {'; '.join(ways)}"
+    return f"{n} can only be expressed in {len(ways)} way(s) as sum of two positive cubes: {'; '.join(ways) if ways else 'none'}  --  {'is' if len(ways) >= 2 else 'not'} a taxicab number"
+
+
 @register(name="Taxicab", category="powers", oeis="A001235",
-          description="Expressible as sum of two cubes in at least 2 different ways.")
+          description="Expressible as sum of two cubes in at least 2 different ways.",
+          explain=_explain_taxicab)
 def is_taxicab(n: int) -> bool:
-    """Return True if n can be expressed as the sum of two positive cubes in ≥ 2 ways.
+    """Return True if n can be expressed as the sum of two positive cubes in >= 2 ways.
 
     Parameters
     ----------

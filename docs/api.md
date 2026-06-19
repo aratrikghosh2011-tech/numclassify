@@ -111,6 +111,49 @@ nc.find_all_in_range(["prime", "palindrome"], 1, 1000)
 # => [2, 3, 5, 7, 11, 101, 131, 151, ...]
 ```
 
+## why(property_name, n)
+
+Explain why `n` does or does not have a given property, showing the actual arithmetic.
+
+```python
+nc.why("armstrong", 153)
+# '153 is Armstrong because: 153 = 1^3 + 5^3 + 3^3 = 1 + 125 + 27 = 153'
+
+nc.why("perfect", 12)
+# '12 is NOT Perfect: proper divisors of 12 = {1, 2, 3, 4, 6}, sum = 16 != 12'
+```
+
+Raises `ValueError` for unknown property names.
+
+## property_info(name)
+
+Returns registry metadata for a property, including auto-generated examples.
+
+```python
+nc.property_info("armstrong")
+# {
+#   "name": "Armstrong",
+#   "description": "An Armstrong number (also known as a narcissistic or pluperfect number) is an integer that is equal to the sum of its own digits each raised to the power of the number of digits.",
+#   "category": "digital",
+#   "oeis": "A005188",
+#   "examples": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407]
+# }
+```
+
+Raises `ValueError` for unknown property names.
+
+## find(start, end, has=None, not_has=None, any_of=None)
+
+Query numbers in a range by property combinations.
+
+```python
+nc.find(1, 10000, has=["harshad", "palindrome"])
+nc.find(1, 500, has=["prime"], not_has=["emirp"])
+nc.find(1, 10000, any_of=["perfect", "amicable"])
+```
+
+`has` and `any_of` cannot be combined in the same call.
+
 ## register
 
 Decorator to add a custom number type. Registered types appear everywhere — `classify()`,

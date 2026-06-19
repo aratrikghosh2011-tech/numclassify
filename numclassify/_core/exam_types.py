@@ -42,6 +42,14 @@ def _is_perfect_square_exact(n: int) -> bool:
 # Strong Number
 # ---------------------------------------------------------------------------
 
+def _explain_strong(n: int) -> str:
+    import math
+    digits = [int(d) for d in str(n)]
+    terms = [f"{d}!" for d in digits]
+    values = [str(math.factorial(d)) for d in digits]
+    return f"{n} = {' + '.join(terms)} = {' + '.join(values)} = {sum(math.factorial(d) for d in digits)}"
+
+
 @register(
     name="Strong",
     category="digital",
@@ -51,6 +59,8 @@ def _is_perfect_square_exact(n: int) -> bool:
         "Also called a factorion. Examples: 1, 2, 145, 40585."
     ),
     aliases=["strong_number", "factorion"],
+    explain=_explain_strong,
+    exam_tag=True,
 )
 def is_strong(n: int) -> bool:
     """Return True if n equals the sum of the factorials of its digits.
@@ -92,6 +102,7 @@ def is_strong(n: int) -> bool:
         "Examples: 3, 8, 15, 24, 35, 48."
     ),
     aliases=["sunny_number"],
+    exam_tag=True,
 )
 def is_sunny(n: int) -> bool:
     """Return True if n+1 is a perfect square.
@@ -132,6 +143,7 @@ def is_sunny(n: int) -> bool:
         "Named after the Buzz game where players say 'buzz' for such numbers."
     ),
     aliases=["buzz_number"],
+    exam_tag=True,
 )
 def is_buzz(n: int) -> bool:
     """Return True if n is divisible by 7 or ends in the digit 7.
@@ -172,6 +184,7 @@ def is_buzz(n: int) -> bool:
         "Examples: 1, 10, 19, 28, 100."
     ),
     aliases=["magic_number"],
+    exam_tag=True,
 )
 def is_magic(n: int) -> bool:
     """Return True if the digital root of n equals 1.
@@ -197,7 +210,7 @@ def is_magic(n: int) -> bool:
     True
     >>> is_magic(28)   # 2+8=10, 1+0=1
     True
-    >>> is_magic(12)   # 1+2=3 ≠ 1
+    >>> is_magic(12)   # 1+2=3 != 1
     False
     """
     if n <= 0:
@@ -220,6 +233,7 @@ def is_magic(n: int) -> bool:
         "Examples: 192, 219, 273, 327, 192."
     ),
     aliases=["fascinating_number"],
+    exam_tag=True,
 )
 def is_fascinating(n: int) -> bool:
     """Return True if n is a fascinating number.
@@ -269,6 +283,7 @@ def is_fascinating(n: int) -> bool:
         "Examples: 1, 5, 6, 25, 76, 376."
     ),
     aliases=["trimorphic_number", "automorphic_cube"],
+    exam_tag=True,
 )
 def is_trimorphic(n: int) -> bool:
     """Return True if n^3 ends with n.
@@ -313,6 +328,7 @@ def is_trimorphic(n: int) -> bool:
         "Examples: 2, 3, 5, 7, 11, 23, 29, 41."
     ),
     aliases=["twisted_prime"],
+    exam_tag=True,
 )
 def is_twisted_prime(n: int) -> bool:
     """Return True if n is prime and the sum of its digits is also prime.
@@ -353,6 +369,7 @@ def is_twisted_prime(n: int) -> bool:
         "Examples: 1, 12, 123, 1234, 9876543210."
     ),
     aliases=["unique_number", "unique_digit"],
+    exam_tag=True,
 )
 def is_unique(n: int) -> bool:
     """Return True if n has no repeated digits.

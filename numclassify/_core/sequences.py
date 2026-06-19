@@ -130,7 +130,7 @@ def _gen_bell() -> Set[int]:
 def _gen_motzkin() -> Set[int]:
     s: Set[int] = set()
     # M(n+1) = M(n) + sum_{k=0}^{n-1} M(k)*M(n-1-k)
-    # Simpler recurrence: M(n) = ((2n+2)*M(n-1) + (3n-3)*M(n-2)) / (n+3) — but fractions needed
+    # Simpler recurrence: M(n) = ((2n+2)*M(n-1) + (3n-3)*M(n-2)) / (n+3)  --  but fractions needed
     # Use: M(0)=1, M(1)=1, M(n)= M(n-1) + sum(M(k)*M(n-2-k) for k=0..n-2)
     # Cleaner: (n+3)*M(n) = (2n+2)*M(n-1) + (3n-3)*M(n-2)  [valid for n>=2, using n->n shifted]
     # Actually standard: (n+2)*M(n) = (2n)*M(n-1) + 3*M(n-2)  -- let's verify small:
@@ -239,8 +239,20 @@ _SYLVESTER: Set[int] = _gen_sylvester()
 # Registered classifiers
 # ---------------------------------------------------------------------------
 
+def _explain_fibonacci(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0, cannot be Fibonacci"
+    a, b = 0, 1
+    while b < n:
+        a, b = b, a + b
+    if b == n:
+        return f"{n} appears in the Fibonacci sequence (0, 1, 1, 2, 3, 5, 8, ...)"
+    return f"{n} is between {a} and {b} in the Fibonacci sequence  --  not a Fibonacci number"
+
+
 @register(name="Fibonacci", category="sequences", oeis="A000045",
-          description="Member of the Fibonacci sequence.")
+          description="Member of the Fibonacci sequence.",
+          explain=_explain_fibonacci)
 def is_fibonacci(n: int) -> bool:
     """Return True if n is a Fibonacci number.
 
@@ -255,8 +267,20 @@ def is_fibonacci(n: int) -> bool:
     return n >= 0 and n in _FIBONACCI
 
 
+def _explain_lucas(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0, cannot be Lucas"
+    a, b = 2, 1
+    while b < n:
+        a, b = b, a + b
+    if b == n:
+        return f"{n} appears in the Lucas sequence (2, 1, 3, 4, 7, 11, 18, ...)"
+    return f"{n} is between {a} and {b} in the Lucas sequence  --  not a Lucas number"
+
+
 @register(name="Lucas", category="sequences", oeis="A000032",
-          description="Member of the Lucas sequence.")
+          description="Member of the Lucas sequence.",
+          explain=_explain_lucas)
 def is_lucas(n: int) -> bool:
     """Return True if n is a Lucas number.
 
@@ -367,8 +391,25 @@ def is_perrin(n: int) -> bool:
     return n >= 0 and n in _PERRIN
 
 
+def _explain_catalan(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0, cannot be Catalan"
+    from fractions import Fraction
+    c = Fraction(1, 1)
+    k = 0
+    prev = 0
+    while int(c) < n:
+        prev = int(c)
+        c = c * 2 * (2 * k + 1) // (k + 2)
+        k += 1
+    if int(c) == n:
+        return f"{n} = C({k})  --  a Catalan number"
+    return f"{n} is not a Catalan number (falls between C({k-1}) = {prev} and C({k}) = {int(c)})"
+
+
 @register(name="Catalan", category="sequences", oeis="A000108",
-          description="Member of the Catalan number sequence.")
+          description="Member of the Catalan number sequence.",
+          explain=_explain_catalan)
 def is_catalan(n: int) -> bool:
     """Return True if n is a Catalan number.
 
@@ -390,8 +431,27 @@ def is_catalan(n: int) -> bool:
     return n >= 0 and n in _CATALAN
 
 
+def _explain_bell(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0, cannot be Bell"
+    row = [1]
+    k = 0
+    prev = 0
+    while row[0] < n:
+        prev = row[0]
+        new_row = [row[-1]]
+        for i in range(len(row)):
+            new_row.append(new_row[-1] + row[i])
+        row = new_row
+        k += 1
+    if row[0] == n:
+        return f"{n} = B({k})  --  a Bell number"
+    return f"{n} is not a Bell number (falls between B({k-1}) = {prev} and B({k}) = {row[0]})"
+
+
 @register(name="Bell", category="sequences", oeis="A000110",
-          description="Member of the Bell number sequence.")
+          description="Member of the Bell number sequence.",
+          explain=_explain_bell)
 def is_bell(n: int) -> bool:
     """Return True if n is a Bell number.
 

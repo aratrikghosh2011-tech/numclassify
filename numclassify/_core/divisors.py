@@ -2,6 +2,17 @@
 numclassify/_core/divisors.py
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Divisor-based number classification functions.
+
+Complexity caveats
+------------------
+- is_semiperfect and is_zumkeller use bitmask DP (Python big-int bitset).
+  This is efficient for numbers with many divisors but the bitmask grows
+  with the target sum, so very large semiperfect/zumkeller candidates may
+  still be slow.
+- is_untouchable is fully precomputed for n <= 10_000.
+  For n in (10_000, 500_000] it uses a sigma-based exhaustive sieve over
+  [2, 2n].  n > 500_000 raises ValueError because [2, 2n] is
+  computationally infeasible at that range.
 """
 from __future__ import annotations
 
@@ -131,8 +142,15 @@ _UNTOUCHABLE: Set[int] = _build_untouchable_set(10000)
 # Registered classifiers
 # ---------------------------------------------------------------------------
 
+def _explain_perfect(n: int) -> str:
+    pd = proper_divisors(n)
+    s = sum(pd)
+    return f"proper divisors of {n} = {{{', '.join(map(str, pd))}}}, sum = {s}" + (" == " if s == n else " != ") + str(n)
+
+
 @register(name="Perfect", category="divisors", oeis="A000396",
-          description="Equal to the sum of its proper divisors.")
+          description="Equal to the sum of its proper divisors.",
+          explain=_explain_perfect)
 def is_perfect(n: int) -> bool:
     """Return True if n equals the sum of its proper divisors.
 
@@ -159,8 +177,14 @@ def is_perfect(n: int) -> bool:
     return sigma(n) - n == n
 
 
+def _explain_abundant(n: int) -> str:
+    s = sigma(n) - n
+    return f"sigma({n}) - {n} = {s} > {n}" if s > n else f"sigma({n}) - {n} = {s} <= {n}"
+
+
 @register(name="Abundant", category="divisors", oeis="A005101",
-          description="Proper divisor sum exceeds n.")
+          description="Proper divisor sum exceeds n.",
+          explain=_explain_abundant)
 def is_abundant(n: int) -> bool:
     """Return True if the sum of proper divisors of n exceeds n.
 
@@ -184,8 +208,14 @@ def is_abundant(n: int) -> bool:
     return sigma(n) - n > n
 
 
+def _explain_deficient(n: int) -> str:
+    s = sigma(n) - n
+    return f"sigma({n}) - {n} = {s} < {n}" if s < n else f"sigma({n}) - {n} = {s} >= {n}"
+
+
 @register(name="Deficient", category="divisors", oeis="A005100",
-          description="Proper divisor sum is less than n.")
+          description="Proper divisor sum is less than n.",
+          explain=_explain_deficient)
 def is_deficient(n: int) -> bool:
     """Return True if the sum of proper divisors of n is less than n.
 
@@ -214,6 +244,8 @@ def is_deficient(n: int) -> bool:
 def is_semiperfect(n: int) -> bool:
     """Return True if n equals the sum of some subset of its proper divisors.
 
+    Uses bitmask DP (Python big-int as bitset) for performance.
+
     Parameters
     ----------
     n : int
@@ -225,17 +257,25 @@ def is_semiperfect(n: int) -> bool:
     if n < 1:
         return False
     divs = proper_divisors(n)
-    # DP subset-sum
-    possible = {0}
+    if not divs:
+        return False
+    bitset = 1
     for d in divs:
-        possible = possible | {x + d for x in possible}
-        if n in possible:
+        bitset |= bitset << d
+        if (bitset >> n) & 1:
             return True
-    return n in possible
+    return bool((bitset >> n) & 1)
+
+
+def _explain_weird(n: int) -> str:
+    s = sigma(n) - n
+    sp = is_semiperfect(n)
+    return f"sigma({n}) - {n} = {s} > {n} (abundant), semiperfect? {'yes' if sp else 'no'} -> {'weird' if (s > n and not sp) else 'not weird'}"
 
 
 @register(name="Weird", category="divisors", oeis="A006037",
-          description="Abundant but not semiperfect.")
+          description="Abundant but not semiperfect.",
+          explain=_explain_weird)
 def is_weird(n: int) -> bool:
     """Return True if n is abundant but not semiperfect.
 
@@ -255,8 +295,15 @@ def is_weird(n: int) -> bool:
     return is_abundant(n) and not is_semiperfect(n)
 
 
+def _explain_amicable(n: int) -> str:
+    m = sigma(n) - n
+    m_pair = sigma(m) - m if m > 1 else 0
+    return f"sigma({n}) - {n} = {m}, sigma({m}) - {m} = {m_pair}" + ("  --  amicable pair!" if (m != n and m_pair == n) else "  --  not an amicable pair")
+
+
 @register(name="Amicable", category="divisors", oeis="A063990",
-          description="Pair where each number's proper divisor sum is the other.")
+          description="Pair where each number's proper divisor sum is the other.",
+          explain=_explain_amicable)
 def is_amicable(n: int) -> bool:
     """Return True if n is part of an amicable pair.
 
@@ -309,6 +356,8 @@ def is_untouchable(n: int) -> bool:
     """Return True if no integer has n as its proper divisor sum.
 
     Uses a precomputed sieve for values up to 10000.
+    For n in (10000, 500_000] uses an fast divisor-sum sieve over [2, 2n].
+    n > 500_000 raises ValueError (computationally infeasible).
 
     Parameters
     ----------
@@ -320,12 +369,22 @@ def is_untouchable(n: int) -> bool:
     """
     if n <= 10000:
         return n in _UNTOUCHABLE
-    # Fallback: check a reasonable range
+    if n > 500_000:
+        raise ValueError(
+            "is_untouchable(n) is not supported for n > 500,000 "
+            "(checking requires an exhaustive sieve over [2, 2n] which is "
+            "computationally infeasible at this range)"
+        )
     limit = n * 2
+    # Divisor-sum sieve: sigma_arr[k] = sum of divisors of k
+    sigma_arr = [0] * (limit + 1)
+    for i in range(1, limit + 1):
+        for j in range(i, limit + 1, i):
+            sigma_arr[j] += i
+    seen_sums = set()
     for k in range(2, limit + 1):
-        if sum(proper_divisors(k)) == n:
-            return False
-    return True
+        seen_sums.add(sigma_arr[k] - k)
+    return n not in seen_sums
 
 
 @register(name="Superperfect", category="divisors", oeis="A019279",
@@ -369,8 +428,25 @@ def is_harmonic_divisor(n: int) -> bool:
     return (n * nd) % s == 0
 
 
+def _explain_practical(n: int) -> str:
+    if n <= 0:
+        return f"n = {n} <= 0"
+    if n == 1:
+        return f"n = 1 is trivially practical"
+    if n % 2 != 0:
+        return f"{n} is odd and > 1, cannot be practical"
+    factors = _factorization(n)
+    sp = 1
+    for p, e in factors:
+        if p > sp + 1:
+            return f"prime factor {p} > 1 + sigma(previous prime powers) = {sp + 1}, fails practical criterion"
+        sp *= (p ** (e + 1) - 1) // (p - 1)
+    return f"all prime factors satisfy p <= 1 + sigma(previous): {n} is practical"
+
+
 @register(name="Practical", category="divisors", oeis="A005153",
-          description="Every integer 1..n can be expressed as a sum of distinct divisors of n.")
+          description="Every integer 1..n can be expressed as a sum of distinct divisors of n.",
+          explain=_explain_practical)
 def is_practical(n: int) -> bool:
     """Return True if every integer 1..n is a sum of distinct divisors of n.
 
@@ -569,7 +645,7 @@ def is_smooth_2(n: int) -> bool:
 @register(name="3-smooth", category="divisors", oeis="A003586",
           description="All prime factors are at most 3.")
 def is_smooth_3(n: int) -> bool:
-    """Return True if all prime factors of n are ≤ 3.
+    """Return True if all prime factors of n are <= 3.
 
     Parameters
     ----------
@@ -591,7 +667,7 @@ def is_smooth_3(n: int) -> bool:
 @register(name="5-smooth", category="divisors", oeis="A051037",
           description="All prime factors are at most 5 (regular numbers).")
 def is_smooth_5(n: int) -> bool:
-    """Return True if all prime factors of n are ≤ 5.
+    """Return True if all prime factors of n are <= 5.
 
     Parameters
     ----------
@@ -612,7 +688,7 @@ def is_smooth_5(n: int) -> bool:
 @register(name="7-smooth", category="divisors", oeis="A002473",
           description="All prime factors are at most 7.")
 def is_smooth_7(n: int) -> bool:
-    """Return True if all prime factors of n are ≤ 7.
+    """Return True if all prime factors of n are <= 7.
 
     Parameters
     ----------
@@ -736,6 +812,8 @@ def is_wasteful(n: int) -> bool:
 def is_zumkeller(n: int) -> bool:
     """Return True if the divisors of n can be split into two sets with equal sum.
 
+    Uses bitmask DP (Python big-int as bitset) for performance.
+
     Parameters
     ----------
     n : int
@@ -751,10 +829,9 @@ def is_zumkeller(n: int) -> bool:
     if total % 2 != 0:
         return False
     target = total // 2
-    # DP subset-sum
-    possible = {0}
+    bitset = 1
     for d in divs_all:
-        possible = possible | {x + d for x in possible if x + d <= target}
-        if target in possible:
+        bitset |= bitset << d
+        if (bitset >> target) & 1:
             return True
-    return target in possible
+    return bool((bitset >> target) & 1)

@@ -38,6 +38,7 @@
       <button class="tab" onclick="switchTab('search')">Search</button>
       <button class="tab" onclick="switchTab('compare')">Compare</button>
       <button class="tab" onclick="switchTab('notd')">Today's Number</button>
+      <button class="tab" onclick="switchTab('why')">Why</button>
     </div>
 
     <!-- CLASSIFY -->
@@ -158,6 +159,25 @@
       </div>
     </div>
 
+    <!-- WHY -->
+    <div class="tab-panel" id="tab-why">
+      <div class="card">
+        <div class="card-title">Why Is This Number...?</div>
+        <div class="input-row">
+          <div class="autocomplete-wrap">
+            <input type="text" id="input-why-property" placeholder="Property name (e.g. armstrong, perfect, prime)..." autocomplete="off" />
+            <div id="why-ac-dropdown"></div>
+          </div>
+          <input type="number" id="input-why-number" placeholder="Number..." />
+          <button class="btn" onclick="doWhy()">Explain <span class="kbd-hint">Enter</span></button>
+        </div>
+        <div id="result-why">
+          <div class="divider"></div>
+          <div class="why-output" id="why-output"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <footer>
@@ -175,6 +195,7 @@
     <div class="shortcut-row"><span class="sk-key">C</span><span class="sk-desc">Classify tab</span></div>
     <div class="shortcut-row"><span class="sk-key">S</span><span class="sk-desc">Search tab</span></div>
     <div class="shortcut-row"><span class="sk-key">N</span><span class="sk-desc">Number of the Day</span></div>
+    <div class="shortcut-row"><span class="sk-key">W</span><span class="sk-desc">Why tab</span></div>
     <div class="shortcut-row"><span class="sk-key">?</span><span class="sk-desc">Toggle this panel</span></div>
     <button class="btn shortcuts-close" onclick="closeShortcuts()">Close</button>
   </div>

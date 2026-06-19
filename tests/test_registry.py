@@ -7,6 +7,7 @@ All tests are self-contained and must pass with no warnings on Python 3.8+.
 """
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 
@@ -486,3 +487,175 @@ def test_spy_not_zero():
     from numclassify._core.digital import is_spy
     assert is_spy(0) is False
     assert is_spy(1) is True
+
+
+# ---------------------------------------------------------------------------
+# v0.5.0 — Part A: performance hang regression tests
+# ---------------------------------------------------------------------------
+
+import time
+
+
+def test_semiperfect_large_n_fast():
+    start = time.time()
+    nc.is_semiperfect(999999999)
+    assert time.time() - start < 2.0
+
+
+def test_zumkeller_large_n_fast():
+    start = time.time()
+    nc.is_zumkeller(999999999)
+    assert time.time() - start < 2.0
+
+
+def test_weird_large_n_fast():
+    start = time.time()
+    nc.is_weird(999999999)
+    assert time.time() - start < 2.0
+
+
+def test_untouchable_large_n_fast():
+    start = time.time()
+    nc.is_untouchable(50000)
+    assert time.time() - start < 5.0
+
+
+def test_untouchable_raises_above_ceiling():
+    with pytest.raises(ValueError):
+        nc.is_untouchable(600_000)
+
+
+def test_semiperfect_correctness_unchanged():
+    for k in [6, 12, 18, 20, 24, 28, 30, 36]:
+        assert nc.is_semiperfect(k) is True
+    for k in [2, 3, 4, 5, 7, 8, 9, 10, 11]:
+        assert nc.is_semiperfect(k) is False
+
+
+def test_zumkeller_correctness_unchanged():
+    for k in [6, 12, 20, 24, 28, 30, 40]:
+        assert nc.is_zumkeller(k) is True
+
+
+# ---------------------------------------------------------------------------
+# v0.5.0 — Part B: why / property_info / find tests
+# ---------------------------------------------------------------------------
+
+
+def test_why_true_case():
+    result = nc.why("armstrong", 153)
+    assert "153" in result
+    assert "Armstrong" in result or "armstrong" in result.lower()
+
+
+def test_why_false_case():
+    result = nc.why("perfect", 12)
+    assert "NOT" in result
+
+
+def test_why_unknown_property_raises():
+    with pytest.raises(ValueError):
+        nc.why("nonexistent_property_xyz", 5)
+
+
+def test_why_fallback_for_no_explain():
+    result = nc.why("heptagonal", 7)
+    assert "7" in result
+
+
+def test_property_info_structure():
+    info = nc.property_info("armstrong")
+    assert set(info.keys()) == {"name", "description", "category", "oeis", "examples"}
+    assert 153 in info["examples"] or len(info["examples"]) > 0
+
+
+def test_property_info_unknown_raises():
+    with pytest.raises(ValueError):
+        nc.property_info("nonexistent_property_xyz")
+
+
+def test_find_has():
+    results = nc.find(1, 1000, has=["harshad", "palindrome"])
+    assert all(nc.is_harshad(r) for r in results)
+    assert all(nc.is_palindrome(r) for r in results)
+
+
+def test_find_not_has():
+    results = nc.find(1, 500, has=["prime"], not_has=["emirp"])
+    emirps = nc.find(1, 500, has=["emirp"])
+    assert all(r not in emirps for r in results)
+
+
+def test_find_any_of():
+    results = nc.find(1, 10000, any_of=["perfect", "amicable"])
+    assert len(results) > 0
+
+
+# ---------------------------------------------------------------------------
+# v0.5.0 — Part C: exam_type tagging test
+# ---------------------------------------------------------------------------
+
+
+def test_exam_types_category_works():
+    from numclassify._registry import get_exam_types
+    exam_entries = get_exam_types()
+    assert len(exam_entries) == 8
+    names = {e.name for e in exam_entries}
+    assert "Strong" in names
+    assert "Magic" in names
+
+
+# ---------------------------------------------------------------------------
+# v0.5.0 — Part J: CLI integration tests
+# ---------------------------------------------------------------------------
+
+
+def test_cli_why_command():
+    import subprocess, sys
+    result = subprocess.run(
+        [sys.executable, "-m", "numclassify", "why", "armstrong", "153"],
+        capture_output=True, text=True
+    )
+    assert result.returncode == 0
+    assert "153" in result.stdout
+
+
+def test_cli_why_json():
+    import subprocess, sys
+    result = subprocess.run(
+        [sys.executable, "-m", "numclassify", "why", "armstrong", "153", "--json"],
+        capture_output=True, text=True
+    )
+    assert result.returncode == 0
+    data = json.loads(result.stdout)
+    assert data["number"] == 153
+
+
+def test_cli_query_command():
+    import subprocess, sys
+    result = subprocess.run(
+        [sys.executable, "-m", "numclassify", "query", "1", "100", "--has", "prime", "--json"],
+        capture_output=True, text=True
+    )
+    assert result.returncode == 0
+    data = json.loads(result.stdout)
+    assert isinstance(data, list)
+
+
+def test_cli_no_args_shows_footer():
+    import subprocess, sys
+    result = subprocess.run(
+        [sys.executable, "-m", "numclassify"],
+        capture_output=True, text=True
+    )
+    assert "github.com" in result.stdout.lower()
+
+
+def test_cli_info_shows_examples():
+    import subprocess, sys
+    result = subprocess.run(
+        [sys.executable, "-m", "numclassify", "info", "armstrong"],
+        capture_output=True, text=True
+    )
+    assert result.returncode == 0
+    assert "153" in result.stdout or "Example" in result.stdout

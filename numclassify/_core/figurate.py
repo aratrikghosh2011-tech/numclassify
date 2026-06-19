@@ -14,7 +14,7 @@ from typing import Optional
 # =============================================================================
 
 def _is_perfect_square(n: int) -> bool:
-    """Integer perfect square check — no float errors."""
+    """Integer perfect square check  --  no float errors."""
     if n < 0:
         return False
     r = math.isqrt(n)
@@ -60,7 +60,7 @@ def is_centered_k_gonal(m: int, k: int) -> bool:
     """
     Check if m is a centered k-gonal number.
 
-    Inverse: solve k*n*(n-1)/2 + 1 = m → n^2 - n - 2*(m-1)/k = 0
+    Inverse: solve k*n*(n-1)/2 + 1 = m -> n^2 - n - 2*(m-1)/k = 0
     Use quadratic formula, check n is positive integer.
     Edge case: m=1 is always True (n=0 term gives C(k,0)=1... actually n=1 gives 1 too).
     """
@@ -119,6 +119,28 @@ for _k in range(21, 1001):
 # Section 4: Auto-registration loop
 # =============================================================================
 
+def _explain_triangular(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1, cannot be triangular"
+    disc = 1 + 8 * n
+    r = math.isqrt(disc)
+    if r * r == disc and (-1 + r) % 2 == 0:
+        k = (-1 + r) // 2
+        return f"{n} = T({k}) = {k}x({k}+1)/2 = {k*(k+1)//2} -> triangular"
+    return f"{n} is not triangular: 1+8x{n}={disc} is not a perfect square"
+
+
+def _explain_hexagonal(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1, cannot be hexagonal"
+    disc = 1 + 8 * n
+    r = math.isqrt(disc)
+    if r * r == disc and (1 + r) % 4 == 0:
+        k = (1 + r) // 4
+        return f"{n} = H({k}) = {k}x(2x{k}-1) = {k*(2*k-1)} -> hexagonal"
+    return f"{n} is not hexagonal: (1+8x{n})/4 is not an integer"
+
+
 for k in range(3, 1001):
     _name, _oeis_p, _oeis_c = POLYGON_NAMES[k]
 
@@ -142,6 +164,7 @@ for k in range(3, 1001):
         oeis=_oeis_p,
         description=_description,
         aliases=[_func_name, _name],
+        explain=_explain_triangular if k == 3 else (_explain_hexagonal if k == 6 else None),
     )(_poly_fn)
 
     # --- Register centered polygonal ---
@@ -222,7 +245,7 @@ def is_star(n: int) -> bool:
         return False
     if n == 1:
         return True
-    # 6*k*(k-1) + 1 = n  →  6k^2 - 6k + (1-n) = 0
+    # 6*k*(k-1) + 1 = n  ->  6k^2 - 6k + (1-n) = 0
     # disc = 36 - 24*(1-n) = 36 + 24*(n-1) = 12 + 24n - 12 = 24n - 12 + 24 ... let me redo:
     # 6k^2 - 6k - (n-1) = 0
     # disc = 36 + 24*(n-1)

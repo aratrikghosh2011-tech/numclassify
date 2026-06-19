@@ -184,7 +184,7 @@ def _gen_euler_numbers() -> Set[int]:
     return s
 
 
-# Known Bernoulli numerators (absolute values) — partial list
+# Known Bernoulli numerators (absolute values)  --  partial list
 _BERNOULLI_NUMERATORS: Set[int] = {
     1, 1, 1, 1, 1, 5, 691, 7, 3617, 43867, 174611, 854513,
     236364091, 8553103, 23749461029, 8615841276005, 7709321041217,

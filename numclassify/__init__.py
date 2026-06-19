@@ -59,6 +59,7 @@ from numclassify._registry import (                   # noqa: F401
     find_any_in_range,
     count_properties,
     most_special_in_range,
+    get_exam_types,
 )
 
 # ---------------------------------------------------------------------------
@@ -73,6 +74,112 @@ def __getattr__(name: str):
     if key in REGISTRY:
         return REGISTRY[key].func
     raise AttributeError(f"module 'numclassify' has no attribute {name!r}")
+
+
+# ---------------------------------------------------------------------------
+# why / property_info / find
+# ---------------------------------------------------------------------------
+
+def why(property_name: str, n: int) -> str:
+    """Explain why n does or does not have the given property."""
+    from numclassify._registry import REGISTRY, _normalize
+
+    key = _normalize(property_name)
+    if key not in REGISTRY:
+        raise ValueError(f"Unknown property {property_name!r}")
+    entry = REGISTRY[key]
+    try:
+        is_true = entry.func(n)
+    except Exception as exc:
+        return f"Cannot evaluate {entry.name}({n}): {exc}"
+    if entry.explain is not None:
+        try:
+            explanation = entry.explain(n)
+        except Exception as exc:
+            explanation = f"explanation unavailable: {exc}"
+        if is_true:
+            return f"{n} is {entry.name} because: {explanation}"
+        else:
+            return f"{n} is NOT {entry.name}: {explanation}"
+    status = "is" if is_true else "is NOT"
+    return f"{n} {status} {entry.name}. {entry.description}"
+
+
+def property_info(name: str) -> dict:
+    """Return registry metadata for a property, including auto-generated examples."""
+    from numclassify._registry import REGISTRY, _normalize
+
+    key = _normalize(name)
+    if key not in REGISTRY:
+        raise ValueError(f"Unknown property {name!r}")
+    entry = REGISTRY[key]
+
+    small = []   # 0-9
+    larger = []  # 10+
+    n = 0
+    while len(small) + len(larger) < 30 and n <= 10000:
+        try:
+            if entry.func(n):
+                if n < 10:
+                    small.append(n)
+                else:
+                    larger.append(n)
+        except Exception:
+            pass
+        n += 1
+        if len(larger) >= 12:
+            break
+
+    if larger:
+        examples = (small[:3] + larger)[:10]
+    else:
+        examples = small[:10]
+
+    return {
+        "name": entry.name,
+        "description": entry.description,
+        "category": entry.category,
+        "oeis": entry.oeis,
+        "examples": examples,
+    }
+
+
+from typing import List
+
+def find(start: int, end: int, has: Optional[List[str]] = None,
+         not_has: Optional[List[str]] = None,
+         any_of: Optional[List[str]] = None) -> list:
+    """
+    Query numbers in [start, end] by property combinations.
+
+    has: all of these properties must be True
+    not_has: all of these properties must be False
+    any_of: at least one of these properties must be True
+    """
+    if has and any_of:
+        raise ValueError("Cannot combine has= and any_of= in one call")
+
+    results = []
+    for n in range(start, end + 1):
+        if has is not None:
+            if not all(_check_property(p, n) for p in has):
+                continue
+        if any_of is not None:
+            if not any(_check_property(p, n) for p in any_of):
+                continue
+        if not_has is not None:
+            if any(_check_property(p, n) for p in not_has):
+                continue
+        results.append(n)
+    return results
+
+
+def _check_property(name: str, n: int) -> bool:
+    from numclassify._registry import REGISTRY, _normalize
+    key = _normalize(name)
+    if key not in REGISTRY:
+        raise ValueError(f"Unknown property {name!r}")
+    return REGISTRY[key].func(n)
 
 
 # ---------------------------------------------------------------------------
@@ -237,10 +344,13 @@ __all__ = [
     "random_number",
     "find_by_property",
     "stream",
+    "why",
+    "property_info",
+    "find",
 ]
 
 # Clean up internal names that leak into dir(nc)
 del (_primes, _figurate, _digital, _recreational,
      _divisors, _sequences, _powers, _number_theory,
      _combinatorial, _exam_types, _core, _registry,
-     Optional, _version, _PackageNotFoundError)
+     Optional, List, _version, _PackageNotFoundError)

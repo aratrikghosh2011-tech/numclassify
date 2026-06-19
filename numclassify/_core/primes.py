@@ -175,8 +175,21 @@ def next_prime(n: int) -> int:
 
 
 # ---------------------------------------------------------------------------
-# Existing 5 functions — kept exactly as-is
+# Existing 5 functions  --  kept exactly as-is
 # ---------------------------------------------------------------------------
+
+def _explain_prime(n: int) -> str:
+    if n < 2:
+        return f"{n} is less than 2, therefore not prime"
+    if n == 2:
+        return "2 is prime (smallest and only even prime)"
+    if n % 2 == 0:
+        return f"{n} is even and > 2, therefore composite"
+    factors = prime_factors(n)
+    if len(factors) == 1:
+        return f"{n} has no divisors other than 1 and itself  --  it is prime"
+    return f"{n} = {' x '.join(map(str, factors))}  --  composite"
+
 
 @register(
     name="Prime",
@@ -186,6 +199,7 @@ def next_prime(n: int) -> int:
         "A natural number greater than 1 with no positive divisors other than "
         "1 and itself."
     ),
+    explain=_explain_prime,
 )
 def is_prime(n: int) -> bool:
     """Return ``True`` if *n* is a prime number.
@@ -193,7 +207,7 @@ def is_prime(n: int) -> bool:
     Uses a deterministic Miller-Rabin test with witnesses ``[2, 3, 5, 7]``
     for *n* < 3,215,031,751.  For larger values, 20 additional random-free
     witnesses ``[2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53,
-    59, 61, 67, 71]`` are used, which is deterministic up to at least 3.3 × 10²⁴.
+    59, 61, 67, 71]`` are used, which is deterministic up to at least 3.3 x 10^2⁴.
 
     Correctly rejects Carmichael numbers such as 561.
 
@@ -210,7 +224,7 @@ def is_prime(n: int) -> bool:
     -------
     >>> is_prime(2)
     True
-    >>> is_prime(561)   # Carmichael number — composite
+    >>> is_prime(561)   # Carmichael number  --  composite
     False
     >>> is_prime(1_000_000_007)
     True
@@ -235,6 +249,21 @@ def is_prime(n: int) -> bool:
     return _miller_rabin_test(n, witnesses)
 
 
+def _explain_twin_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime, therefore cannot be a twin prime"
+    pm2 = is_prime(n - 2)
+    pp2 = is_prime(n + 2)
+    parts = []
+    if pm2:
+        parts.append(f"{n} - 2 = {n-2} is prime")
+    if pp2:
+        parts.append(f"{n} + 2 = {n+2} is prime")
+    if not parts:
+        return f"neither {n} - 2 = {n-2} nor {n} + 2 = {n+2} is prime -> not a twin prime"
+    return " and ".join(parts) + f" -> {n} is a twin prime"
+
+
 @register(
     name="Twin Prime",
     category="primes",
@@ -244,6 +273,7 @@ def is_prime(n: int) -> bool:
         "(i.e. p is part of a twin-prime pair)."
     ),
     aliases=["twin_prime"],
+    explain=_explain_twin_prime,
 )
 def is_twin_prime(n: int) -> bool:
     """Return ``True`` if *n* is a twin prime.
@@ -263,12 +293,26 @@ def is_twin_prime(n: int) -> bool:
     -------
     >>> is_twin_prime(5)   # 3 and 7 are both prime
     True
-    >>> is_twin_prime(23)  # 21=3*7 composite, 25=5² composite
+    >>> is_twin_prime(23)  # 21=3*7 composite, 25=5^2 composite
     False
     """
     if not is_prime(n):
         return False
     return is_prime(n - 2) or is_prime(n + 2)
+
+
+def _explain_mersenne_prime(n: int) -> str:
+    if n < 2:
+        return f"{n} < 2, cannot be a Mersenne prime"
+    m = n + 1
+    if m & (m - 1) != 0:
+        return f"{n} + 1 = {m} is not a power of 2 -> not Mersenne"
+    p = m.bit_length() - 1
+    p_is_prime = is_prime(p)
+    n_is_prime = is_prime(n)
+    if p_is_prime and n_is_prime:
+        return f"{n} = 2^{p} - 1, p = {p} is prime, n is prime -> Mersenne prime"
+    return f"{n} = 2^{p} - 1, p is{' ' if p_is_prime else ' not '}prime, n is{' ' if n_is_prime else ' not '}prime -> not a Mersenne prime"
 
 
 @register(
@@ -279,6 +323,7 @@ def is_twin_prime(n: int) -> bool:
         "A prime of the form 2^p − 1 where p itself is prime."
     ),
     aliases=["mersenne_prime"],
+    explain=_explain_mersenne_prime,
 )
 def is_mersenne_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Mersenne prime.
@@ -312,6 +357,15 @@ def is_mersenne_prime(n: int) -> bool:
     return is_prime(p) and is_prime(n)
 
 
+def _explain_sophie_germain_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime, cannot be a Sophie Germain prime"
+    twice_plus = 2 * n + 1
+    if is_prime(twice_plus):
+        return f"{n} is prime and 2x{n} + 1 = {twice_plus} is also prime -> Sophie Germain prime"
+    return f"{n} is prime but 2x{n} + 1 = {twice_plus} is composite -> not a Sophie Germain prime"
+
+
 @register(
     name="Sophie Germain Prime",
     category="primes",
@@ -320,6 +374,7 @@ def is_mersenne_prime(n: int) -> bool:
         "A prime p such that 2p + 1 is also prime."
     ),
     aliases=["sophie_germain_prime", "sophie germain prime"],
+    explain=_explain_sophie_germain_prime,
 )
 def is_sophie_germain_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Sophie Germain prime.
@@ -346,6 +401,17 @@ def is_sophie_germain_prime(n: int) -> bool:
     return is_prime(n) and is_prime(2 * n + 1)
 
 
+def _explain_safe_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime, cannot be a safe prime"
+    half = (n - 1) // 2
+    if (n - 1) % 2 != 0:
+        return f"({n} - 1) / 2 is not an integer -> not a safe prime"
+    if is_prime(half):
+        return f"{n} is prime and ({n} - 1) / 2 = {half} is also prime -> safe prime"
+    return f"{n} is prime but ({n} - 1) / 2 = {half} is composite -> not a safe prime"
+
+
 @register(
     name="Safe Prime",
     category="primes",
@@ -354,6 +420,7 @@ def is_sophie_germain_prime(n: int) -> bool:
         "A prime p such that (p − 1) / 2 is also prime."
     ),
     aliases=["safe_prime"],
+    explain=_explain_safe_prime,
 )
 def is_safe_prime(n: int) -> bool:
     """Return ``True`` if *n* is a safe prime.
@@ -390,7 +457,7 @@ def is_safe_prime(n: int) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# GROUP 1 — Form-based primes
+# GROUP 1  --  Form-based primes
 # ---------------------------------------------------------------------------
 
 @register(
@@ -783,7 +850,7 @@ def is_leyland_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Leyland prime.
 
     A Leyland prime is a prime that can be written as ``x^y + y^x`` for some
-    integers ``x > y > 1``.  This implementation checks bases up to 20 × 20,
+    integers ``x > y > 1``.  This implementation checks bases up to 20 x 20,
     covering Leyland primes including 17, 593, 32993, …
 
     Parameters
@@ -939,7 +1006,7 @@ def is_wagstaff_prime(n: int) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# GROUP 2 — Relationship-based primes
+# GROUP 2  --  Relationship-based primes
 # ---------------------------------------------------------------------------
 
 @register(
@@ -972,7 +1039,7 @@ def is_cousin_prime(n: int) -> bool:
     True
     >>> is_cousin_prime(13)   # 13 and 17 differ by 4
     True
-    >>> is_cousin_prime(5)    # 1 and 9 — neither is prime
+    >>> is_cousin_prime(5)    # 1 and 9  --  neither is prime
     False
 
     Edge cases
@@ -1017,7 +1084,7 @@ def is_sexy_prime(n: int) -> bool:
     True
     >>> is_sexy_prime(23)   # 17 and 23 differ by 6
     True
-    >>> is_sexy_prime(3)    # 3-6=-3 not prime, 3+6=9=3² not prime
+    >>> is_sexy_prime(3)    # 3-6=-3 not prime, 3+6=9=3^2 not prime
     False
 
     Edge cases
@@ -1057,11 +1124,11 @@ def is_prime_triplet(n: int) -> bool:
 
     Example
     -------
-    >>> is_prime_triplet(5)    # (5, 7, 11) — form (p, p+2, p+6)
+    >>> is_prime_triplet(5)    # (5, 7, 11)  --  form (p, p+2, p+6)
     True
-    >>> is_prime_triplet(7)    # (7, 11, 13) — form (p, p+4, p+6)
+    >>> is_prime_triplet(7)    # (7, 11, 13)  --  form (p, p+4, p+6)
     True
-    >>> is_prime_triplet(11)   # (11, 13, 17) — (p, p+2, p+6)
+    >>> is_prime_triplet(11)   # (11, 13, 17)  --  (p, p+2, p+6)
     True
     >>> is_prime_triplet(23)
     False
@@ -1108,7 +1175,7 @@ def is_balanced_prime(n: int) -> bool:
     True
     >>> is_balanced_prime(53)   # prev=47, next=59; (47+59)/2=53
     True
-    >>> is_balanced_prime(7)    # prev=5, next=11; (5+11)/2=8 ≠ 7
+    >>> is_balanced_prime(7)    # prev=5, next=11; (5+11)/2=8 != 7
     False
 
     Edge cases
@@ -1151,7 +1218,7 @@ def is_isolated_prime(n: int) -> bool:
 
     Example
     -------
-    >>> is_isolated_prime(23)   # 21=3*7, 25=5² — both composite
+    >>> is_isolated_prime(23)   # 21=3*7, 25=5^2  --  both composite
     True
     >>> is_isolated_prime(5)    # 3 is prime (twin with 5)
     False
@@ -1192,13 +1259,13 @@ def is_chen_prime(n: int) -> bool:
 
     Example
     -------
-    >>> is_chen_prime(2)    # 2+2=4=2², semiprime
+    >>> is_chen_prime(2)    # 2+2=4=2^2, semiprime
     True
     >>> is_chen_prime(3)    # 3+2=5, prime
     True
     >>> is_chen_prime(5)    # 5+2=7, prime
     True
-    >>> is_chen_prime(7)    # 7+2=9=3², semiprime
+    >>> is_chen_prime(7)    # 7+2=9=3^2, semiprime
     True
     >>> is_chen_prime(11)   # 11+2=13, prime
     True
@@ -1305,7 +1372,7 @@ def is_weak_prime(n: int) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# GROUP 3 — Digital/representational primes
+# GROUP 3  --  Digital/representational primes
 # ---------------------------------------------------------------------------
 
 @register(
@@ -1380,9 +1447,9 @@ def is_emirp(n: int) -> bool:
 
     Example
     -------
-    >>> is_emirp(13)    # reversed: 31, prime, and 31 ≠ 13
+    >>> is_emirp(13)    # reversed: 31, prime, and 31 != 13
     True
-    >>> is_emirp(11)    # palindrome — reversed equals itself
+    >>> is_emirp(11)    # palindrome  --  reversed equals itself
     False
     >>> is_emirp(17)    # reversed: 71, prime
     True
@@ -1410,7 +1477,7 @@ def is_circular_prime(n: int) -> bool:
     """Return ``True`` if *n* is a circular prime.
 
     A circular prime is a prime for which every cyclic rotation of its digits
-    is also prime.  For example, 197 yields rotations 197, 971, 719 — all prime.
+    is also prime.  For example, 197 yields rotations 197, 971, 719  --  all prime.
 
     Parameters
     ----------
@@ -1473,11 +1540,11 @@ def is_truncatable_prime_left(n: int) -> bool:
 
     Example
     -------
-    >>> is_truncatable_prime_left(9137)   # 9137→137→37→7, all prime
+    >>> is_truncatable_prime_left(9137)   # 9137->137->37->7, all prime
     True
-    >>> is_truncatable_prime_left(317)    # 317→17→7, all prime
+    >>> is_truncatable_prime_left(317)    # 317->17->7, all prime
     True
-    >>> is_truncatable_prime_left(23)     # 23→3 prime; 23 prime; ok
+    >>> is_truncatable_prime_left(23)     # 23->3 prime; 23 prime; ok
     True
 
     Edge cases
@@ -1525,11 +1592,11 @@ def is_truncatable_prime_right(n: int) -> bool:
 
     Example
     -------
-    >>> is_truncatable_prime_right(7393)  # 7393→739→73→7, all prime
+    >>> is_truncatable_prime_right(7393)  # 7393->739->73->7, all prime
     True
-    >>> is_truncatable_prime_right(373)   # 373→37→3, all prime
+    >>> is_truncatable_prime_right(373)   # 373->37->3, all prime
     True
-    >>> is_truncatable_prime_right(23)    # 23→2, both prime
+    >>> is_truncatable_prime_right(23)    # 23->2, both prime
     True
 
     Edge cases
@@ -1572,9 +1639,9 @@ def is_permutable_prime(n: int) -> bool:
 
     Example
     -------
-    >>> is_permutable_prime(13)   # permutations: 13, 31 — both prime
+    >>> is_permutable_prime(13)   # permutations: 13, 31  --  both prime
     True
-    >>> is_permutable_prime(337)  # 337, 373, 733 — all prime
+    >>> is_permutable_prime(337)  # 337, 373, 733  --  all prime
     True
     >>> is_permutable_prime(7)    # single digit
     True
@@ -1646,7 +1713,7 @@ def is_repunit_prime(n: int) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# GROUP 4 — Modular/congruence primes
+# GROUP 4  --  Modular/congruence primes
 # ---------------------------------------------------------------------------
 
 @register(
@@ -1789,7 +1856,7 @@ def is_eisenstein_prime(n: int) -> bool:
     category="primes",
     oeis="A007540",
     description=(
-        "A prime p satisfying (p−1)! ≡ −1 (mod p²). "
+        "A prime p satisfying (p−1)! ≡ −1 (mod p^2). "
         "Only three are known: 5, 13, 563."
     ),
     aliases=["wilson_prime"],
@@ -1797,10 +1864,10 @@ def is_eisenstein_prime(n: int) -> bool:
 def is_wilson_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Wilson prime.
 
-    A Wilson prime is a prime *p* for which ``(p−1)! ≡ −1 (mod p²)``.
+    A Wilson prime is a prime *p* for which ``(p−1)! ≡ −1 (mod p^2)``.
     Only three Wilson primes are currently known: 5, 13, and 563.
 
-    This implementation computes ``(n−1)! mod n²`` directly using
+    This implementation computes ``(n−1)! mod n^2`` directly using
     ``math.factorial``.  To avoid impractically large computation, values
     of *n* above 600 return ``False`` early (563 is the largest known Wilson
     prime, and computation for larger primes is infeasible with factorial).
@@ -1843,7 +1910,7 @@ def is_wilson_prime(n: int) -> bool:
     category="primes",
     oeis="A001220",
     description=(
-        "A prime p where 2^(p−1) ≡ 1 (mod p²). "
+        "A prime p where 2^(p−1) ≡ 1 (mod p^2). "
         "Only two are known: 1093, 3511."
     ),
     aliases=["wieferich_prime"],
@@ -1851,13 +1918,13 @@ def is_wilson_prime(n: int) -> bool:
 def is_wieferich_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Wieferich prime.
 
-    A Wieferich prime is a prime *p* satisfying ``2^(p−1) ≡ 1 (mod p²)``.
+    A Wieferich prime is a prime *p* satisfying ``2^(p−1) ≡ 1 (mod p^2)``.
     Only two Wieferich primes are known: 1093 and 3511.
 
     Although ``pow(2, p-1, p**2)`` can be computed efficiently for large *p*
     via Python's built-in modular exponentiation, this function checks against
     the known set ``{1093, 3511}`` because no other Wieferich primes exist
-    below 6.7 × 10¹⁵ (as of 2023), making a computation-only approach
+    below 6.7 x 10¹⁵ (as of 2023), making a computation-only approach
     practically equivalent.
 
     Parameters
@@ -1890,7 +1957,7 @@ def is_wieferich_prime(n: int) -> bool:
     category="primes",
     oeis="A007732",
     description=(
-        "A prime p where the Fibonacci number F(p) ≡ (p/5) (mod p²), "
+        "A prime p where the Fibonacci number F(p) ≡ (p/5) (mod p^2), "
         "where (p/5) is the Legendre symbol. None are currently known."
     ),
     aliases=["wall_sun_sun_prime"],
@@ -1899,11 +1966,11 @@ def is_wall_sun_sun_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Wall-Sun-Sun prime.
 
     A Wall-Sun-Sun prime (also called a Fibonacci-Wieferich prime) is a prime
-    *p* such that ``F(p) ≡ (p | 5) (mod p²)``, where ``(p | 5)`` is the
+    *p* such that ``F(p) ≡ (p | 5) (mod p^2)``, where ``(p | 5)`` is the
     Legendre symbol and ``F(p)`` is the *p*-th Fibonacci number.
 
     **No Wall-Sun-Sun prime is currently known.**  An extensive computational
-    search has verified none exist below approximately 9.7 × 10¹⁴.  This
+    search has verified none exist below approximately 9.7 x 10¹⁴.  This
     function therefore always returns ``False``.
 
     Parameters
@@ -1914,7 +1981,7 @@ def is_wall_sun_sun_prime(n: int) -> bool:
     Returns
     -------
     bool
-        Always ``False`` — no Wall-Sun-Sun prime is known.
+        Always ``False``  --  no Wall-Sun-Sun prime is known.
 
     Example
     -------
@@ -2049,8 +2116,17 @@ def is_lucky_prime(n: int) -> bool:
 
 
 # ---------------------------------------------------------------------------
-# GROUP 5 (partial) — Semiprime (registered)
+# GROUP 5 (partial)  --  Semiprime (registered)
 # ---------------------------------------------------------------------------
+
+def _explain_semiprime(n: int) -> str:
+    if n <= 1:
+        return f"{n} <= 1, cannot be semiprime"
+    factors = prime_factors(n)
+    if len(factors) == 2:
+        return f"{n} = {' x '.join(map(str, factors))} -> exactly 2 prime factors -> semiprime"
+    return f"{n} = {' x '.join(map(str, factors))} -> {len(factors)} prime factor(s) -> {'semiprime' if len(factors) == 2 else 'not semiprime'}"
+
 
 @register(
     name="Semiprime",
@@ -2061,13 +2137,14 @@ def is_lucky_prime(n: int) -> bool:
         "(not necessarily distinct)."
     ),
     aliases=["semiprime"],
+    explain=_explain_semiprime,
 )
 def is_semiprime(n: int) -> bool:
     """Return ``True`` if *n* is a semiprime.
 
     A semiprime is a natural number that is the product of exactly two primes,
     counting multiplicity.  Equivalently, its prime factorisation has exactly
-    two factors (e.g. 4 = 2×2, 6 = 2×3, 9 = 3×3, 15 = 3×5).
+    two factors (e.g. 4 = 2x2, 6 = 2x3, 9 = 3x3, 15 = 3x5).
 
     Parameters
     ----------
@@ -2086,9 +2163,9 @@ def is_semiprime(n: int) -> bool:
     True
     >>> is_semiprime(9)     # 3 * 3
     True
-    >>> is_semiprime(12)    # 2 * 2 * 3 — three factors
+    >>> is_semiprime(12)    # 2 * 2 * 3  --  three factors
     False
-    >>> is_semiprime(7)     # prime — one factor
+    >>> is_semiprime(7)     # prime  --  one factor
     False
 
     Edge cases

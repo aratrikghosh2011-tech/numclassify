@@ -12,7 +12,7 @@ pip install --upgrade numclassify
 
 | Version | Supported |
 |---------|-----------|
-| Latest (0.4.x) | ✅ |
+| Latest (0.5.x) | ✅ |
 | Any older version | ❌ |
 
 ## Reporting a Vulnerability

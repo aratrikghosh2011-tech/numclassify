@@ -17,7 +17,7 @@ from numclassify._registry import register
 
 
 # ---------------------------------------------------------------------------
-# Helpers (not registered — return int, not bool)
+# Helpers (not registered  --  return int, not bool)
 # ---------------------------------------------------------------------------
 
 def digit_sum(n: int) -> int:
@@ -70,8 +70,16 @@ def digital_root(n: int) -> int:
 
 
 # ---------------------------------------------------------------------------
-# Boolean predicates — all registered
+# Boolean predicates  --  all registered
 # ---------------------------------------------------------------------------
+
+def _explain_armstrong(n: int) -> str:
+    digits = [int(d) for d in str(n)]
+    power = len(digits)
+    terms = [f"{d}^{power}" for d in digits]
+    values = [str(d ** power) for d in digits]
+    return f"{n} = {' + '.join(terms)} = {' + '.join(values)} = {sum(d**power for d in digits)}"
+
 
 @register(
     name="Armstrong",
@@ -82,6 +90,7 @@ def digital_root(n: int) -> int:
         "of the number of digits (narcissistic number)."
     ),
     aliases=["narcissistic", "pluperfect digital invariant"],
+    explain=_explain_armstrong,
 )
 def is_armstrong(n: int) -> bool:
     """Return ``True`` if *n* is an Armstrong (narcissistic) number.
@@ -146,9 +155,9 @@ def is_spy(n: int) -> bool:
     True
     >>> is_spy(5)      # single digit: sum=5=product
     True
-    >>> is_spy(123)    # sum=6, product=6  →  True
+    >>> is_spy(123)    # sum=6, product=6  ->  True
     True
-    >>> is_spy(124)    # sum=7, product=8  →  False
+    >>> is_spy(124)    # sum=7, product=8  ->  False
     False
     """
     if n <= 0:
@@ -161,6 +170,13 @@ def is_spy(n: int) -> bool:
     return s == p
 
 
+def _explain_harshad(n: int) -> str:
+    ds = sum(int(d) for d in str(n))
+    if ds == 0:
+        return f"digit_sum({n}) = 0, cannot divide"
+    return f"digit_sum({n}) = {ds}, {n} % {ds} = {n % ds}" + (" = 0" if n % ds == 0 else f" != 0")
+
+
 @register(
     name="Harshad",
     category="digital",
@@ -169,6 +185,7 @@ def is_spy(n: int) -> bool:
         "A number divisible by its own digit sum (also called a Niven number)."
     ),
     aliases=["niven", "harshad number", "niven number"],
+    explain=_explain_harshad,
 )
 def is_harshad(n: int) -> bool:
     """Return ``True`` if *n* is a Harshad (Niven) number.
@@ -199,6 +216,13 @@ def is_harshad(n: int) -> bool:
     return n % ds == 0
 
 
+def _explain_disarium(n: int) -> str:
+    digits = [int(d) for d in str(n)]
+    terms = [f"{d}^{i+1}" for i, d in enumerate(digits)]
+    values = [str(d ** (i + 1)) for i, d in enumerate(digits)]
+    return f"{n} = {' + '.join(terms)} = {' + '.join(values)} = {sum(d**(i+1) for i, d in enumerate(digits))}"
+
+
 @register(
     name="Disarium",
     category="digital",
@@ -208,12 +232,13 @@ def is_harshad(n: int) -> bool:
         "their 1-based position from the left."
     ),
     aliases=["disarium number"],
+    explain=_explain_disarium,
 )
 def is_disarium(n: int) -> bool:
     """Return ``True`` if *n* is a Disarium number.
 
     For digits ``d₁ d₂ … dₖ`` (1-indexed from the left),
-    ``is_disarium(n)`` iff ``n == d₁¹ + d₂² + … + dₖᵏ``.
+    ``is_disarium(n)`` iff ``n == d₁¹ + d₂^2 + … + dₖᵏ``.
 
     Parameters
     ----------
@@ -239,6 +264,17 @@ def is_disarium(n: int) -> bool:
     return sum(d ** (i + 1) for i, d in enumerate(digits)) == n
 
 
+def _explain_happy(n: int) -> str:
+    seen = set()
+    steps = [str(n)]
+    curr = n
+    while curr != 1 and curr not in seen:
+        seen.add(curr)
+        curr = sum(int(d) ** 2 for d in str(curr))
+        steps.append(str(curr))
+    return " -> ".join(steps) + (" reaches 1" if curr == 1 else " enters cycle")
+
+
 @register(
     name="Happy",
     category="digital",
@@ -248,6 +284,7 @@ def is_disarium(n: int) -> bool:
         "squared-digits map."
     ),
     aliases=["happy number"],
+    explain=_explain_happy,
 )
 def is_happy(n: int) -> bool:
     """Return ``True`` if *n* is a happy number.
@@ -270,9 +307,9 @@ def is_happy(n: int) -> bool:
 
     Example
     -------
-    >>> is_happy(19)   # 1²+9²=82 → 8²+2²=68 → … → 1
+    >>> is_happy(19)   # 1^2+9^2=82 -> 8^2+2^2=68 -> … -> 1
     True
-    >>> is_happy(4)    # enters cycle: 4→16→37→58→89→145→42→20→4
+    >>> is_happy(4)    # enters cycle: 4->16->37->58->89->145->42->20->4
     False
     """
     if n <= 0:
@@ -287,19 +324,26 @@ def is_happy(n: int) -> bool:
     return True
 
 
+def _explain_neon(n: int) -> str:
+    sq = n * n
+    ds = sum(int(d) for d in str(sq))
+    return f"{n}^2 = {sq}, digit_sum({sq}) = {ds}" + (" == " if ds == n else " != ") + str(n)
+
+
 @register(
     name="Neon",
     category="digital",
     oeis="A208854",
     description=(
-        "A number whose digit sum equals the number itself when applied to n²."
+        "A number whose digit sum equals the number itself when applied to n^2."
     ),
     aliases=["neon number"],
+    explain=_explain_neon,
 )
 def is_neon(n: int) -> bool:
     """Return ``True`` if *n* is a neon number.
 
-    A neon number satisfies ``digit_sum(n²) == n``.
+    A neon number satisfies ``digit_sum(n^2) == n``.
 
     Parameters
     ----------
@@ -312,11 +356,11 @@ def is_neon(n: int) -> bool:
 
     Example
     -------
-    >>> is_neon(9)    # 9² = 81, digit_sum(81) = 9
+    >>> is_neon(9)    # 9^2 = 81, digit_sum(81) = 9
     True
-    >>> is_neon(1)    # 1² = 1, digit_sum(1) = 1
+    >>> is_neon(1)    # 1^2 = 1, digit_sum(1) = 1
     True
-    >>> is_neon(2)    # 2² = 4, digit_sum(4) = 4 ≠ 2
+    >>> is_neon(2)    # 2^2 = 4, digit_sum(4) = 4 != 2
     False
     """
     if n < 0:

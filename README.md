@@ -10,6 +10,26 @@
 
 Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it a number and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.
 
+## Why I built this
+
+I was doing number programs in school (Armstrong numbers, perfect numbers,
+that kind of thing) and went looking for a Python package I could just import
+instead of rewriting the same checks every time. I couldn't find one. Every
+library I found computed things, factors, GCDs, primes, but none of them
+actually classified a number into the type it was.
+
+Then I realized why: schools include these programs in the syllabus to teach
+students Python and basic mathematical logic, not so students can look up
+which number is which. The exercise is the point. So a library that just
+answers "is this Armstrong" defeats the purpose schools have for assigning it
+in the first place.
+
+That's why `why()` and the explain functions exist. Instead of just returning
+True or False, numclassify shows the actual math, the same steps you'd write
+out by hand. The goal isn't to do the homework for you. It's to be the thing
+you check your own work against, or use to explore beyond what one assignment
+asks for.
+
 ```
 153   →  Armstrong, Harshad, Triangular, Abundant, ...
 1729  →  Taxicab (Hardy-Ramanujan), Carmichael, Harshad, ...

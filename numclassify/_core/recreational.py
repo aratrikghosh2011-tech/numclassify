@@ -12,6 +12,21 @@ from __future__ import annotations
 from numclassify._registry import register
 
 
+def _explain_kaprekar(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0, cannot be a Kaprekar number"
+    if n == 1:
+        return "1 is a Kaprekar number by convention (1^2 = 1, split as 0 + 1)"
+    sq = n * n
+    sq_str = str(sq)
+    for split in range(1, len(sq_str)):
+        left = int(sq_str[:len(sq_str)-split] or "0")
+        right = int(sq_str[len(sq_str)-split:])
+        if right > 0 and left + right == n:
+            return f"{n}^2 = {sq}, split as {left} + {right} = {n} -> Kaprekar number"
+    return f"{n}^2 = {sq}, no valid split sums to {n} -> not a Kaprekar number"
+
+
 @register(
     name="Kaprekar",
     category="recreational",
@@ -21,6 +36,7 @@ from numclassify._registry import register
         " that sum to n.  n=1 is included by convention."
     ),
     aliases=["kaprekar number"],
+    explain=_explain_kaprekar,
 )
 def is_kaprekar(n: int) -> bool:
     """Return ``True`` if *n* is a Kaprekar number.
@@ -43,9 +59,9 @@ def is_kaprekar(n: int) -> bool:
 
     Example
     -------
-    >>> is_kaprekar(45)   # 45^2=2025; split (20, 25) → 20+25=45
+    >>> is_kaprekar(45)   # 45^2=2025; split (20, 25) -> 20+25=45
     True
-    >>> is_kaprekar(9)    # 9^2=81; split (8, 1) → 8+1=9
+    >>> is_kaprekar(9)    # 9^2=81; split (8, 1) -> 8+1=9
     True
     >>> is_kaprekar(1)
     True
@@ -71,17 +87,27 @@ def is_kaprekar(n: int) -> bool:
     return False
 
 
+def _explain_automorphic(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0, cannot be automorphic"
+    sq = n * n
+    if str(sq).endswith(str(n)):
+        return f"{n}^2 = {sq} ends in {n} -> automorphic"
+    return f"{n}^2 = {sq} does not end in {n} -> not automorphic"
+
+
 @register(
     name="Automorphic",
     category="recreational",
     oeis="A003226",
     description="A number whose square ends in the number itself.",
     aliases=["automorphic number"],
+    explain=_explain_automorphic,
 )
 def is_automorphic(n: int) -> bool:
     """Return ``True`` if *n* is an automorphic number.
 
-    An automorphic number satisfies: the last *k* digits of *n²* equal *n*,
+    An automorphic number satisfies: the last *k* digits of *n^2* equal *n*,
     where *k* is the number of digits in *n*.
 
     Parameters
@@ -95,13 +121,13 @@ def is_automorphic(n: int) -> bool:
 
     Example
     -------
-    >>> is_automorphic(5)    # 5²=25, ends in 5
+    >>> is_automorphic(5)    # 5^2=25, ends in 5
     True
-    >>> is_automorphic(6)    # 6²=36, ends in 6
+    >>> is_automorphic(6)    # 6^2=36, ends in 6
     True
-    >>> is_automorphic(76)   # 76²=5776, ends in 76
+    >>> is_automorphic(76)   # 76^2=5776, ends in 76
     True
-    >>> is_automorphic(7)    # 7²=49, does not end in 7
+    >>> is_automorphic(7)    # 7^2=49, does not end in 7
     False
     """
     if n < 0:
@@ -110,6 +136,16 @@ def is_automorphic(n: int) -> bool:
     n_str = str(n)
     sq_str = str(sq)
     return sq_str.endswith(n_str)
+
+
+def _explain_palindrome(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0, cannot be a palindrome"
+    s = str(n)
+    rev = s[::-1]
+    if s == rev:
+        return f"{n} reads the same forwards and backwards -> palindrome"
+    return f"{n} reversed is {rev} -> not a palindrome"
 
 
 @register(
@@ -121,6 +157,7 @@ def is_automorphic(n: int) -> bool:
         "backwards."
     ),
     aliases=["palindromic", "palindromic number"],
+    explain=_explain_palindrome,
 )
 def is_palindrome(n: int) -> bool:
     """Return ``True`` if *n* is a palindromic number.
@@ -157,7 +194,7 @@ def is_palindrome(n: int) -> bool:
     oeis="",
     description=(
         "A number that looks the same when rotated 180°. "
-        "Valid digits are 0, 1, 6, 8, 9 with map 0→0, 1→1, 6→9, 8→8, 9→6."
+        "Valid digits are 0, 1, 6, 8, 9 with map 0->0, 1->1, 6->9, 8->8, 9->6."
     ),
     aliases=["strobogrammatic number"],
 )
@@ -166,7 +203,7 @@ def is_strobogrammatic(n: int) -> bool:
 
     A strobogrammatic number appears the same when rotated 180°.  Only the
     digits 0, 1, 6, 8, 9 are valid; their rotated equivalents are
-    0→0, 1→1, 6→9, 8→8, 9→6.  The rotated string is the reverse of the
+    0->0, 1->1, 6->9, 8->8, 9->6.  The rotated string is the reverse of the
     mapped digits.
 
     Parameters
@@ -180,13 +217,13 @@ def is_strobogrammatic(n: int) -> bool:
 
     Example
     -------
-    >>> is_strobogrammatic(69)   # 69 rotated → 96... wait: 6→9, 9→6; reversed: '96' → same as '96' ✓
+    >>> is_strobogrammatic(69)   # 69 rotated -> 96... wait: 6->9, 9->6; reversed: '96' -> same as '96' ✓
     True
     >>> is_strobogrammatic(88)
     True
     >>> is_strobogrammatic(1)
     True
-    >>> is_strobogrammatic(6)    # 6 alone rotated → '9' ≠ '6'
+    >>> is_strobogrammatic(6)    # 6 alone rotated -> '9' != '6'
     False
     """
     if n < 0:
@@ -230,9 +267,9 @@ def is_bouncy(n: int) -> bool:
     -------
     >>> is_bouncy(155349)
     True
-    >>> is_bouncy(134468)   # non-decreasing → not bouncy
+    >>> is_bouncy(134468)   # non-decreasing -> not bouncy
     False
-    >>> is_bouncy(66420)    # non-increasing → not bouncy
+    >>> is_bouncy(66420)    # non-increasing -> not bouncy
     False
     """
     if n <= 0:

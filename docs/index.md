@@ -2,12 +2,12 @@
 
 **Given a number, what is it?**
 
-Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.
+Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 4300+ categories, with zero external dependencies.
 
 ```
-153   →  Armstrong, Harshad, Triangular, Abundant, ...
-1729  →  Taxicab (Hardy–Ramanujan), Carmichael, Zeisel, ...
-28    →  Perfect, Triangular, Hexagonal, Semiprime, ...
+153   →  Armstrong, Harshad, Triangular, Deficient, ...
+1729  →  Taxicab (Hardy–Ramanujan), Carmichael, Harshad, ...
+28    →  Perfect, Triangular, Hexagonal, Harmonic Divisor, ...
 ```
 
 Try it live: **[numclassify Playground](playground.html)**
@@ -32,8 +32,8 @@ import numclassify as nc
 nc.classify(1729)
 # {
 #   'number': 1729,
-#   'score': 22,
-#   'notable_score': 18,
+#   'score': 25,
+#   'notable_score': 19,
 #   'true_properties': ['Taxicab', 'Carmichael', ...],
 #   'categories': {'primes': [...], 'sequences': [...], ...}
 # }
@@ -48,17 +48,17 @@ nc.get_true_properties(6) # ['Perfect', 'Triangular', 'Pronic', ...]
 ## Categories
 
 | Category | Count | Examples |
-|---|---|---|
-| Polygonal figurate | ~1003 | Triangular, Square, Pentagonal |
-| Centered polygonal | ~998 | Centered Triangular, Centered Hexagonal |
-| Prime families | 40 | Twin, Mersenne, Sophie Germain, Safe |
-| Digital invariants | 13 | Armstrong, Harshad, Disarium, Happy |
-| Divisor-based | 27 | Perfect, Abundant, Weird, Practical |
-| Sequences | 16 | Fibonacci, Lucas, Catalan, Bell |
-| Powers | 13 | Perfect Square, Taxicab, Powerful |
-| Number theory | 14 | Evil, Carmichael, Autobiographical |
-| Combinatorial | 10 | Factorial, Primorial, Subfactorial |
-| Recreational | 6 | Kaprekar, Automorphic, Palindrome |
+|---|---|---|---|
+| Polygonal figurate | ~2008 | Triangular, Square, Pentagonal |
+| Centered polygonal | ~1996 | Centered Triangular, Centered Hexagonal |
+| Prime families | 82 | Twin, Mersenne, Sophie Germain, Safe |
+| Digital invariants | 44 | Armstrong, Harshad, Disarium, Happy |
+| Divisor-based | 54 | Perfect, Abundant, Weird, Practical |
+| Sequences | 33 | Fibonacci, Lucas, Catalan, Bell |
+| Powers | 26 | Perfect Square, Taxicab, Powerful |
+| Number theory | 28 | Evil, Carmichael, Autobiographical |
+| Combinatorial | 20 | Factorial, Primorial, Subfactorial |
+| Recreational | 19 | Kaprekar, Automorphic, Palindrome |
 | Exam types | 8 | Strong, Sunny, Buzz, Magic, Unique |
 
 ---

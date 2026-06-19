@@ -6,6 +6,21 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ---
 
+## [0.5.0] - 2026-06-19
+
+### Added
+- `why(property, n)`: step-by-step explanation engine, with dedicated explain
+  functions for 30+ high-value types
+- `property_info(name)`: registry metadata with auto-generated examples
+- `find(start, end, has, not_has, any_of)`: query engine wrapper
+- README origin story section
+
+### Fixed
+- Performance hangs in `is_untouchable`, `is_semiperfect`, `is_weird`,
+  `is_zumkeller` on large n (bitmask subset-sum DP, bounded untouchable fallback)
+- Exam types category tagging: `numclassify list --category exam_types` now
+  correctly returns all 8 exam-syllabus types
+
 ## [0.4.0] - 2026-06-13
 
 ### Fixed
