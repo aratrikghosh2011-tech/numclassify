@@ -570,6 +570,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#whyproperty_name-n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        why(property_name, n)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#property_infoname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        property_info(name)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#findstart-end-hasnone-not_hasnone-any_ofnone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find(start, end, has=None, not_has=None, any_of=None)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#register" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -850,6 +883,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#whyproperty_name-n" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        why(property_name, n)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#property_infoname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        property_info(name)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#findstart-end-hasnone-not_hasnone-any_ofnone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        find(start, end, has=None, not_has=None, any_of=None)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#register" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -962,6 +1028,34 @@ for progress output on large ranges.</p>
 <span class="n">nc</span><span class="o">.</span><span class="n">find_all_in_range</span><span class="p">([</span><span class="s2">&quot;prime&quot;</span><span class="p">,</span> <span class="s2">&quot;palindrome&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
 <span class="c1"># =&gt; [2, 3, 5, 7, 11, 101, 131, 151, ...]</span>
 </code></pre></div>
+<h2 id="whyproperty_name-n">why(property_name, n)</h2>
+<p>Explain why <code>n</code> does or does not have a given property, showing the actual arithmetic.</p>
+<div class="highlight"><pre><span></span><code><span class="n">nc</span><span class="o">.</span><span class="n">why</span><span class="p">(</span><span class="s2">&quot;armstrong&quot;</span><span class="p">,</span> <span class="mi">153</span><span class="p">)</span>
+<span class="c1"># &#39;153 is Armstrong because: 153 = 1^3 + 5^3 + 3^3 = 1 + 125 + 27 = 153&#39;</span>
+
+<span class="n">nc</span><span class="o">.</span><span class="n">why</span><span class="p">(</span><span class="s2">&quot;perfect&quot;</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
+<span class="c1"># &#39;12 is NOT Perfect: proper divisors of 12 = {1, 2, 3, 4, 6}, sum = 16 != 12&#39;</span>
+</code></pre></div>
+<p>Raises <code>ValueError</code> for unknown property names.</p>
+<h2 id="property_infoname">property_info(name)</h2>
+<p>Returns registry metadata for a property, including auto-generated examples.</p>
+<div class="highlight"><pre><span></span><code><span class="n">nc</span><span class="o">.</span><span class="n">property_info</span><span class="p">(</span><span class="s2">&quot;armstrong&quot;</span><span class="p">)</span>
+<span class="c1"># {</span>
+<span class="c1">#   &quot;name&quot;: &quot;Armstrong&quot;,</span>
+<span class="c1">#   &quot;description&quot;: &quot;An Armstrong number (also known as a narcissistic or pluperfect number) is an integer that is equal to the sum of its own digits each raised to the power of the number of digits.&quot;,</span>
+<span class="c1">#   &quot;category&quot;: &quot;digital&quot;,</span>
+<span class="c1">#   &quot;oeis&quot;: &quot;A005188&quot;,</span>
+<span class="c1">#   &quot;examples&quot;: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 153, 370, 371, 407]</span>
+<span class="c1"># }</span>
+</code></pre></div>
+<p>Raises <code>ValueError</code> for unknown property names.</p>
+<h2 id="findstart-end-hasnone-not_hasnone-any_ofnone">find(start, end, has=None, not_has=None, any_of=None)</h2>
+<p>Query numbers in a range by property combinations.</p>
+<div class="highlight"><pre><span></span><code><span class="n">nc</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">has</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;harshad&quot;</span><span class="p">,</span> <span class="s2">&quot;palindrome&quot;</span><span class="p">])</span>
+<span class="n">nc</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="n">has</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;prime&quot;</span><span class="p">],</span> <span class="n">not_has</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;emirp&quot;</span><span class="p">])</span>
+<span class="n">nc</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10000</span><span class="p">,</span> <span class="n">any_of</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;perfect&quot;</span><span class="p">,</span> <span class="s2">&quot;amicable&quot;</span><span class="p">])</span>
+</code></pre></div>
+<p><code>has</code> and <code>any_of</code> cannot be combined in the same call.</p>
 <h2 id="register">register</h2>
 <p>Decorator to add a custom number type. Registered types appear everywhere — <code>classify()</code>,
 <code>find_by_property()</code>, the CLI, all of it.</p>

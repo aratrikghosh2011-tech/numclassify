@@ -649,10 +649,10 @@
 
 <h1 id="numclassify">numclassify</h1>
 <p><strong>Given a number, what is it?</strong></p>
-<p>Most number-theory libraries — <code>labmath</code>, <code>eulerlib</code>, <code>pyntlib</code> — compute things: factor integers, find GCDs, generate primes. <code>numclassify</code> solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.</p>
-<div class="highlight"><pre><span></span><code>153   →  Armstrong, Harshad, Triangular, Abundant, ...
-1729  →  Taxicab (Hardy–Ramanujan), Carmichael, Zeisel, ...
-28    →  Perfect, Triangular, Hexagonal, Semiprime, ...
+<p>Most number-theory libraries — <code>labmath</code>, <code>eulerlib</code>, <code>pyntlib</code> — compute things: factor integers, find GCDs, generate primes. <code>numclassify</code> solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 4300+ categories, with zero external dependencies.</p>
+<div class="highlight"><pre><span></span><code>153   →  Armstrong, Harshad, Triangular, Deficient, ...
+1729  →  Taxicab (Hardy–Ramanujan), Carmichael, Harshad, ...
+28    →  Perfect, Triangular, Hexagonal, Harmonic Divisor, ...
 </code></pre></div>
 <p>Try it live: <strong><a href="playground.html">numclassify Playground</a></strong></p>
 <hr />
@@ -667,8 +667,8 @@
 <span class="n">nc</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="mi">1729</span><span class="p">)</span>
 <span class="c1"># {</span>
 <span class="c1">#   &#39;number&#39;: 1729,</span>
-<span class="c1">#   &#39;score&#39;: 22,</span>
-<span class="c1">#   &#39;notable_score&#39;: 18,</span>
+<span class="c1">#   &#39;score&#39;: 25,</span>
+<span class="c1">#   &#39;notable_score&#39;: 19,</span>
 <span class="c1">#   &#39;true_properties&#39;: [&#39;Taxicab&#39;, &#39;Carmichael&#39;, ...],</span>
 <span class="c1">#   &#39;categories&#39;: {&#39;primes&#39;: [...], &#39;sequences&#39;: [...], ...}</span>
 <span class="c1"># }</span>
@@ -679,72 +679,19 @@
 </code></pre></div>
 <hr />
 <h2 id="categories">Categories</h2>
-<table>
-<thead>
-<tr>
-<th>Category</th>
-<th>Count</th>
-<th>Examples</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Polygonal figurate</td>
-<td>~1003</td>
-<td>Triangular, Square, Pentagonal</td>
-</tr>
-<tr>
-<td>Centered polygonal</td>
-<td>~998</td>
-<td>Centered Triangular, Centered Hexagonal</td>
-</tr>
-<tr>
-<td>Prime families</td>
-<td>40</td>
-<td>Twin, Mersenne, Sophie Germain, Safe</td>
-</tr>
-<tr>
-<td>Digital invariants</td>
-<td>13</td>
-<td>Armstrong, Harshad, Disarium, Happy</td>
-</tr>
-<tr>
-<td>Divisor-based</td>
-<td>27</td>
-<td>Perfect, Abundant, Weird, Practical</td>
-</tr>
-<tr>
-<td>Sequences</td>
-<td>16</td>
-<td>Fibonacci, Lucas, Catalan, Bell</td>
-</tr>
-<tr>
-<td>Powers</td>
-<td>13</td>
-<td>Perfect Square, Taxicab, Powerful</td>
-</tr>
-<tr>
-<td>Number theory</td>
-<td>14</td>
-<td>Evil, Carmichael, Autobiographical</td>
-</tr>
-<tr>
-<td>Combinatorial</td>
-<td>10</td>
-<td>Factorial, Primorial, Subfactorial</td>
-</tr>
-<tr>
-<td>Recreational</td>
-<td>6</td>
-<td>Kaprekar, Automorphic, Palindrome</td>
-</tr>
-<tr>
-<td>Exam types</td>
-<td>8</td>
-<td>Strong, Sunny, Buzz, Magic, Unique</td>
-</tr>
-</tbody>
-</table>
+<p>| Category | Count | Examples |
+|---|---|---|---|
+| Polygonal figurate | ~2008 | Triangular, Square, Pentagonal |
+| Centered polygonal | ~1996 | Centered Triangular, Centered Hexagonal |
+| Prime families | 82 | Twin, Mersenne, Sophie Germain, Safe |
+| Digital invariants | 44 | Armstrong, Harshad, Disarium, Happy |
+| Divisor-based | 54 | Perfect, Abundant, Weird, Practical |
+| Sequences | 33 | Fibonacci, Lucas, Catalan, Bell |
+| Powers | 26 | Perfect Square, Taxicab, Powerful |
+| Number theory | 28 | Evil, Carmichael, Autobiographical |
+| Combinatorial | 20 | Factorial, Primorial, Subfactorial |
+| Recreational | 19 | Kaprekar, Automorphic, Palindrome |
+| Exam types | 8 | Strong, Sunny, Buzz, Magic, Unique |</p>
 <hr />
 <h2 id="add-your-own-types">Add your own types</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">numclassify</span><span class="w"> </span><span class="kn">import</span> <span class="n">register</span>
