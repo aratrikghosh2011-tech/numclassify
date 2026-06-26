@@ -219,7 +219,12 @@ import json, random, math
     const catData = await pyodide.runPythonAsync(`
 import json
 from numclassify._registry import REGISTRY
-m = {v["name"]: v.get("category", "") for v in REGISTRY.values()}
+seen = set()
+m = {}
+for e in REGISTRY.values():
+    if e.name not in seen:
+        seen.add(e.name)
+        m[e.name.lower().replace(' ', '_')] = e.category
 json.dumps(m)
 `);
     categoryMap = JSON.parse(catData);
