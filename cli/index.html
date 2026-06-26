@@ -476,6 +476,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        why
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#find" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -491,6 +502,17 @@
     <span class="md-ellipsis">
       
         range
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        query
       
     </span>
   </a>
@@ -630,6 +652,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#why" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        why
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#find" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -645,6 +678,17 @@
     <span class="md-ellipsis">
       
         range
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#query" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        query
       
     </span>
   </a>
@@ -695,6 +739,8 @@
 
 <h1 id="cli-reference">CLI Reference</h1>
 <p>Install the package and the <code>numclassify</code> command is available immediately.</p>
+<p>Running <code>numclassify</code> with no arguments shows a short intro with links to the
+GitHub repo and docs site, followed by the standard help output.</p>
 <h2 id="check">check</h2>
 <p>Classify a single number.</p>
 <div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>check<span class="w"> </span><span class="m">1729</span>
@@ -704,6 +750,13 @@ numclassify<span class="w"> </span>check<span class="w"> </span><span class="m">
 <p>Show properties shared between two numbers and properties unique to each.</p>
 <div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>compare<span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="m">28</span>
 numclassify<span class="w"> </span>compare<span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="m">28</span><span class="w"> </span>--json
+</code></pre></div>
+<h2 id="why">why</h2>
+<p>Explain why a number does or does not have a given property, showing the
+actual arithmetic.</p>
+<div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>why<span class="w"> </span>armstrong<span class="w"> </span><span class="m">153</span>
+numclassify<span class="w"> </span>why<span class="w"> </span>perfect<span class="w"> </span><span class="m">12</span>
+numclassify<span class="w"> </span>why<span class="w"> </span>armstrong<span class="w"> </span><span class="m">153</span><span class="w"> </span>--json
 </code></pre></div>
 <h2 id="find">find</h2>
 <p>Find numbers of a given type, starting from 1.</p>
@@ -715,6 +768,14 @@ numclassify<span class="w"> </span>find<span class="w"> </span>prime<span class=
 <div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>range<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">100</span>
 numclassify<span class="w"> </span>range<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">100</span><span class="w"> </span>--filter<span class="w"> </span>prime
 </code></pre></div>
+<h2 id="query">query</h2>
+<p>Find numbers in a range matching multiple property conditions (AND/OR/NOT).</p>
+<div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>query<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">1000</span><span class="w"> </span>--has<span class="w"> </span>prime<span class="w"> </span>palindrome
+numclassify<span class="w"> </span>query<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">500</span><span class="w"> </span>--has<span class="w"> </span>prime<span class="w"> </span>--not-has<span class="w"> </span>emirp
+numclassify<span class="w"> </span>query<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">10000</span><span class="w"> </span>--any-of<span class="w"> </span>perfect<span class="w"> </span>amicable
+numclassify<span class="w"> </span>query<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">1000</span><span class="w"> </span>--has<span class="w"> </span>harshad<span class="w"> </span>--json
+</code></pre></div>
+<p><code>--has</code> and <code>--any-of</code> cannot be combined in the same query.</p>
 <h2 id="info">info</h2>
 <p>Show the definition, category, and OEIS reference for a number type.</p>
 <div class="highlight"><pre><span></span><code>numclassify<span class="w"> </span>info<span class="w"> </span>armstrong

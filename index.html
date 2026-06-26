@@ -649,7 +649,7 @@
 
 <h1 id="numclassify">numclassify</h1>
 <p><strong>Given a number, what is it?</strong></p>
-<p>Most number-theory libraries — <code>labmath</code>, <code>eulerlib</code>, <code>pyntlib</code> — compute things: factor integers, find GCDs, generate primes. <code>numclassify</code> solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 4300+ categories, with zero external dependencies.</p>
+<p>Most number-theory libraries — <code>labmath</code>, <code>eulerlib</code>, <code>pyntlib</code> — compute things: factor integers, find GCDs, generate primes. <code>numclassify</code> solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.</p>
 <div class="highlight"><pre><span></span><code>153   →  Armstrong, Harshad, Triangular, Deficient, ...
 1729  →  Taxicab (Hardy–Ramanujan), Carmichael, Harshad, ...
 28    →  Perfect, Triangular, Hexagonal, Harmonic Divisor, ...
@@ -675,23 +675,31 @@
 
 <span class="n">nc</span><span class="o">.</span><span class="n">is_prime</span><span class="p">(</span><span class="mi">17</span><span class="p">)</span>           <span class="c1"># True</span>
 <span class="n">nc</span><span class="o">.</span><span class="n">is_perfect</span><span class="p">(</span><span class="mi">28</span><span class="p">)</span>         <span class="c1"># True</span>
-<span class="n">nc</span><span class="o">.</span><span class="n">get_true_properties</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="c1"># [&#39;Perfect&#39;, &#39;Triangular&#39;, &#39;Pronic&#39;, ...]</span>
+<span class="n">nc</span><span class="o">.</span><span class="n">get_true_properties</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="c1"># {&#39;Perfect&#39;: True, &#39;Triangular&#39;: True, &#39;Pronic&#39;: True, ...}</span>
+
+<span class="n">nc</span><span class="o">.</span><span class="n">why</span><span class="p">(</span><span class="s2">&quot;armstrong&quot;</span><span class="p">,</span> <span class="mi">153</span><span class="p">)</span>
+<span class="c1"># &quot;153 is Armstrong because: 1^3 + 5^3 + 3^3 = 1 + 125 + 27 = 153&quot;</span>
+
+<span class="n">nc</span><span class="o">.</span><span class="n">property_info</span><span class="p">(</span><span class="s2">&quot;armstrong&quot;</span><span class="p">)</span>
+<span class="c1"># {&#39;name&#39;: &#39;Armstrong&#39;, &#39;category&#39;: &#39;digital&#39;, &#39;oeis&#39;: &#39;A005188&#39;, &#39;examples&#39;: [...]}</span>
+
+<span class="n">nc</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="n">has</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;harshad&quot;</span><span class="p">,</span> <span class="s2">&quot;palindrome&quot;</span><span class="p">])</span>
 </code></pre></div>
 <hr />
 <h2 id="categories">Categories</h2>
 <p>| Category | Count | Examples |
-|---|---|---|---|
-| Polygonal figurate | ~2008 | Triangular, Square, Pentagonal |
-| Centered polygonal | ~1996 | Centered Triangular, Centered Hexagonal |
-| Prime families | 82 | Twin, Mersenne, Sophie Germain, Safe |
-| Digital invariants | 44 | Armstrong, Harshad, Disarium, Happy |
-| Divisor-based | 54 | Perfect, Abundant, Weird, Practical |
-| Sequences | 33 | Fibonacci, Lucas, Catalan, Bell |
-| Powers | 26 | Perfect Square, Taxicab, Powerful |
-| Number theory | 28 | Evil, Carmichael, Autobiographical |
-| Combinatorial | 20 | Factorial, Primorial, Subfactorial |
-| Recreational | 19 | Kaprekar, Automorphic, Palindrome |
-| Exam types | 8 | Strong, Sunny, Buzz, Magic, Unique |</p>
+|---|---|---|---|---|
+| Polygonal figurate | ~1003 | Triangular, Square, Pentagonal |
+| Centered polygonal | ~998 | Centered Triangular, Centered Hexagonal |
+| Prime families | 40 | Twin, Mersenne, Sophie Germain, Safe |
+| Digital invariants | 13 | Armstrong, Harshad, Disarium, Happy |
+| Divisor-based | 27 | Perfect, Abundant, Weird, Practical |
+| Sequences | 16 | Fibonacci, Lucas, Catalan, Bell |
+| Powers | 13 | Perfect Square, Taxicab, Powerful |
+| Number theory | 14 | Evil, Carmichael, Autobiographical |
+| Combinatorial | 10 | Factorial, Primorial, Subfactorial |
+| Recreational | 6 | Kaprekar, Automorphic, Palindrome |
+| Exam types | 8 | Strong, Sunny, Buzz, Magic, Fascinating |</p>
 <hr />
 <h2 id="add-your-own-types">Add your own types</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">numclassify</span><span class="w"> </span><span class="kn">import</span> <span class="n">register</span>
