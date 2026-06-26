@@ -56,7 +56,7 @@ nc.find(1, 1000, has=["harshad", "palindrome"])
 ## Categories
 
 | Category | Count | Examples |
-|---|---|---|---|---|
+|----------|-------|----------|
 | Polygonal figurate | ~1003 | Triangular, Square, Pentagonal |
 | Centered polygonal | ~998 | Centered Triangular, Centered Hexagonal |
 | Prime families | 40 | Twin, Mersenne, Sophie Germain, Safe |
