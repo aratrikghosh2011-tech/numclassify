@@ -124,6 +124,12 @@ numclassify list --category primes
 
 # Get info and OEIS reference for a type
 numclassify info armstrong
+
+# Explain why a number has a property
+numclassify why armstrong 153
+
+# Multi-property query with AND/OR/NOT logic
+numclassify query 1 1000 --has prime palindrome
 ```
 
 ---
@@ -142,7 +148,7 @@ numclassify info armstrong
 | Number theory | 14 | Evil, Carmichael, Keith, Autobiographical |
 | Combinatorial | 10 | Factorial, Primorial, Subfactorial |
 | Recreational | 6 | Kaprekar, Automorphic, Palindrome |
-| Exam types | 8 | Armstrong, Strong, Sunny, Buzz, Magic, Unique |
+| Exam types | 8 | Strong, Sunny, Buzz, Magic, Fascinating, Unique |
 | **Total** | **2140+** | |
 
 ---
@@ -177,13 +183,16 @@ See [`examples/`](examples/) for runnable scripts covering all major features.
 | `find_by_property(start, end, **filters)` | Numbers in range matching property filters |
 | `stream(start, end, min_score, has_property)` | Generator — memory-safe range classification |
 | `get_all_properties(n)` | Dict of every type mapped to True/False |
-| `get_true_properties(n)` | List of True property names only |
+| `get_true_properties(n)` | Dict mapping each True property name to `True` |
 | `print_properties(n)` | Pretty-print property table to stdout |
 | `count_properties(n)` | Count of True properties |
 | `most_special_in_range(lo, hi, verbose)` | Number in range with the most True properties |
 | `find_in_range(fn, lo, hi)` | Numbers where callable `fn` returns True |
 | `find_any_in_range(predicates, lo, hi)` | Integers in range satisfying at least one predicate |
 | `find_all_in_range(predicates, lo, hi)` | Integers in range satisfying all predicates |
+| `why(property, n)` | Step-by-step explanation of why n does/doesn't satisfy a property |
+| `property_info(name)` | Registry metadata for a type, with auto-generated examples |
+| `find(start, end, has, not_has, any_of)` | Query a range with multi-property AND/OR/NOT logic |
 | `register` | Decorator to add custom number types |
 | `is_prime(n)` | Convenience boolean |
 | `is_armstrong(n)` | Convenience boolean |

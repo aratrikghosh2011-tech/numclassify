@@ -14,12 +14,20 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `property_info(name)`: registry metadata with auto-generated examples
 - `find(start, end, has, not_has, any_of)`: query engine wrapper
 - README origin story section
+- CLI `why <type> <n>` command for the explanation engine
+- CLI `query <start> <end>` command for multi-property AND/OR/NOT range queries
+- CLI no-args footer showing GitHub and docs links before help output
+- `info` command now shows real computed examples via property_info()
+  instead of a single hardcoded example value
 
 ### Fixed
 - Performance hangs in `is_untouchable`, `is_semiperfect`, `is_weird`,
   `is_zumkeller` on large n (bitmask subset-sum DP, bounded untouchable fallback)
 - Exam types category tagging: `numclassify list --category exam_types` now
   correctly returns all 8 exam-syllabus types
+- `property_info()` example lists now prioritize non-trivial values (e.g.
+  153 for Armstrong) over trivial single-digit matches that satisfied every
+  digit-based property by default
 
 ## [0.4.0] - 2026-06-13
 

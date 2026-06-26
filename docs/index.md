@@ -2,7 +2,7 @@
 
 **Given a number, what is it?**
 
-Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 4300+ categories, with zero external dependencies.
+Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.
 
 ```
 153   →  Armstrong, Harshad, Triangular, Deficient, ...
@@ -40,7 +40,15 @@ nc.classify(1729)
 
 nc.is_prime(17)           # True
 nc.is_perfect(28)         # True
-nc.get_true_properties(6) # ['Perfect', 'Triangular', 'Pronic', ...]
+nc.get_true_properties(6) # {'Perfect': True, 'Triangular': True, 'Pronic': True, ...}
+
+nc.why("armstrong", 153)
+# "153 is Armstrong because: 1^3 + 5^3 + 3^3 = 1 + 125 + 27 = 153"
+
+nc.property_info("armstrong")
+# {'name': 'Armstrong', 'category': 'digital', 'oeis': 'A005188', 'examples': [...]}
+
+nc.find(1, 1000, has=["harshad", "palindrome"])
 ```
 
 ---
@@ -48,18 +56,18 @@ nc.get_true_properties(6) # ['Perfect', 'Triangular', 'Pronic', ...]
 ## Categories
 
 | Category | Count | Examples |
-|---|---|---|---|
-| Polygonal figurate | ~2008 | Triangular, Square, Pentagonal |
-| Centered polygonal | ~1996 | Centered Triangular, Centered Hexagonal |
-| Prime families | 82 | Twin, Mersenne, Sophie Germain, Safe |
-| Digital invariants | 44 | Armstrong, Harshad, Disarium, Happy |
-| Divisor-based | 54 | Perfect, Abundant, Weird, Practical |
-| Sequences | 33 | Fibonacci, Lucas, Catalan, Bell |
-| Powers | 26 | Perfect Square, Taxicab, Powerful |
-| Number theory | 28 | Evil, Carmichael, Autobiographical |
-| Combinatorial | 20 | Factorial, Primorial, Subfactorial |
-| Recreational | 19 | Kaprekar, Automorphic, Palindrome |
-| Exam types | 8 | Strong, Sunny, Buzz, Magic, Unique |
+|---|---|---|---|---|
+| Polygonal figurate | ~1003 | Triangular, Square, Pentagonal |
+| Centered polygonal | ~998 | Centered Triangular, Centered Hexagonal |
+| Prime families | 40 | Twin, Mersenne, Sophie Germain, Safe |
+| Digital invariants | 13 | Armstrong, Harshad, Disarium, Happy |
+| Divisor-based | 27 | Perfect, Abundant, Weird, Practical |
+| Sequences | 16 | Fibonacci, Lucas, Catalan, Bell |
+| Powers | 13 | Perfect Square, Taxicab, Powerful |
+| Number theory | 14 | Evil, Carmichael, Autobiographical |
+| Combinatorial | 10 | Factorial, Primorial, Subfactorial |
+| Recreational | 6 | Kaprekar, Automorphic, Palindrome |
+| Exam types | 8 | Strong, Sunny, Buzz, Magic, Fascinating |
 
 ---
 
