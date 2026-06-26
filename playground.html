@@ -178,6 +178,30 @@
       </div>
     </div>
 
+    <!-- ROBOT GUIDE -->
+    <div id="guide-overlay" style="display:none;" aria-live="polite">
+      <div id="guide-spotlight"></div>
+      <div id="guide-bubble">
+        <div id="guide-robot">
+          <div id="robot-head">
+            <div id="robot-eye-left" class="robot-eye"></div>
+            <div id="robot-eye-right" class="robot-eye"></div>
+            <div id="robot-mouth"></div>
+          </div>
+          <div id="robot-body">
+            <div id="robot-antenna"></div>
+          </div>
+        </div>
+        <div id="guide-content">
+          <p id="guide-text"></p>
+          <div id="guide-actions">
+            <button id="guide-skip" onclick="endGuide()">Skip tour</button>
+            <button id="guide-next" onclick="guideNext()">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <footer>
@@ -198,6 +222,11 @@
     <div class="shortcut-row"><span class="sk-key">W</span><span class="sk-desc">Why tab</span></div>
     <div class="shortcut-row"><span class="sk-key">?</span><span class="sk-desc">Toggle this panel</span></div>
     <button class="btn shortcuts-close" onclick="closeShortcuts()">Close</button>
+    <button onclick="localStorage.removeItem('numclassify_guide_done_v1'); location.reload();" 
+            style="font-size:11px;color:var(--saffron);background:none;border:1px solid var(--saffron);
+                   border-radius:6px;padding:4px 10px;cursor:pointer;margin-top:8px;">
+      Restart tour
+    </button>
   </div>
 </div>
 

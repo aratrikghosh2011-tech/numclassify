@@ -34,19 +34,24 @@ function requireReady() {
 // ── Tab Switching ────────────────────────────────────────────────────────
 
 function switchTab(name) {
-  const names = ['classify', 'search', 'compare', 'notd', 'why'];
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    t.classList.toggle('active', names[i] === name);
-  });
   document.querySelectorAll('.tab-panel').forEach(p => {
     p.classList.remove('active');
   });
-  const panel = $('tab-' + name);
-  panel.classList.add('active');
-  // Re-trigger animation by removing/re-adding
-  panel.style.animation = 'none';
-  void panel.offsetWidth;
-  panel.style.animation = '';
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+  });
+  const panel = document.getElementById('tab-' + name);
+  const btn = document.querySelector(`.tab[onclick*="${name}"]`);
+  if (panel) {
+    setTimeout(() => panel.classList.add('active'), 30);
+  }
+  if (btn) btn.classList.add('active');
+}
+
+function animateResult(el) {
+  el.classList.remove('result-animate');
+  void el.offsetWidth;
+  el.classList.add('result-animate');
 }
 
 // ── Ripple Effect ────────────────────────────────────────────────────────
@@ -153,7 +158,7 @@ function makeTags(props, container, delayBase = 0) {
     }
     const rot = (Math.random() - 0.5) * 3;
     tag.style.setProperty('--tag-rotate', rot + 'deg');
-    tag.style.animationDelay = (delayBase + i * 20) + 'ms';
+    tag.style.setProperty('--tag-index', i);
     // Tooltip
     if (cat) {
       const tip = document.createElement('span');
@@ -246,6 +251,7 @@ json.dumps(m)
 
   $('loader').style.display = 'none';
   $('app').style.display = 'block';
+  setTimeout(startGuide, 600);
   pyReady = true;
 
   renderHistory();
@@ -298,6 +304,7 @@ json.dumps({"number": r["number"], "score": r["notable_score"], "total_score": r
     res.classList.remove('show');
     void res.offsetWidth;
     res.classList.add('show');
+    animateResult(res);
 
     // Save history
     saveHistory({ n: data.number, score: data.score });
@@ -351,6 +358,7 @@ json.dumps(results)
     res.classList.remove('show');
     void res.offsetWidth;
     res.classList.add('show');
+    animateResult(res);
 
     $('classify-number').innerHTML = `<span style="font-size:24px;background:none;-webkit-text-fill-color:var(--saffron);color:var(--saffron)">Batch (${results.length})</span>`;
     $('classify-score').innerHTML = '<span class="score-count"></span>';
@@ -397,6 +405,7 @@ async function doSearch(page = 0) {
     $('result-search').classList.remove('show');
     void $('result-search').offsetWidth;
     $('result-search').classList.add('show');
+    animateResult($('result-search'));
     resultsEl.innerHTML = '';
     loadMoreEl.style.display = 'none';
     suggestEl.style.display = 'none';
@@ -406,7 +415,17 @@ async function doSearch(page = 0) {
     if (page === 0) {
       const result = await pyodide.runPythonAsync(`
 import json
-nums = [n for n in range(${start}, ${end}+1) if nc.get_all_properties(n).get("${prop.replace(/"/g, '')}", False)]
+from numclassify._registry import REGISTRY, _normalize
+_prop_key = "${prop.replace(/"/g, '').replace(/ /g, '_')}"
+try:
+    _norm = _normalize(_prop_key)
+    if _norm not in REGISTRY:
+        nums = []
+    else:
+        _fn = REGISTRY[_norm].func
+        nums = [n for n in range(${start}, ${end}+1) if _fn(n)]
+except Exception:
+    nums = []
 json.dumps(nums)
 `);
       searchResultsAll = JSON.parse(result);
@@ -549,6 +568,7 @@ json.dumps({"only_a": only_a, "only_b": only_b, "shared": shared})
     $('result-compare').classList.remove('show');
     void $('result-compare').offsetWidth;
     $('result-compare').classList.add('show');
+    animateResult($('result-compare'));
 
   } catch(e) {
     toast('Error: ' + e.message.slice(0, 80));
@@ -574,11 +594,12 @@ async function doWhy() {
 import json
 try:
     explanation = nc.why(${JSON.stringify(prop)}, ${n})
-    json.dumps({"ok": True, "text": explanation})
+    _result = json.dumps({"ok": True, "text": explanation})
 except ValueError as e:
-    json.dumps({"ok": False, "text": str(e)})
+    _result = json.dumps({"ok": False, "text": str(e)})
 except AttributeError:
-    json.dumps({"ok": False, "text": "why() is not available in this version of numclassify yet. Try the 'Classify' tab instead."})
+    _result = json.dumps({"ok": False, "text": "why() is not available in this version of numclassify yet. Try the Classify tab instead."})
+_result
 `);
     const data = JSON.parse(result);
     const out = $('why-output');
@@ -590,6 +611,7 @@ except AttributeError:
     res.classList.remove('show');
     void res.offsetWidth;
     res.classList.add('show');
+    animateResult(res);
   } catch(e) {
     toast('Error: ' + e.message.slice(0, 80));
   } finally {
@@ -880,3 +902,142 @@ document.addEventListener('DOMContentLoaded', () => {
   setupShortcuts();
   initPyodide();
 });
+
+// ── Robot Guide ──────────────────────────────────────────────────────────
+
+const GUIDE_KEY = 'numclassify_guide_done_v1';
+
+const GUIDE_STEPS = [
+  {
+    tab: null,
+    targetSelector: '.logo-badge',
+    text: "👋 Hey! I'm Byte, your guide. This is the numclassify playground — a live Python environment running in your browser. Let me walk you through it. Takes about 30 seconds.",
+    position: 'bottom',
+  },
+  {
+    tab: 'classify',
+    targetSelector: '#tab-classify .card',
+    text: "This is the Classify tab. Type any integer and I'll tell you every mathematical category it belongs to — prime, perfect, Armstrong, and 2140+ more. Try 1729.",
+    position: 'right',
+  },
+  {
+    tab: 'search',
+    targetSelector: '#tab-search .card',
+    text: "The Search tab lets you find numbers by type. Want to see the first 10 perfect numbers? Or every Kaprekar number under 10000? This is where you ask.",
+    position: 'right',
+  },
+  {
+    tab: 'compare',
+    targetSelector: '#tab-compare .card',
+    text: "Compare two numbers side by side — see which properties they share and which ones are unique to each. Great for spotting mathematical relationships.",
+    position: 'right',
+  },
+  {
+    tab: 'why',
+    targetSelector: '#tab-why .card',
+    text: "My favourite tab. Type a property and a number, and I'll show you the actual math — not just True or False, but why. Try: armstrong, 153.",
+    position: 'right',
+  },
+  {
+    tab: null,
+    targetSelector: null,
+    text: "That's everything! The ⌨ shortcut overlay (press ?) shows all keyboard shortcuts. Happy classifying. 🎉",
+    position: 'center',
+  },
+];
+
+let guideStep = 0;
+
+function startGuide() {
+  if (localStorage.getItem(GUIDE_KEY)) return;
+  guideStep = 0;
+  document.getElementById('guide-overlay').style.display = 'block';
+  renderGuideStep();
+}
+
+function endGuide() {
+  localStorage.setItem(GUIDE_KEY, '1');
+  const overlay = document.getElementById('guide-overlay');
+  overlay.style.opacity = '0';
+  overlay.style.transition = 'opacity 0.3s ease';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    overlay.style.opacity = '';
+    overlay.style.transition = '';
+  }, 300);
+}
+
+function guideNext() {
+  guideStep++;
+  if (guideStep >= GUIDE_STEPS.length) {
+    endGuide();
+    return;
+  }
+  renderGuideStep();
+}
+
+function renderGuideStep() {
+  const step = GUIDE_STEPS[guideStep];
+  const isLast = guideStep === GUIDE_STEPS.length - 1;
+
+  if (step.tab) switchTab(step.tab);
+
+  document.getElementById('guide-text').textContent = step.text;
+
+  document.getElementById('guide-next').textContent = isLast ? 'Done ✓' : 'Next →';
+
+  setTimeout(() => positionGuide(step), step.tab ? 250 : 0);
+}
+
+function positionGuide(step) {
+  const spotlight = document.getElementById('guide-spotlight');
+  const bubble = document.getElementById('guide-bubble');
+
+  if (!step.targetSelector) {
+    spotlight.style.opacity = '0';
+    bubble.style.top = '50%';
+    bubble.style.left = '50%';
+    bubble.style.transform = 'translate(-50%, -50%)';
+    return;
+  }
+
+  const target = document.querySelector(step.targetSelector);
+  if (!target) {
+    spotlight.style.opacity = '0';
+    return;
+  }
+
+  const rect = target.getBoundingClientRect();
+  const pad = 10;
+
+  spotlight.style.opacity = '1';
+  spotlight.style.left   = (rect.left - pad) + 'px';
+  spotlight.style.top    = (rect.top - pad) + 'px';
+  spotlight.style.width  = (rect.width + pad * 2) + 'px';
+  spotlight.style.height = (rect.height + pad * 2) + 'px';
+
+  const bw = 340;
+  let bLeft, bTop;
+
+  if (step.position === 'right') {
+    bLeft = rect.right + pad + 12;
+    bTop  = rect.top;
+    if (bLeft + bw > window.innerWidth - 16) {
+      bLeft = rect.left - bw - 12 - pad;
+    }
+  } else {
+    bLeft = rect.left;
+    bTop  = rect.bottom + pad + 12;
+  }
+
+  const bubbleEl = document.getElementById('guide-bubble');
+  const bh = bubbleEl.offsetHeight || 160;
+  if (bTop + bh > window.innerHeight - 16) bTop = window.innerHeight - bh - 16;
+  if (bTop < 16) bTop = 16;
+  if (bLeft < 16) bLeft = 16;
+  if (bLeft + bw > window.innerWidth - 16) bLeft = window.innerWidth - bw - 16;
+
+  bubble.style.left = bLeft + 'px';
+  bubble.style.top  = bTop + 'px';
+  bubble.style.transform = 'none';
+}
