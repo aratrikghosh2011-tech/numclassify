@@ -1,4 +1,4 @@
-:root {
+﻿:root {
   --saffron: #FF9933;
   --saffron-light: #FFB366;
   --saffron-dark: #E6821A;
@@ -176,7 +176,7 @@ header {
 }
 
 .logo-badge::before {
-  content: '●';
+  content: 'â—';
   font-size: 8px;
   animation: blink 2s ease-in-out infinite;
 }
@@ -248,6 +248,39 @@ h1 {
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+#loader-byte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 16px;
+  animation: robotBob 1.5s ease-in-out infinite;
+}
+#lb-head {
+  width: 28px;
+  height: 22px;
+  background: var(--saffron);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  opacity: 0.7;
+}
+.lb-eye {
+  width: 6px;
+  height: 6px;
+  background: #0A0A0F;
+  border-radius: 50%;
+  animation: eyeBlink 2s ease-in-out infinite;
+}
+#lb-body {
+  width: 22px;
+  height: 16px;
+  background: var(--saffron-dark, #cc7a00);
+  border-radius: 3px;
+  opacity: 0.7;
 }
 
 /* Tabs */
@@ -1035,7 +1068,7 @@ footer a:hover {
   .tab { font-size: 12px; padding: 8px 6px; }
 }
 
-/* ── Search Autocomplete ────────────────────────────────────────────── */
+/* â”€â”€ Search Autocomplete â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .autocomplete-wrap {
   position: relative;
@@ -1084,7 +1117,7 @@ footer a:hover {
   font-family: 'Inter', sans-serif;
 }
 
-/* ── Confetti ────────────────────────────────────────────────────────── */
+/* â”€â”€ Confetti â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .confetti-container {
   position: fixed;
@@ -1113,7 +1146,7 @@ footer a:hover {
   }
 }
 
-/* ── Keyboard Shortcuts Overlay ──────────────────────────────────────── */
+/* â”€â”€ Keyboard Shortcuts Overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .shortcuts-overlay {
   position: fixed;
@@ -1179,7 +1212,7 @@ footer a:hover {
   width: 100%;
 }
 
-/* ── Reduced Motion ──────────────────────────────────────────────────── */
+/* â”€â”€ Reduced Motion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -1190,154 +1223,3 @@ footer a:hover {
   }
 }
 
-/* ── Robot Guide ────────────────────────────────────────────────────────── */
-
-#guide-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  pointer-events: none;
-}
-
-#guide-spotlight {
-  position: fixed;
-  border-radius: 12px;
-  box-shadow: 0 0 0 9999px rgba(0,0,0,0.65);
-  transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: none;
-}
-
-#guide-bubble {
-  position: fixed;
-  background: var(--bg-card);
-  border: 1.5px solid var(--saffron);
-  border-radius: 16px;
-  padding: 20px;
-  width: 320px;
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 20px var(--saffron-glow);
-  transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: all;
-}
-
-/* Robot character — pure CSS, no images */
-#guide-robot {
-  flex-shrink: 0;
-  width: 48px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-#robot-head {
-  width: 36px;
-  height: 30px;
-  background: var(--saffron);
-  border-radius: 8px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-}
-.robot-eye {
-  width: 8px;
-  height: 8px;
-  background: #0A0A0F;
-  border-radius: 50%;
-  animation: eyeBlink 3.5s ease-in-out infinite;
-}
-#robot-mouth {
-  position: absolute;
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 14px;
-  height: 4px;
-  border-bottom: 2px solid #0A0A0F;
-  border-left: 2px solid #0A0A0F;
-  border-right: 2px solid #0A0A0F;
-  border-radius: 0 0 4px 4px;
-}
-#robot-body {
-  width: 28px;
-  height: 22px;
-  background: var(--saffron-dark);
-  border-radius: 4px;
-  position: relative;
-}
-#robot-antenna {
-  width: 2px;
-  height: 8px;
-  background: var(--saffron);
-  position: absolute;
-  top: -28px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-#robot-antenna::after {
-  content: '';
-  display: block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--saffron);
-  margin-left: -2px;
-  margin-top: -6px;
-  animation: antennaPulse 1.2s ease-in-out infinite;
-}
-
-@keyframes antennaPulse {
-  0%, 100% { box-shadow: 0 0 0 0 var(--saffron-glow); }
-  50%       { box-shadow: 0 0 0 5px transparent; }
-}
-@keyframes eyeBlink {
-  0%, 90%, 100% { transform: scaleY(1); }
-  95%            { transform: scaleY(0.1); }
-}
-@keyframes robotBob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-4px); }
-}
-#guide-robot {
-  animation: robotBob 2s ease-in-out infinite;
-}
-
-#guide-content {
-  flex: 1;
-}
-#guide-text {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--text);
-  margin-bottom: 14px;
-}
-#guide-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-#guide-skip {
-  font-size: 11px;
-  color: var(--text-muted);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  opacity: 0.7;
-}
-#guide-skip:hover { opacity: 1; }
-#guide-next {
-  background: var(--saffron);
-  color: #0A0A0F;
-  border: none;
-  border-radius: 8px;
-  padding: 7px 16px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-#guide-next:hover { opacity: 0.88; }
