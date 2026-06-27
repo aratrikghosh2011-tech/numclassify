@@ -5,6 +5,14 @@
 [![Python](https://img.shields.io/pypi/pyversions/numclassify?style=flat-square&color=FF9933)](https://pypi.org/project/numclassify/)
 [![Tests](https://img.shields.io/github/actions/workflow/status/aratrikghosh2011-tech/numclassify/ci.yml?label=tests&style=flat-square&color=FF9933)](https://github.com/aratrikghosh2011-tech/numclassify/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-FF9933?style=flat-square)](LICENSE)
+[![Coverage](https://img.shields.io/badge/coverage-69%25-e05d44?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
+
+## What's new in v0.5.0
+
+- **`why(property, n)`** — step-by-step explanation engine for 33+ types
+- **`find(start, end, has=, not_has=, any_of=)`** — multi-property range queries
+- **Performance fixes** — `is_semiperfect`, `is_weird`, `is_zumkeller`, `is_untouchable` no longer hang on large inputs
+- **Full CLI** — `numclassify why armstrong 153`, `numclassify query 1 1000 --has prime`
 
 **Given a number, what is it?**
 
@@ -51,6 +59,21 @@ Python 3.8+ required. No external dependencies.
 ---
 
 ## Quick Start
+
+The standout feature is `why()` — it explains the reasoning, not just the result:
+
+```python
+import numclassify as nc
+
+# Not just True or False — shows you the actual math
+nc.why("armstrong", 153)
+# "153 is Armstrong because: 153 = 1^3 + 5^3 + 3^3 = 1 + 125 + 27 = 153"
+
+nc.why("perfect", 28)
+# "28 is Perfect because: proper divisors = {1, 2, 4, 7, 14}, sum = 28"
+```
+
+### Basic usage
 
 ```python
 import numclassify as nc
@@ -201,6 +224,14 @@ See [`examples/`](examples/) for runnable scripts covering all major features.
 Full docs: [aratrikghosh2011-tech.github.io/numclassify](https://aratrikghosh2011-tech.github.io/numclassify/)
 
 ---
+
+## More
+
+- [Contributing](CONTRIBUTING.md) — how to add new number types
+- [Security](SECURITY.md) — reporting vulnerabilities
+- [Performance](PERFORMANCE.md) — benchmarks and complexity notes
+- [Architecture](ARCHITECTURE.md) — registry internals and module map
+- [Changelog](CHANGELOG.md) — full version history
 
 ## License
 

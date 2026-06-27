@@ -7,7 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js"></script>
-<link rel="stylesheet" href="playground.css">
+<link rel="stylesheet" href="playground-base.css">
+  <link rel="stylesheet" href="playground-guide.css">
 </head>
 <body>
 
@@ -28,6 +29,13 @@
     <p class="loader-text" id="loader-text">Loading Python runtime...</p>
     <div class="progress-bar-wrap">
       <div class="progress-bar" id="progress-bar"></div>
+    </div>
+    <div id="loader-byte">
+      <div id="lb-head">
+        <div class="lb-eye"></div>
+        <div class="lb-eye"></div>
+      </div>
+      <div id="lb-body"></div>
     </div>
   </div>
 
@@ -230,6 +238,8 @@
   </div>
 </div>
 
-<script src="playground.js"></script>
+<script src="playground-core.js"></script>
+  <script src="playground-tabs.js"></script>
+  <script src="playground-guide.js"></script>
 </body>
 </html>

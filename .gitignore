@@ -11,3 +11,7 @@ dist/
 .venv 
 site/
 .offline-markdown-preview/
+
+# Coverage artifacts
+.coverage
+coverage.json
