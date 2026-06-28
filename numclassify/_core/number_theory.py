@@ -235,8 +235,15 @@ def is_odious(n: int) -> bool:
     return n >= 0 and bin(n).count("1") % 2 == 1
 
 
+def _explain_pernicious(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    bits = bin(n).count("1")
+    return f"{n} = {bin(n)}: popcount = {bits}, prime: {'YES -> pernicious' if _is_prime(bits) else 'NO'}"
+
 @register(name="Pernicious", category="number theory", oeis="A052294",
-          description="The number of 1s in binary representation is prime.")
+          description="The number of 1s in binary representation is prime.",
+          explain=_explain_pernicious)
 def is_pernicious(n: int) -> bool:
     """Return True if the popcount of n is a prime number.
 
@@ -251,8 +258,25 @@ def is_pernicious(n: int) -> bool:
     return n >= 0 and _is_prime(bin(n).count("1"))
 
 
+def _explain_blum_integer(n: int) -> str:
+    if n < 15:
+        return f"{n} < 15 -> NO"
+    f = 2
+    while f * f <= n:
+        if n % f == 0:
+            p, q = f, n // f
+            if q != p and _is_prime(p) and _is_prime(q):
+                return (
+                    f"{n} = {p} * {q}; p%4={p%4}, q%4={q%4} -> "
+                    f"{'YES' if p % 4 == 3 and q % 4 == 3 else 'NO'}"
+                )
+            return f"{n}: not a semiprime with distinct primes -> NO"
+        f += 1
+    return f"{n}: not a semiprime -> NO"
+
 @register(name="Blum Integer", category="number theory", oeis="A016105",
-          description="Semiprime n=p*q where both p and q are ≡ 3 mod 4.")
+          description="Semiprime n=p*q where both p and q are = 3 mod 4.",
+          explain=_explain_blum_integer)
 def is_blum_integer(n: int) -> bool:
     """Return True if n is a Blum integer (semiprime p*q, p≡q≡3 mod 4, p!=q).
 
@@ -348,8 +372,17 @@ def is_carmichael(n: int) -> bool:
     return len(factors) >= 2
 
 
+def _explain_primary_pseudoprime(n: int) -> str:
+    if n < 4:
+        return f"{n} < 4 -> NO"
+    if _is_prime(n):
+        return f"{n} is prime, pseudoprimes must be composite -> NO"
+    test = pow(2, n - 1, n)
+    return f"{n}: composite, 2^{n-1} mod {n} = {test} -> {'= 1 -> YES' if test == 1 else '!= 1 -> NO'}"
+
 @register(name="Primary Pseudoprime", category="number theory", oeis="A001567",
-          description="Composite number that passes the Fermat test for base 2.")
+          description="Composite number that passes the Fermat test for base 2.",
+          explain=_explain_primary_pseudoprime)
 def is_primary_pseudoprime(n: int) -> bool:
     """Return True if n is a base-2 Fermat pseudoprime (composite, 2^(n-1) ≡ 1 mod n).
 
@@ -366,8 +399,23 @@ def is_primary_pseudoprime(n: int) -> bool:
     return pow(2, n - 1, n) == 1
 
 
+def _explain_perfect_totient(n: int) -> str:
+    if n < 3:
+        return f"{n} < 3 -> NO"
+    total, k = 0, euler_totient(n)
+    terms = [k]
+    while k > 1:
+        total += k
+        if total > n:
+            return f"phi iterates: {', '.join(map(str, terms))} sum exceeds {n} -> NO"
+        k = euler_totient(k)
+        terms.append(k)
+    total += 1  # final 1
+    return f"{n}: phi iterates sum = {' + '.join(map(str, terms))} + 1 = {total} -> {'YES' if total == n else 'NO'}"
+
 @register(name="Perfect Totient", category="number theory", oeis="A082897",
-          description="n equals the sum of its iterated totients until reaching 1.")
+          description="n equals the sum of its iterated totients until reaching 1.",
+          explain=_explain_perfect_totient)
 def is_perfect_totient(n: int) -> bool:
     """Return True if n equals the sum of iterated Euler totients until reaching 1.
 
@@ -393,8 +441,29 @@ def is_perfect_totient(n: int) -> bool:
     return total == n
 
 
+def _explain_giuga(n: int) -> str:
+    if n < 2 or _is_prime(n):
+        return f"{n}: {'not composite' if n < 2 else 'is prime'} -> NO"
+    temp = n
+    f = 2
+    factors = []
+    while f * f <= temp:
+        if temp % f == 0:
+            factors.append(f)
+            if (n // f - 1) % f != 0:
+                return f"{n}: prime factor {f} does not divide ({n}/{f} - 1) = {n//f - 1} -> NO"
+            while temp % f == 0:
+                temp //= f
+        f += 1
+    if temp > 1:
+        factors.append(temp)
+        if (n // temp - 1) % temp != 0:
+            return f"{n}: prime factor {temp} does not divide ({n}/{temp} - 1) = {n//temp - 1} -> NO"
+    return f"{n}: all prime factors {factors} satisfy p | (n/p - 1) -> YES"
+
 @register(name="Giuga", category="number theory", oeis="A007850",
-          description="Composite n where for each prime p|n, p divides (n/p - 1).")
+          description="Composite n where for each prime p|n, p divides (n/p - 1).",
+          explain=_explain_giuga)
 def is_giuga(n: int) -> bool:
     """Return True if n is a Giuga number.
 
@@ -468,8 +537,17 @@ def is_self_number(n: int) -> bool:
     return True
 
 
+def _explain_colombian(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1 -> NO"
+    for k in range(max(1, n - 9 * len(str(n))), n):
+        if k + _digit_sum(k) == n:
+            return f"{n} = {k} + digit_sum({k}) -> not Colombian -> NO"
+    return f"{n}: no k gives k + digit_sum(k) = {n} -> Colombian -> YES"
+
 @register(name="Colombian", category="number theory", oeis="A003052",
-          description="Alias for self number: cannot be expressed as k + digit_sum(k).")
+          description="Alias for self number: cannot be expressed as k + digit_sum(k).",
+          explain=_explain_colombian)
 def is_colombian(n: int) -> bool:
     """Return True if n is a Colombian (self) number.
 
@@ -528,8 +606,17 @@ def is_keith(n: int) -> bool:
     return seq[-1] == n
 
 
+def _explain_autobiographical(n: int) -> str:
+    s = str(n)
+    k = len(s)
+    counts = [s.count(str(i)) for i in range(k)]
+    digits = [int(ch) for ch in s]
+    match = counts == digits
+    return f"{n}: digit counts = {counts}, actual digits = {digits} -> {'match -> YES' if match else 'no match -> NO'}"
+
 @register(name="Autobiographical", category="number theory", oeis="A046043",
-          description="Digit i counts how many times i appears in n.")
+          description="Digit i counts how many times i appears in n.",
+          explain=_explain_autobiographical)
 def is_autobiographical(n: int) -> bool:
     """Return True if n is an autobiographical (self-describing) number.
 
@@ -558,8 +645,20 @@ def is_autobiographical(n: int) -> bool:
     return True
 
 
+def _explain_narcissistic(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    digits = [int(d) for d in str(n)]
+    k = len(digits)
+    contributions = [d ** k for d in digits]
+    total = sum(contributions)
+    parts = " + ".join(f"{d}^{k}" for d in digits)
+    vals = " + ".join(str(c) for c in contributions)
+    return f"{n}: {parts} = {vals} = {total} {'= ' + str(n) + ' -> YES' if total == n else '!= ' + str(n) + ' -> NO'}"
+
 @register(name="Narcissistic", category="number theory", oeis="A005188",
-          description="Alias for Armstrong: sum of digits each raised to number of digits equals n.")
+          description="Alias for Armstrong: sum of digits each raised to number of digits equals n.",
+          explain=_explain_narcissistic)
 def is_narcissistic(n: int) -> bool:
     """Return True if n is a narcissistic (Armstrong) number.
 
@@ -576,8 +675,21 @@ def is_narcissistic(n: int) -> bool:
     return sum(int(d) ** k for d in digits) == n
 
 
+def _explain_perfect_digital_invariant(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1 -> NO"
+    digits = [int(d) for d in str(n)]
+    max_k = len(str(n)) + 3
+    for k in range(1, max_k + 1):
+        total = sum(d ** k for d in digits)
+        if total == n:
+            parts = " + ".join(f"{d}^{k}" for d in digits)
+            return f"{n}: sum(d^{k}) for digits = {parts} = {total} -> YES"
+    return f"{n}: no fixed power k makes sum of digit^k = n -> NO"
+
 @register(name="Perfect Digital Invariant", category="number theory", oeis="A023052",
-          description="Sum of digits raised to some fixed power k equals n.")
+          description="Sum of digits raised to some fixed power k equals n.",
+          explain=_explain_perfect_digital_invariant)
 def is_perfect_digital_invariant(n: int) -> bool:
     """Return True if sum(d^k for d in digits(n)) == n for some k >= 1.
 

@@ -123,6 +123,16 @@ def is_armstrong(n: int) -> bool:
     return sum(d ** power for d in digits) == n
 
 
+def _explain_spy(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -- not applicable"
+    digits = [int(d) for d in str(n)]
+    s = sum(digits)
+    p = 1
+    for d in digits:
+        p *= d
+    return f"{n}: digit sum={s}, digit product={p} -> {'equal -> YES' if s == p else 'not equal -> NO'}"
+
 @register(
     name="Spy",
     category="digital",
@@ -132,6 +142,7 @@ def is_armstrong(n: int) -> bool:
         "All single-digit numbers are spy numbers (sum = digit = product)."
     ),
     aliases=["spy number"],
+    explain=_explain_spy,
 )
 def is_spy(n: int) -> bool:
     """Return ``True`` if *n* is a spy number.
@@ -368,6 +379,13 @@ def is_neon(n: int) -> bool:
     return digit_sum(n * n) == n
 
 
+def _explain_duck(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -- not a duck number"
+    s = str(n)
+    has_zero = '0' in s[1:]
+    return f"{n}=digits={list(s)}, zero in non-leading position: {'YES' if has_zero else 'NO'} -> {'YES' if has_zero else 'NO'}"
+
 @register(
     name="Duck",
     category="digital",
@@ -376,6 +394,7 @@ def is_neon(n: int) -> bool:
         "A positive number that contains the digit 0 but does not start with 0."
     ),
     aliases=["duck number"],
+    explain=_explain_duck,
 )
 def is_duck(n: int) -> bool:
     """Return ``True`` if *n* is a duck number.
@@ -407,6 +426,17 @@ def is_duck(n: int) -> bool:
     return "0" in s  # leading zero is impossible for n > 0 as int
 
 
+def _explain_nude(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -- not applicable"
+    digits = [int(d) for d in str(n) if d != '0']
+    if not digits:
+        return f"{n}: no non-zero digits -> NO"
+    fails = [d for d in digits if n % d != 0]
+    if not fails:
+        return f"{n}: divisible by all its digits {digits} -> YES"
+    return f"{n}: not divisible by digit(s) {fails} -> NO"
+
 @register(
     name="Nude",
     category="digital",
@@ -415,6 +445,7 @@ def is_duck(n: int) -> bool:
         "A number divisible by each of its non-zero digits."
     ),
     aliases=["nude number"],
+    explain=_explain_nude,
 )
 def is_nude(n: int) -> bool:
     """Return ``True`` if *n* is a nude number.

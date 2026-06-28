@@ -93,6 +93,13 @@ def is_strong(n: int) -> bool:
 # Sunny Number
 # ---------------------------------------------------------------------------
 
+def _explain_sunny(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -> NO"
+    root = math.isqrt(n + 1)
+    is_sq = root * root == n + 1
+    return f"{n}+1 = {n+1}; sqrt({n+1}) = {root}; perfect square: {'YES' if is_sq else 'NO'} -> {'Sunny' if is_sq else 'not Sunny'}"
+
 @register(
     name="Sunny",
     category="sequences",
@@ -103,6 +110,7 @@ def is_strong(n: int) -> bool:
     ),
     aliases=["sunny_number"],
     exam_tag=True,
+    explain=_explain_sunny,
 )
 def is_sunny(n: int) -> bool:
     """Return True if n+1 is a perfect square.
@@ -135,6 +143,13 @@ def is_sunny(n: int) -> bool:
 # Buzz Number
 # ---------------------------------------------------------------------------
 
+def _explain_buzz(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -> NO"
+    div7 = n % 7 == 0
+    ends7 = n % 10 == 7
+    return f"{n}: divisible by 7: {'YES' if div7 else 'NO'}, ends in 7: {'YES' if ends7 else 'NO'} -> {'YES' if div7 or ends7 else 'NO'}"
+
 @register(
     name="Buzz",
     category="recreational",
@@ -144,6 +159,7 @@ def is_sunny(n: int) -> bool:
     ),
     aliases=["buzz_number"],
     exam_tag=True,
+    explain=_explain_buzz,
 )
 def is_buzz(n: int) -> bool:
     """Return True if n is divisible by 7 or ends in the digit 7.
@@ -176,6 +192,16 @@ def is_buzz(n: int) -> bool:
 # Magic Number
 # ---------------------------------------------------------------------------
 
+def _explain_magic(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -> NO"
+    steps = [n]
+    curr = n
+    while curr >= 10:
+        curr = _digit_sum(curr)
+        steps.append(curr)
+    return f"{' -> '.join(map(str, steps))}; final digit = {steps[-1]} -> {'= 1 -> YES' if steps[-1] == 1 else '!= 1 -> NO'}"
+
 @register(
     name="Magic",
     category="digital",
@@ -185,6 +211,7 @@ def is_buzz(n: int) -> bool:
     ),
     aliases=["magic_number"],
     exam_tag=True,
+    explain=_explain_magic,
 )
 def is_magic(n: int) -> bool:
     """Return True if the digital root of n equals 1.
@@ -224,6 +251,13 @@ def is_magic(n: int) -> bool:
 # Fascinating Number
 # ---------------------------------------------------------------------------
 
+def _explain_fascinating(n: int) -> str:
+    if n < 100 or n > 999:
+        return f"{n}: only 3-digit numbers qualify -> NO"
+    s = str(n) + str(2 * n) + str(3 * n)
+    has_all = len(s) == 9 and set(s) == set('123456789')
+    return f"{n}: concatenation = {s}, len={len(s)}, unique digits 1-9: {'YES' if has_all else 'NO'} -> {'YES' if has_all else 'NO'}"
+
 @register(
     name="Fascinating",
     category="digital",
@@ -234,6 +268,7 @@ def is_magic(n: int) -> bool:
     ),
     aliases=["fascinating_number"],
     exam_tag=True,
+    explain=_explain_fascinating,
 )
 def is_fascinating(n: int) -> bool:
     """Return True if n is a fascinating number.
@@ -275,6 +310,13 @@ def is_fascinating(n: int) -> bool:
 # Trimorphic Number
 # ---------------------------------------------------------------------------
 
+def _explain_trimorphic(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -> NO"
+    cube = n ** 3
+    ends = str(cube).endswith(str(n))
+    return f"{n}^3 = {cube} ends in {n} -> {'YES' if ends else 'NO'}"
+
 @register(
     name="Trimorphic",
     category="digital",
@@ -284,6 +326,7 @@ def is_fascinating(n: int) -> bool:
     ),
     aliases=["trimorphic_number", "automorphic_cube"],
     exam_tag=True,
+    explain=_explain_trimorphic,
 )
 def is_trimorphic(n: int) -> bool:
     """Return True if n^3 ends with n.
@@ -361,6 +404,12 @@ def is_twisted_prime(n: int) -> bool:
 # Unique Number
 # ---------------------------------------------------------------------------
 
+def _explain_unique(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    s = str(abs(n))
+    return f"{n}: digits={list(s)}, len={len(s)}, unique count={len(set(s))} -> {'all unique -> YES' if len(s) == len(set(s)) else 'repeated -> NO'}"
+
 @register(
     name="Unique",
     category="digital",
@@ -370,6 +419,7 @@ def is_twisted_prime(n: int) -> bool:
     ),
     aliases=["unique_number", "unique_digit"],
     exam_tag=True,
+    explain=_explain_unique,
 )
 def is_unique(n: int) -> bool:
     """Return True if n has no repeated digits.

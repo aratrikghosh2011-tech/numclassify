@@ -188,15 +188,27 @@ def is_palindrome(n: int) -> bool:
     return s == s[::-1]
 
 
+def _explain_strobogrammatic(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    rotate_map = {"0": "0", "1": "1", "6": "9", "8": "8", "9": "6"}
+    s = str(n)
+    for ch in s:
+        if ch not in rotate_map:
+            return f"{n}: digit '{ch}' is not 0,1,6,8,9 -> NO"
+    rotated = "".join(rotate_map[ch] for ch in reversed(s))
+    return f"{n}: rotated 180\u00b0 = {rotated} -> {'same -> YES' if rotated == s else 'different -> NO'}"
+
 @register(
     name="Strobogrammatic",
     category="recreational",
     oeis="",
     description=(
-        "A number that looks the same when rotated 180°. "
+        "A number that looks the same when rotated 180\u00b0. "
         "Valid digits are 0, 1, 6, 8, 9 with map 0->0, 1->1, 6->9, 8->8, 9->6."
     ),
     aliases=["strobogrammatic number"],
+    explain=_explain_strobogrammatic,
 )
 def is_strobogrammatic(n: int) -> bool:
     """Return ``True`` if *n* is a strobogrammatic number.
@@ -237,6 +249,20 @@ def is_strobogrammatic(n: int) -> bool:
     return rotated == s
 
 
+def _explain_bouncy(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -> NO"
+    digits = [int(d) for d in str(n)]
+    if len(digits) < 3:
+        return f"{n}: fewer than 3 digits -> cannot be bouncy -> NO"
+    increasing = all(digits[i] <= digits[i+1] for i in range(len(digits)-1))
+    decreasing = all(digits[i] >= digits[i+1] for i in range(len(digits)-1))
+    if increasing:
+        return f"{n}: digits {digits} are non-decreasing -> not bouncy -> NO"
+    if decreasing:
+        return f"{n}: digits {digits} are non-increasing -> not bouncy -> NO"
+    return f"{n}: digits {digits} go up and down -> YES"
+
 @register(
     name="Bouncy",
     category="recreational",
@@ -246,6 +272,7 @@ def is_strobogrammatic(n: int) -> bool:
         "all non-increasing."
     ),
     aliases=["bouncy number"],
+    explain=_explain_bouncy,
 )
 def is_bouncy(n: int) -> bool:
     """Return ``True`` if *n* is a bouncy number.

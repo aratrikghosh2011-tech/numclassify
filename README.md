@@ -7,12 +7,13 @@
 [![License](https://img.shields.io/badge/license-MIT-FF9933?style=flat-square)](LICENSE)
 [![Coverage](https://img.shields.io/badge/coverage-69%25-e05d44?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
 
-## What's new in v0.5.0
+## What's new in v0.6.0
 
-- **`why(property, n)`** — step-by-step explanation engine for 33+ types
-- **`find(start, end, has=, not_has=, any_of=)`** — multi-property range queries
-- **Performance fixes** — `is_semiperfect`, `is_weird`, `is_zumkeller`, `is_untouchable` no longer hang on large inputs
-- **Full CLI** — `numclassify why armstrong 153`, `numclassify query 1 1000 --has prime`
+- **`similar_numbers(n, top_k=5)`** — find integers mathematically closest to n by shared properties
+- **`specialness_percentile(n)`** — how rare is your number? Returns its percentile rank
+- **Explanation engine** — `why()` now covers 116/139 types (83.5%), up from 33
+- **`property_info()`** — now includes `oeis_url` field
+- **Developer tools** — `tools/audit_explain.py`, `tools/generate_docs.py`, `tools/scaffold_type.py`, `tools/release.py`
 
 **Given a number, what is it?**
 
@@ -159,20 +160,20 @@ numclassify query 1 1000 --has prime palindrome
 
 ## Number Categories
 
-| Category | Count | Examples |
-|---|---|---|
-| Polygonal figurate | ~1003 | Triangular, Square, Pentagonal, Chiliagonal |
-| Centered polygonal | ~998 | Centered Triangular, Centered Hexagonal |
-| Prime families | 40 | Twin, Mersenne, Sophie Germain, Wilson, Safe |
-| Digital invariants | 13 | Armstrong, Spy, Harshad, Disarium, Happy, Neon |
-| Divisor-based | 27 | Perfect, Abundant, Weird, Amicable, Practical |
-| Sequences | 16 | Fibonacci, Lucas, Catalan, Bell, Padovan |
-| Powers | 13 | Perfect Square, Taxicab, Sum of Two Squares |
-| Number theory | 14 | Evil, Carmichael, Keith, Autobiographical |
-| Combinatorial | 10 | Factorial, Primorial, Subfactorial |
-| Recreational | 6 | Kaprekar, Automorphic, Palindrome |
-| Exam types | 8 | Strong, Sunny, Buzz, Magic, Fascinating, Unique |
-| **Total** | **2140+** | |
+<!-- category-table:start -->
+| Category | Count |
+|---|---|
+| Polygonal figurate | ~1003 |
+| Centered polygonal | ~998 |
+| Prime families | 40 |
+| Digital invariants | 13 |
+| Divisor-based | 27 |
+| Sequences | 16 |
+| Powers | 13 |
+| Combinatorial | 10 |
+| Recreational | 6 |
+| **Total** | **2140** |
+<!-- category-table:end -->
 
 ---
 

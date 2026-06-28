@@ -460,6 +460,16 @@ def is_safe_prime(n: int) -> bool:
 # GROUP 1  --  Form-based primes
 # ---------------------------------------------------------------------------
 
+def _explain_fermat_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    known = {3: 0, 5: 1, 17: 2, 257: 3, 65537: 4}
+    if n in known:
+        return f"{n} = 2^(2^{known[n]}) + 1 (known Fermat prime) -> YES"
+    if n > 65537:
+        return f"{n} > 65537; no Fermat prime beyond 65537 is known -> NO"
+    return f"{n} is not a known Fermat prime ({3, 5, 17, 257, 65537}) -> NO"
+
 @register(
     name="Fermat Prime",
     category="primes",
@@ -469,6 +479,7 @@ def is_safe_prime(n: int) -> bool:
         "3, 5, 17, 257, 65537."
     ),
     aliases=["fermat_prime"],
+    explain=_explain_fermat_prime,
 )
 def is_fermat_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Fermat prime.
@@ -1009,14 +1020,26 @@ def is_wagstaff_prime(n: int) -> bool:
 # GROUP 2  --  Relationship-based primes
 # ---------------------------------------------------------------------------
 
+def _explain_cousin_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    p4 = is_prime(n + 4)
+    m4 = n > 4 and is_prime(n - 4)
+    if p4:
+        return f"{n} is prime, {n}+4={n+4} is prime -> cousin pair -> YES"
+    if m4:
+        return f"{n} is prime, {n}-4={n-4} is prime -> cousin pair -> YES"
+    return f"{n} is prime but neither {n}+4 nor {n}-4 is prime -> NO"
+
 @register(
     name="Cousin Prime",
     category="primes",
     oeis="A046132",
     description=(
-        "A prime p such that p + 4 or p − 4 is also prime."
+        "A prime p such that p + 4 or p - 4 is also prime."
     ),
     aliases=["cousin_prime"],
+    explain=_explain_cousin_prime,
 )
 def is_cousin_prime(n: int) -> bool:
     """Return ``True`` if *n* is a cousin prime.
@@ -1051,15 +1074,27 @@ def is_cousin_prime(n: int) -> bool:
     return is_prime(n + 4) or is_prime(n - 4)
 
 
+def _explain_sexy_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    p6 = is_prime(n + 6)
+    m6 = n > 6 and is_prime(n - 6)
+    if p6:
+        return f"{n} is prime, {n}+6={n+6} is prime -> sexy prime pair -> YES"
+    if m6:
+        return f"{n} is prime, {n}-6={n-6} is prime -> sexy prime pair -> YES"
+    return f"{n} is prime but neither {n}+6 nor {n}-6 is prime -> NO"
+
 @register(
     name="Sexy Prime",
     category="primes",
     oeis="A023201",
     description=(
-        "A prime p such that p + 6 or p − 6 is also prime "
+        "A prime p such that p + 6 or p - 6 is also prime "
         "(primes differing by 6)."
     ),
     aliases=["sexy_prime"],
+    explain=_explain_sexy_prime,
 )
 def is_sexy_prime(n: int) -> bool:
     """Return ``True`` if *n* is a sexy prime.
@@ -1144,6 +1179,16 @@ def is_prime_triplet(n: int) -> bool:
     return form1 or form2
 
 
+def _explain_balanced_prime(n: int) -> str:
+    if n <= 2:
+        return f"{n} <= 2 -> NO"
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    pp = prev_prime(n)
+    np_ = next_prime(n)
+    mean = (pp + np_) / 2
+    return f"prev prime={pp}, next prime={np_}, mean={mean}; {n} {'= ' + str(mean) + ' -> YES' if pp + np_ == 2 * n else '!= ' + str(mean) + ' -> NO'}"
+
 @register(
     name="Balanced Prime",
     category="primes",
@@ -1153,6 +1198,7 @@ def is_prime_triplet(n: int) -> bool:
         "(the prime immediately below and immediately above it)."
     ),
     aliases=["balanced_prime"],
+    explain=_explain_balanced_prime,
 )
 def is_balanced_prime(n: int) -> bool:
     """Return ``True`` if *n* is a balanced prime.
@@ -1191,15 +1237,25 @@ def is_balanced_prime(n: int) -> bool:
     return (pp + np_) == 2 * n
 
 
+def _explain_isolated_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    pm2 = is_prime(n - 2)
+    pp2 = is_prime(n + 2)
+    if pm2 or pp2:
+        return f"{n} is prime, but {n-2} is {'prime' if pm2 else 'not'}, {n+2} is {'prime' if pp2 else 'not'} -> has twin -> NO"
+    return f"{n} is prime, neither {n-2} nor {n+2} is prime -> isolated -> YES"
+
 @register(
     name="Isolated Prime",
     category="primes",
     oeis="A007510",
     description=(
-        "A prime p such that neither p − 2 nor p + 2 is prime "
+        "A prime p such that neither p - 2 nor p + 2 is prime "
         "(not part of any twin-prime pair)."
     ),
     aliases=["isolated_prime"],
+    explain=_explain_isolated_prime,
 )
 def is_isolated_prime(n: int) -> bool:
     """Return ``True`` if *n* is an isolated prime.
@@ -1232,6 +1288,16 @@ def is_isolated_prime(n: int) -> bool:
     return not is_prime(n - 2) and not is_prime(n + 2)
 
 
+def _explain_chen_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    p2 = n + 2
+    if is_prime(p2):
+        return f"{n} is prime, {n}+2={p2} is prime -> YES"
+    if is_semiprime(p2):
+        return f"{n} is prime, {n}+2={p2} is semiprime -> YES"
+    return f"{n} is prime, but {n}+2={p2} is neither prime nor semiprime -> NO"
+
 @register(
     name="Chen Prime",
     category="primes",
@@ -1241,6 +1307,7 @@ def is_isolated_prime(n: int) -> bool:
         "(product of exactly two primes)."
     ),
     aliases=["chen_prime"],
+    explain=_explain_chen_prime,
 )
 def is_chen_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Chen prime.
@@ -1279,6 +1346,16 @@ def is_chen_prime(n: int) -> bool:
     return is_prime(n + 2) or is_semiprime(n + 2)
 
 
+def _explain_strong_prime(n: int) -> str:
+    if n <= 2:
+        return f"{n} <= 2 -> NO"
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    pp = prev_prime(n)
+    np_ = next_prime(n)
+    mean = (pp + np_) / 2
+    return f"prev={pp}, next={np_}, mean={mean}; {n} > {mean} -> {'YES' if 2 * n > pp + np_ else 'NO'}"
+
 @register(
     name="Strong Prime",
     category="primes",
@@ -1288,6 +1365,7 @@ def is_chen_prime(n: int) -> bool:
         "prime neighbours."
     ),
     aliases=["strong_prime"],
+    explain=_explain_strong_prime,
 )
 def is_strong_prime(n: int) -> bool:
     """Return ``True`` if *n* is a strong prime.
@@ -1324,6 +1402,16 @@ def is_strong_prime(n: int) -> bool:
     return 2 * n > pp + np_
 
 
+def _explain_weak_prime(n: int) -> str:
+    if n <= 2:
+        return f"{n} <= 2 -> NO"
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    pp = prev_prime(n)
+    np_ = next_prime(n)
+    mean = (pp + np_) / 2
+    return f"prev={pp}, next={np_}, mean={mean}; {n} < {mean} -> {'YES' if 2 * n < pp + np_ else 'NO'}"
+
 @register(
     name="Weak Prime",
     category="primes",
@@ -1333,6 +1421,7 @@ def is_strong_prime(n: int) -> bool:
         "prime neighbours."
     ),
     aliases=["weak_prime"],
+    explain=_explain_weak_prime,
 )
 def is_weak_prime(n: int) -> bool:
     """Return ``True`` if *n* is a weak prime.
@@ -1375,6 +1464,15 @@ def is_weak_prime(n: int) -> bool:
 # GROUP 3  --  Digital/representational primes
 # ---------------------------------------------------------------------------
 
+def _explain_palindromic_prime(n: int) -> str:
+    s = str(n)
+    is_pal = s == s[::-1]
+    return (
+        f"{n}: palindrome={'YES' if is_pal else 'NO'}, "
+        f"prime={'YES' if is_prime(n) else 'NO'} -> "
+        f"{'YES' if is_pal and is_prime(n) else 'NO'}"
+    )
+
 @register(
     name="Palindromic Prime",
     category="primes",
@@ -1384,6 +1482,7 @@ def is_weak_prime(n: int) -> bool:
         "backwards."
     ),
     aliases=["palindromic_prime"],
+    explain=_explain_palindromic_prime,
 )
 def is_palindromic_prime(n: int) -> bool:
     """Return ``True`` if *n* is a palindromic prime.
@@ -1420,6 +1519,15 @@ def is_palindromic_prime(n: int) -> bool:
     return s == s[::-1]
 
 
+def _explain_emirp(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    rev = int(str(n)[::-1])
+    return (
+        f"{n} is prime; reversed={rev} is {'prime' if is_prime(rev) else 'not prime'}; "
+        f"n != rev: {n != rev} -> {'YES' if is_prime(rev) and n != rev else 'NO'}"
+    )
+
 @register(
     name="Emirp",
     category="primes",
@@ -1428,6 +1536,7 @@ def is_palindromic_prime(n: int) -> bool:
         "A prime whose digit reversal is a different prime."
     ),
     aliases=["emirp"],
+    explain=_explain_emirp,
 )
 def is_emirp(n: int) -> bool:
     """Return ``True`` if *n* is an emirp.
@@ -1464,6 +1573,20 @@ def is_emirp(n: int) -> bool:
     return rev != n and is_prime(rev)
 
 
+def _explain_circular_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    s = str(n)
+    rotations = []
+    k = len(s)
+    for i in range(1, k):
+        rot = int(s[i:] + s[:i])
+        rotations.append(rot)
+    bad = [r for r in rotations if not is_prime(r)]
+    if not bad:
+        return f"{n}: all rotations {rotations} are prime -> YES"
+    return f"{n}: rotation(s) {bad} are not prime -> NO"
+
 @register(
     name="Circular Prime",
     category="primes",
@@ -1472,6 +1595,7 @@ def is_emirp(n: int) -> bool:
         "A prime all of whose cyclic rotations of digits are also prime."
     ),
     aliases=["circular_prime"],
+    explain=_explain_circular_prime,
 )
 def is_circular_prime(n: int) -> bool:
     """Return ``True`` if *n* is a circular prime.
@@ -1716,6 +1840,12 @@ def is_repunit_prime(n: int) -> bool:
 # GROUP 4  --  Modular/congruence primes
 # ---------------------------------------------------------------------------
 
+def _explain_pythagorean_prime(n: int) -> str:
+    return (
+        f"{n}: prime={'YES' if is_prime(n) else 'NO'}, "
+        f"{n} % 4 = {n % 4} -> {'YES' if is_prime(n) and n % 4 == 1 else 'NO'}"
+    )
+
 @register(
     name="Pythagorean Prime",
     category="primes",
@@ -1725,6 +1855,7 @@ def is_repunit_prime(n: int) -> bool:
         "as the sum of two squares."
     ),
     aliases=["pythagorean_prime"],
+    explain=_explain_pythagorean_prime,
 )
 def is_pythagorean_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Pythagorean prime.
@@ -1905,15 +2036,23 @@ def is_wilson_prime(n: int) -> bool:
     return math.factorial(n - 1) % p2 == p2 - 1
 
 
+def _explain_wieferich_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    if n in {1093, 3511}:
+        return f"{n} is a known Wieferich prime (2^{{{n-1}}} mod {n}^2 = 1) -> YES"
+    return f"{n} is prime but not a known Wieferich prime (only 1093, 3511 are known) -> NO"
+
 @register(
     name="Wieferich Prime",
     category="primes",
     oeis="A001220",
     description=(
-        "A prime p where 2^(p−1) ≡ 1 (mod p^2). "
+        "A prime p where 2^(p-1) = 1 (mod p^2). "
         "Only two are known: 1093, 3511."
     ),
     aliases=["wieferich_prime"],
+    explain=_explain_wieferich_prime,
 )
 def is_wieferich_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Wieferich prime.

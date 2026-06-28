@@ -20,6 +20,7 @@ import math
 from typing import List, Set
 
 from numclassify._registry import register
+from numclassify._explain_templates import factorization_template
 
 # ---------------------------------------------------------------------------
 # Helpers (NOT registered)
@@ -321,8 +322,27 @@ def is_amicable(n: int) -> bool:
     return m != n and sigma(m) - m == n
 
 
+def _explain_sociable(n: int) -> str:
+    if n < 2:
+        return f"{n} < 2 -- not applicable"
+    cycle = [n]
+    current = sigma(n) - n
+    while len(cycle) < 7:
+        if current <= 1:
+            return f"{n}: chain terminates at {current} -> NO"
+        if current == n:
+            if len(cycle) > 2:
+                return f"{n}: aliquot cycle of length {len(cycle)}: {cycle} -> YES"
+            return f"{n}: amicable pair: {cycle[0]} <-> {cycle[1]} -> NOT sociable"
+        if current in cycle:
+            return f"{n}: chain enters a shorter cycle -> NO"
+        cycle.append(current)
+        current = sigma(current) - current
+    return f"{n}: cycle exceeds length 6 or not detected -> NO"
+
 @register(name="Sociable", category="divisors", oeis="A003416",
-          description="Part of an aliquot cycle of length 3–6 (longer chains not detected).")
+          description="Part of an aliquot cycle of length 3-6 (longer chains not detected).",
+          explain=_explain_sociable)
 def is_sociable(n: int) -> bool:
     """Return True if n is part of a sociable cycle of length 3–6.
 
@@ -350,8 +370,17 @@ def is_sociable(n: int) -> bool:
     return current == n and len(seen) > 2
 
 
+def _explain_untouchable(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -- not applicable"
+    if n <= 10000:
+        result = n in _UNTOUCHABLE
+        return f"{n}: precomputed untouchable set -> {'YES (untouchable)' if result else 'NO (reachable)'}"
+    return f"{n}: use sigma sieve (10000 < n <= 500k) or raises ValueError -> see is_untouchable result"
+
 @register(name="Untouchable", category="divisors", oeis="A005114",
-          description="No integer has n as its proper divisor sum.")
+          description="No integer has n as its proper divisor sum.",
+          explain=_explain_untouchable)
 def is_untouchable(n: int) -> bool:
     """Return True if no integer has n as its proper divisor sum.
 
@@ -387,8 +416,16 @@ def is_untouchable(n: int) -> bool:
     return n not in seen_sums
 
 
+def _explain_superperfect(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1 -- not applicable"
+    s1 = sigma(n)
+    s2 = sigma(s1)
+    return f"sigma({n}) = {s1}, sigma({s1}) = {s2}; 2n = {2*n} -> {'YES' if s2 == 2*n else 'NO'}"
+
 @register(name="Superperfect", category="divisors", oeis="A019279",
-          description="sigma(sigma(n)) == 2*n.")
+          description="sigma(sigma(n)) == 2*n.",
+          explain=_explain_superperfect)
 def is_superperfect(n: int) -> bool:
     """Return True if sigma(sigma(n)) == 2*n.
 
@@ -405,8 +442,18 @@ def is_superperfect(n: int) -> bool:
     return sigma(sigma(n)) == 2 * n
 
 
+def _explain_harmonic_divisor(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1 -- not applicable"
+    nd = num_divisors(n)
+    s = sigma(n)
+    hm = n * nd / s
+    is_int = (n * nd) % s == 0
+    return f"n={n}, d(n)={nd}, sigma(n)={s}, HM = n*d/sigma = {n}*{nd}/{s} = {hm:.2f} -> {'integer -> YES' if is_int else 'not integer -> NO'}"
+
 @register(name="Harmonic Divisor", category="divisors", oeis="A001599",
-          description="Harmonic mean of divisors is an integer.")
+          description="Harmonic mean of divisors is an integer.",
+          explain=_explain_harmonic_divisor)
 def is_harmonic_divisor(n: int) -> bool:
     """Return True if the harmonic mean of n's divisors is an integer.
 
@@ -477,8 +524,15 @@ def is_practical(n: int) -> bool:
     return True
 
 
+def _explain_refactorable(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -- not applicable"
+    nd = num_divisors(n)
+    return f"n={n}, d(n)={nd}; {n} % {nd} = {n % nd} -> {'YES' if n % nd == 0 else 'NO'}"
+
 @register(name="Refactorable", category="divisors", oeis="A033950",
-          description="Number of divisors divides n.")
+          description="Number of divisors divides n.",
+          explain=_explain_refactorable)
 def is_refactorable(n: int) -> bool:
     """Return True if the number of divisors of n divides n.
 
@@ -495,8 +549,18 @@ def is_refactorable(n: int) -> bool:
     return n % num_divisors(n) == 0
 
 
+def _explain_highly_composite(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1 -- not applicable"
+    nd = num_divisors(n)
+    for k in range(1, n):
+        if num_divisors(k) >= nd:
+            return f"n={n}, d(n)={nd}, but d({k})={num_divisors(k)} >= d(n) -> NO"
+    return f"n={n}, d(n)={nd}, no smaller number has >= d(n) divisors -> YES"
+
 @register(name="Highly Composite", category="divisors", oeis="A002182",
-          description="Has more divisors than any smaller positive integer.")
+          description="Has more divisors than any smaller positive integer.",
+          explain=_explain_highly_composite)
 def is_highly_composite(n: int) -> bool:
     """Return True if n has more divisors than any smaller positive integer.
 
@@ -517,8 +581,15 @@ def is_highly_composite(n: int) -> bool:
     return True
 
 
+_explain_squarefree = factorization_template(
+    lambda f: len(f) == len(set(f)),
+    "all prime factors appear exactly once",
+    show_exponents=True,
+)
+
 @register(name="Squarefree", category="divisors", oeis="A005117",
-          description="Not divisible by any perfect square greater than 1.")
+          description="Not divisible by any perfect square greater than 1.",
+          explain=_explain_squarefree)
 def is_squarefree(n: int) -> bool:
     """Return True if n is not divisible by any perfect square > 1.
 
@@ -549,8 +620,15 @@ def is_squarefree(n: int) -> bool:
     return True
 
 
+_explain_powerful = factorization_template(
+    lambda f: all(f.count(p) >= 2 for p in set(f)),
+    "every prime factor appears at least twice",
+    show_exponents=True,
+)
+
 @register(name="Powerful", category="divisors", oeis="A001694",
-          description="For every prime p dividing n, p^2 also divides n.")
+          description="For every prime p dividing n, p^2 also divides n.",
+          explain=_explain_powerful)
 def is_powerful(n: int) -> bool:
     """Return True if for every prime p dividing n, p^2 also divides n.
 
@@ -579,8 +657,28 @@ def is_powerful(n: int) -> bool:
     return True
 
 
+def _explain_achilles(n: int) -> str:
+    if n <= 1:
+        return f"{n} <= 1 -- not applicable"
+    factors = _factorization(n)
+    exp_dict = dict(factors)
+    powerful = all(e >= 2 for _, e in factors)
+    if not powerful:
+        return f"{n}: exponents={exp_dict}, not all >= 2 -> not powerful -> NO"
+    from math import gcd
+    exponents = [e for _, e in factors]
+    g = 0
+    for e in exponents:
+        g = gcd(g, e)
+    fact_str = " x ".join(f"{p}^{e}" for p, e in factors)
+    return (
+        f"{n} = {fact_str}; all exponents >= 2 (powerful), "
+        f"gcd(exponents)={g} {'= 1 -> Achilles: YES' if g == 1 else '> 1 -> perfect power -> NO'}"
+    )
+
 @register(name="Achilles", category="divisors", oeis="A052486",
-          description="Powerful but not a perfect power. Smallest: 72.")
+          description="Powerful but not a perfect power. Smallest: 72.",
+          explain=_explain_achilles)
 def is_achilles(n: int) -> bool:
     """Return True if n is powerful but not a perfect power.
 
@@ -600,8 +698,15 @@ def is_achilles(n: int) -> bool:
     return is_powerful(n) and not _is_perfect_power(n)
 
 
+_explain_sphenic = factorization_template(
+    lambda f: len(f) == 3 and len(set(f)) == 3,
+    "product of exactly 3 distinct primes",
+    show_exponents=True,
+)
+
 @register(name="Sphenic", category="divisors", oeis="A007304",
-          description="Product of exactly 3 distinct primes.")
+          description="Product of exactly 3 distinct primes.",
+          explain=_explain_sphenic)
 def is_sphenic(n: int) -> bool:
     """Return True if n is the product of exactly 3 distinct primes.
 
@@ -624,8 +729,15 @@ def is_sphenic(n: int) -> bool:
     return len(factors) == 3 and all(e == 1 for _, e in factors)
 
 
+_explain_smooth_2 = factorization_template(
+    lambda f: all(p <= 2 for p in set(f)),
+    "all prime factors <= 2",
+    show_exponents=True,
+)
+
 @register(name="2-smooth", category="divisors", oeis="A000079",
-          description="Only prime factor is 2 (powers of 2).")
+          description="Only prime factor is 2 (powers of 2).",
+          explain=_explain_smooth_2)
 def is_smooth_2(n: int) -> bool:
     """Return True if the only prime factor of n is 2.
 
@@ -642,8 +754,15 @@ def is_smooth_2(n: int) -> bool:
     return n > 0 and (n & (n - 1)) == 0
 
 
+_explain_smooth_3 = factorization_template(
+    lambda f: all(p <= 3 for p in set(f)),
+    "all prime factors <= 3",
+    show_exponents=True,
+)
+
 @register(name="3-smooth", category="divisors", oeis="A003586",
-          description="All prime factors are at most 3.")
+          description="All prime factors are at most 3.",
+          explain=_explain_smooth_3)
 def is_smooth_3(n: int) -> bool:
     """Return True if all prime factors of n are <= 3.
 
@@ -664,8 +783,15 @@ def is_smooth_3(n: int) -> bool:
     return n == 1
 
 
+_explain_smooth_5 = factorization_template(
+    lambda f: all(p <= 5 for p in set(f)),
+    "all prime factors <= 5",
+    show_exponents=True,
+)
+
 @register(name="5-smooth", category="divisors", oeis="A051037",
-          description="All prime factors are at most 5 (regular numbers).")
+          description="All prime factors are at most 5 (regular numbers).",
+          explain=_explain_smooth_5)
 def is_smooth_5(n: int) -> bool:
     """Return True if all prime factors of n are <= 5.
 
@@ -685,8 +811,15 @@ def is_smooth_5(n: int) -> bool:
     return n == 1
 
 
+_explain_smooth_7 = factorization_template(
+    lambda f: all(p <= 7 for p in set(f)),
+    "all prime factors <= 7",
+    show_exponents=True,
+)
+
 @register(name="7-smooth", category="divisors", oeis="A002473",
-          description="All prime factors are at most 7.")
+          description="All prime factors are at most 7.",
+          explain=_explain_smooth_7)
 def is_smooth_7(n: int) -> bool:
     """Return True if all prime factors of n are <= 7.
 
@@ -706,8 +839,15 @@ def is_smooth_7(n: int) -> bool:
     return n == 1
 
 
+_explain_rough_3 = factorization_template(
+    lambda f: all(p >= 3 for p in set(f)),
+    "all prime factors >= 3",
+    show_exponents=True,
+)
+
 @register(name="3-rough", category="divisors",
-          description="No prime factor less than 3 (i.e. odd numbers > 1).")
+          description="No prime factor less than 3 (i.e. odd numbers > 1).",
+          explain=_explain_rough_3)
 def is_rough_3(n: int) -> bool:
     """Return True if n has no prime factor less than 3 (i.e. n is odd).
 
@@ -722,8 +862,15 @@ def is_rough_3(n: int) -> bool:
     return n > 1 and n % 2 != 0
 
 
+_explain_rough_5 = factorization_template(
+    lambda f: all(p >= 5 for p in set(f)),
+    "all prime factors >= 5",
+    show_exponents=True,
+)
+
 @register(name="5-rough", category="divisors",
-          description="No prime factor less than 5.")
+          description="No prime factor less than 5.",
+          explain=_explain_rough_5)
 def is_rough_5(n: int) -> bool:
     """Return True if n has no prime factor less than 5.
 
@@ -753,8 +900,17 @@ def _factorization_digit_count(n: int) -> int:
     return total
 
 
+def _explain_economical(n: int) -> str:
+    if n <= 1:
+        return f"{n} <= 1 -- not applicable"
+    dig_n = len(str(n))
+    dig_f = _factorization_digit_count(n)
+    result = "economical" if dig_n > dig_f else "not economical"
+    return f"{n} has {dig_n} digit(s); factorization uses {dig_f} digit(s) -> {result}"
+
 @register(name="Economical", category="divisors", oeis="A046759",
-          description="Prime factorization uses fewer digits than n.")
+          description="Prime factorization uses fewer digits than n.",
+          explain=_explain_economical)
 def is_economical(n: int) -> bool:
     """Return True if the prime factorization of n uses fewer digits than n.
 
@@ -771,8 +927,17 @@ def is_economical(n: int) -> bool:
     return _factorization_digit_count(n) < len(str(n))
 
 
+def _explain_equidigital(n: int) -> str:
+    if n <= 1:
+        return f"{n} <= 1 -- not applicable"
+    dig_n = len(str(n))
+    dig_f = _factorization_digit_count(n)
+    result = "equidigital" if dig_n == dig_f else "not equidigital"
+    return f"{n} has {dig_n} digit(s); factorization uses {dig_f} digit(s) -> {result}"
+
 @register(name="Equidigital", category="divisors", oeis="A046758",
-          description="Prime factorization uses the same number of digits as n.")
+          description="Prime factorization uses the same number of digits as n.",
+          explain=_explain_equidigital)
 def is_equidigital(n: int) -> bool:
     """Return True if the prime factorization of n uses the same digits as n.
 
@@ -789,8 +954,17 @@ def is_equidigital(n: int) -> bool:
     return _factorization_digit_count(n) == len(str(n))
 
 
+def _explain_wasteful(n: int) -> str:
+    if n <= 1:
+        return f"{n} <= 1 -- not applicable"
+    dig_n = len(str(n))
+    dig_f = _factorization_digit_count(n)
+    result = "wasteful" if dig_n < dig_f else "not wasteful"
+    return f"{n} has {dig_n} digit(s); factorization uses {dig_f} digit(s) -> {result}"
+
 @register(name="Wasteful", category="divisors", oeis="A046760",
-          description="Prime factorization uses more digits than n.")
+          description="Prime factorization uses more digits than n.",
+          explain=_explain_wasteful)
 def is_wasteful(n: int) -> bool:
     """Return True if the prime factorization of n uses more digits than n.
 

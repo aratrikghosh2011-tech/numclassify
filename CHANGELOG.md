@@ -1,229 +1,222 @@
 # Changelog
 
-All notable changes to numclassify will be documented here.
-Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
-This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+All notable changes to numclassify are documented here.
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [0.6.0] - 2026-06-27
+
+### Added
+- `similar_numbers(n, top_k=5)` — returns integers most similar to n by Jaccard index on shared handcrafted properties
+- `specialness_percentile(n, sample_size=1000)` — percentile rank of n's notable_score vs a random sample
+- `property_info()` now returns `oeis_url` field (e.g. `"https://oeis.org/A000040"`)
+- `_explain_templates.py` rewritten with 4 production-ready template factories: `digit_power_template`, `divisor_sum_template`, `sequence_membership_template`, `factorization_template`
+- Explain coverage expanded: 33/139 → 116/139 handcrafted types (83.5%)
+- `tools/audit_explain.py` — shows explain= coverage per category with `--missing-only` and `--covered-only` flags
+- `tools/generate_docs.py` — reads REGISTRY, auto-writes category count table into docs and README between marker comments
+- `tools/scaffold_type.py` — interactive stub generator for new number types; outputs ready-to-paste `@register` block
+- `tools/release.py` — single-command release automation (version bump, changelog update, git tag)
+
+### Changed
+- Public API: 20 → 22 names (added `similar_numbers`, `specialness_percentile`)
 
 ---
 
 ## [0.5.0] - 2026-06-19
 
 ### Added
-- `why(property, n)`: step-by-step explanation engine, with dedicated explain
-  functions for 30+ high-value types
-- `property_info(name)`: registry metadata with auto-generated examples
-- `find(start, end, has, not_has, any_of)`: query engine wrapper
-- README origin story section
-- CLI `why <type> <n>` command for the explanation engine
-- CLI `query <start> <end>` command for multi-property AND/OR/NOT range queries
-- CLI no-args footer showing GitHub and docs links before help output
-- `info` command now shows real computed examples via property_info()
-  instead of a single hardcoded example value
+- `why(property, n)` — step-by-step explanation engine with dedicated explain functions for 33 high-value types
+- `property_info(name)` — registry metadata lookup with auto-generated examples
+- `find(start, end, has, not_has, any_of)` — multi-property range query wrapper
+- `get_exam_types()` — returns all 8 exam-tagged NumberType entries
+- `exam_tag` field on `NumberType` dataclass
+- CLI `why <type> <n> [--json]` command
+- CLI `query <start> <end> [--has ...] [--not-has ...] [--any-of ...] [--json]` command
+- CLI no-args footer showing GitHub and docs links
+- CLI `info` command now shows real computed examples via `property_info()`
+- `PERFORMANCE.md` with before/after benchmark numbers for hang fixes
+- `ARCHITECTURE.md` explaining the registry pattern
+- README origin story section and `why()` above the fold
+- 5-file playground split: `playground-base.css`, `playground-guide.css`, `playground-core.js`, `playground-tabs.js`, `playground-guide.js`
+- Playground "Why" tab with step-by-step explanation UI
+- Byte robot guide character with animations (walk-in, wave, idle, celebrate, loader)
+- 69% line coverage, 251 tests
 
 ### Fixed
-- Performance hangs in `is_untouchable`, `is_semiperfect`, `is_weird`,
-  `is_zumkeller` on large n (bitmask subset-sum DP, bounded untouchable fallback)
-- Exam types category tagging: `numclassify list --category exam_types` now
-  correctly returns all 8 exam-syllabus types
-- `property_info()` example lists now prioritize non-trivial values (e.g.
-  153 for Armstrong) over trivial single-digit matches that satisfied every
-  digit-based property by default
+- Performance hangs in `is_untouchable` (500k sieve ceiling), `is_semiperfect`, `is_weird`, `is_zumkeller` (bitmask subset-sum DP)
+- Exam types category tagging: `numclassify list --category exam_types` now returns all 8 types correctly
+
+---
+
+## [0.4.3] - 2026-06-16
+
+### Fixed
+- PyPI README now shows `Harshad` instead of `Zeisel` in the 1729 example
+
+---
+
+## [0.4.2] - 2026-06-15
+
+### Fixed
+- `is_kaprekar(99)`, `is_kaprekar(999)`, `is_kaprekar(9999)` now return `True`
+  The right-part leading-zero string check was too strict — only the integer value
+  needs to be nonzero, not the string representation. OEIS A006886 includes all three.
+- Docs category counts corrected throughout to 2140+ (was incorrectly stated as 3000+)
+
+---
+
+## [0.4.1] - 2026-06-14
+
+### Fixed
+- `is_achilles(1)` now returns `False`. First Achilles number is 72 per OEIS A052486.
+- `stream(min_score=N)` now filters on `notable_score` instead of raw score. Previously figurate inflation caused almost all numbers to pass any threshold.
+- `is_spy(0)` now returns `False`. Spy numbers are defined for positive integers only.
+- Playground version badge now reads live from installed package instead of hardcoded HTML.
+- Fixed `find_any_in_range` and `find_all_in_range` documentation.
+
+---
 
 ## [0.4.0] - 2026-06-13
-
-### Fixed
-- `classify()` now returns `notable_score` field — score excluding figurate/centered-figurate
-  hits. Prevents misleading score inflation for n=1 (which is the first member of every
-  polygonal sequence).
-- `is_unique(n)` now returns `False` for negative `n`. Previously returned `True` due to
-  `abs()` stripping the sign.
-- `is_practical(0)` now returns `False`. Previously returned `True` because
-  `_factorization(0)` returns `[]` and the loop never ran.
-- Removed leaked internal names (`Optional`, `_version`, `_PackageNotFoundError`) from
-  `dir(numclassify)`.
-
-### Changed
-- Development status updated to `5 - Production/Stable` in package classifiers.
 
 ### Added
 - `SECURITY.md` with vulnerability reporting instructions.
 
+### Changed
+- Development status updated to `5 - Production/Stable`.
+
+### Fixed
+- `classify()` now returns `notable_score` field — score excluding figurate/centered-figurate hits.
+- `is_unique(n)` now returns `False` for negative `n`.
+- `is_practical(0)` now returns `False`.
+- Removed leaked internal names (`Optional`, `_version`, `_PackageNotFoundError`) from `dir(numclassify)`.
+- Playground now displays `notable_score` instead of raw score.
+
+---
+
 ## [0.3.3] - 2026-06-13
 
 ### Added
-- 8 new exam number types in `numclassify/_core/exam_types.py`:
-  Strong, Sunny, Buzz, Magic, Fascinating, Trimorphic, Twisted Prime, Unique
-- `classify()` now returns a `"categories"` dict grouping true properties by category
-- `classify()` true_properties list is now sorted by category then name
-- `stream()` now accepts `min_score` and `has_property` filter parameters
-- `most_special_in_range()` now accepts `verbose=True` for progress output
-- `find_any_in_range()` exported in public API (was implemented but not accessible)
-- Auto-generated crash tests: every registered type tested on inputs 0, 1, 2, -1
+- 8 new exam number types in `numclassify/_core/exam_types.py`: Strong, Sunny, Buzz, Magic, Fascinating, Trimorphic, Twisted Prime, Unique
+- `classify()` now returns a `categories` dict grouping true properties by category
+- `classify()` true_properties list now sorted by category then name
+- `stream()` accepts `min_score` and `has_property` filter parameters
+- `most_special_in_range()` accepts `verbose=True` for progress output
+- `find_any_in_range()` exported to public API
+- Auto-generated crash tests (every registered type tested on 0, 1, 2, −1)
 
 ### Fixed
-- Removed dead `else` branch in `classify()` (unreachable code)
-- Removed `del annotations` no-op in `__init__.py`
-- Fixed wrong docstring example in `is_leyland_prime` (593 is True, not False)
-- Removed dead `pass` block in `is_centered_k_gonal` in `figurate.py`
-- Documented `is_sociable` cycle detection cap (chains > 6 not detected)
+- Infinite loop in `is_sum_of_three_squares(0)`
+- Dead `else` branch removed from `classify()`
+- Fixed wrong docstring example in `is_leyland_prime`
+
+---
 
 ## [0.3.2.1] - 2026-06-12
 
 ### Fixed
-- Batch classify input rejected commas/spaces — changed `type="number"` to `type="text"` with `inputmode="numeric"`
-- Search autocomplete dropdown not appearing — added fallback fetch of property names if initial Pyodide load fails, plus visible "Loading..." state in dropdown
+- Batch classify rejected comma/space input — changed `type="number"` to `type="text"` with `inputmode="numeric"`
+- Search autocomplete fallback if Pyodide load fails
 
 ### Changed
-- MkDocs site theme changed from indigo to saffron (#FF9933) via custom CSS
+- MkDocs site theme updated to saffron (#FF9933)
+
+---
 
 ## [0.3.2] - 2026-06-12
 
 ### Added
-- Search autocomplete dropdown — suggests property names as you type in the search field
-- Confetti celebration burst when a number scores >50 properties
-- Keyboard shortcuts: `C` (classify), `S` (search), `N` (Number of the Day), `?`/`H` (show shortcuts overlay)
-- `prefers-reduced-motion` support — disables all animations for accessibility
+- Search autocomplete dropdown
+- Confetti burst when score > 50 properties
+- Keyboard shortcuts: `C`, `S`, `N`, `?`/`H`
+- `prefers-reduced-motion` support
+
+---
 
 ## [0.3.1] - 2026-06-12
 
 ### Added
-- Version number displayed on playground page (fetched live from installed package)
-- Category-colored tags on playground (distinct accent color per property category)
-- Batch classify — enter comma/space-separated numbers for a mini-table of results
-- Recent classification history panel (last 20 numbers, persisted in localStorage)
-- Property tooltips on tag hover (shows category name)
-- Fuzzy search suggestion ("Did you mean X?") on property misspellings
-- Search pagination with "Load More" button (50 results per page)
-- Number of the Day date picker — pick any past date for that day's number
-- Scroll-to-top floating button (appears after 400px scroll)
-- Light theme toggle (sun/moon button, saved to localStorage)
-- Download classification results as JSON file
-- Keyboard shortcut hints displayed on buttons
+- Version badge on playground (live from installed package)
+- Category-colored property tags
+- Batch classify mode
+- Recent history panel (last 20 numbers, localStorage)
+- Property tooltips, fuzzy search ("Did you mean X?"), search pagination
+- Number of the Day date picker
+- Light/dark theme toggle
+- Download results as JSON
+- Scroll-to-top button, keyboard shortcut hints
 
 ### Changed
-- Split playground.html into 3 files: HTML skeleton, CSS (~1000 lines), JS (~660 lines)
-- Tab switching now has slide-in animation (translateX + opacity)
-- Result panels slide up on reveal (translateY + opacity)
-- Score counter animates from 0 to final count (cubic ease-out, 400ms)
-- Number digits fade in sequentially (40ms stagger per digit)
-- Score badge pulses green on update
-- Tags enter with random rotation (-3° to +3°) per tag
-- Search results stagger in with 25ms delay per item
-- Buttons have click ripple effect (radial gradient at cursor position)
-- Toast slides in from the right instead of appearing in place
-- All backgrounds and text colors transition smoothly on theme switch
+- Playground split into 3 files: HTML, CSS (~1000 lines), JS (~660 lines)
+- Tab switching, result reveal, score counter, number digits, tags, search results: all animated
+- Click ripple effect on buttons
+- Toast slides in from right
+
+---
 
 ## [0.3.0] - 2026-06-12
 
 ### Added
-- Interactive Playground page (docs/playground.html) powered by Pyodide
-- Classifier, property search, number comparison, random number, and Number of the Day features
-- Shareable URLs via ?n=<number> query parameter
-- Copy results to clipboard button
-- Auto-deploy GitHub Pages workflow on every push to main and on version tags
-- Version number now dynamically read from package metadata (single source of truth)
+- Pyodide playground (`docs/playground.html`) — real Python in the browser
+- Classifier, property search, number comparison, random number, Number of the Day
+- Shareable URLs via `?n=<number>`
+- Copy results to clipboard
+- Auto-deploy GitHub Pages on push to main and version tags
+- Version read from `importlib.metadata` (single source of truth)
 - PyPI version and downloads badges in README
+
+---
+
+## [0.2.1] - 2026-05-11
+
+### Added
+- `examples/` folder with 5 runnable scripts
+- `CONTRIBUTING.md`
+- Namespace cleanup — internal names removed from public `dir()`
+
+---
 
 ## [0.2.0] - 2026-05-11
 
 ### Added
-- `classify(n)` — returns `{"number": n, "true_properties": [...], "score": int}`
-- `classify_batch(numbers)` — classify a list of numbers in one call
+- `classify(n)` — returns `{number, score, true_properties, categories}`
+- `classify_batch(numbers)` — classify a list in one call
 - `random_number(max_n=10000)` — classify a random number
-- `find_by_property(start, end, **filters)` — query numbers by property name/value
-- `stream(start, end)` — memory-safe generator yielding classify results
-- `numclassify compare <a> <b> [--json]` — new CLI command showing shared/exclusive properties
+- `find_by_property(start, end, **filters)` — query numbers by property
+- `stream(start, end)` — memory-safe generator
+- CLI `compare <a> <b> [--json]` command
 - Windows ANSI color fix via `SetConsoleMode` VT100 flag
-- `py.typed` marker added (PEP 561 compliant)
+- `py.typed` marker (PEP 561)
 - Full type hints on all public API functions
+- MkDocs Material documentation deployed to GitHub Pages
+- OIDC trusted publishing via GitHub Actions (no stored API tokens)
+- 60 hand-written tests
+
+---
 
 ## [0.1.1] - 2026-05-06
+
 ### Fixed
-- cli.py: Fixed imports to use numclassify._core instead of numclassify
-- combinatorial.py: Moved `from math import comb` to top-level (was inside loops)
-- _registry.py: Fixed find_any_in_range docstring example (removed non-existent duplicate)
+- `cli.py`: fixed imports to use `numclassify._core` instead of `numclassify`
+- `combinatorial.py`: moved `from math import comb` to module level
+- `_registry.py`: fixed `find_any_in_range` docstring example
+
+---
 
 ## [0.1.0] - 2026-04-18
 
 ### Added
-
-- Complete package with `@register` decorator plugin architecture — any function
-  decorated with `@register` is automatically available via `get_all_properties`,
-  `get_true_properties`, the CLI, and all search utilities
-- **3000+ number types** across 10 categories, all zero-dependency pure Python
-
-#### Figurate engine
-- Auto-registers 998 polygonal types (triangular through chiliagonal)
-- Auto-registers 998 centered polygonal types (centered triangular through centered chiliagonal)
-- Single parametric generator — adding a new figurate family is one line
-
-#### Prime families (41 types)
-- Standard prime, twin prime, cousin prime, sexy prime
-- Mersenne prime, Mersenne number, double Mersenne prime
-- Sophie Germain prime, safe prime, Cunningham chain member
-- Wilson prime, Fermat prime, Wieferich prime, Wall-Sun-Sun prime
-- Lucky prime, Fortunate prime, Primorial prime
-- Emirp, palindromic prime, permutable prime, circular prime
-- Chen prime, Eisenstein prime, Gaussian prime
-- Titanic prime, gigantic prime, megaprime (digit-count based)
-- OEIS references included in metadata for all 41 types
-
-#### Digital invariants (10 types)
-- Armstrong (narcissistic), Spy number, Harshad (Niven), Disarium
-- Happy number (cycle detection), Neon number, Duck number
-- Nude number (divisible by all its digits), Automorphic, Cyclic
-
-#### Divisor-based (27 types)
-- Perfect, abundant, deficient, weird, pseudoperfect
-- Amicable, sociable (order 4, 6, 8), quasiperfect candidate
-- Practical, semiperfect, primitive abundant
-- Hyperperfect, superperfect, multiply perfect
-- Unitary perfect, bi-unitary perfect, hemiperfect
-- Sublime, sublime-adjacent, colossally abundant, highly abundant
-
-#### Sequences (15 types)
-- Fibonacci, Lucas, Tribonacci, Tetranacci
-- Catalan, Bell, Motzkin, Padovan, Perrin
-- Pell, Jacobsthal, Stern, Recaman
-- Lazy caterer, cake number
-
-#### Powers (13 types)
-- Perfect square, perfect cube, perfect power (any exponent)
-- Taxicab (Hardy-Ramanujan number), generalized taxicab
-- Sum of two squares, sum of three squares, sum of four squares (Lagrange)
-- Powerful number, squarefree, cubefree, k-free
-- Achilles number
-
-#### Number theory (14 types)
-- Evil number, odious number (Thue-Morse based)
-- Carmichael number, Zeisel number, Keith number
-- Autobiographical number, self-describing number
-- Kaprekar number, Kaprekar constant check
-- Economical, equidigital, extravagant (prime factorization digit count)
-- Polydivisible number, pandigital
-
-#### Combinatorial (10 types)
-- Factorial, primorial, subfactorial (derangements)
-- Catalan number (also in sequences), Bell number (also in sequences)
-- Binomial coefficient (any row), central binomial coefficient
-- Catalan's triangle member, Narayana number, Motzkin number
-
-#### Recreational (5 types)
-- Palindrome, near-palindrome
-- Bouncy number (neither increasing nor decreasing digits)
-- Increasing digits, decreasing digits
-
-#### CLI — 5 commands
-- `numclassify check <n>` — all true properties of a number, with `--json` flag
-- `numclassify find <type> --limit <k>` — first k numbers of a given type
-- `numclassify range <lo> <hi> --filter <type>` — filter a range by type
-- `numclassify list --category <cat>` — list all registered types in a category
-- `numclassify info <type>` — name, description, OEIS ref, examples
-
-#### Infrastructure
-- Zero external dependencies; stdlib only
-- Python 3.8–3.13 compatible (tested in CI matrix)
-- 60 pytest tests, all passing
-- GitHub Actions CI across Python 3.8, 3.9, 3.10, 3.11, 3.12, 3.13
-- PyPI publish via OIDC trusted publishing (no API token)
-- `pyproject.toml` with Hatchling build backend
+- Complete package with `@register` decorator plugin architecture
+- 2140+ number types across 10 categories, zero external dependencies, Python 3.8–3.13
+- Figurate engine: auto-registers ~1003 polygonal + ~998 centered polygonal types (one parametric generator each)
+- 41 prime family types with OEIS references
+- 10 digital invariant types
+- 27 divisor-based types
+- 15 sequence types
+- 13 power types
+- 14 number theory types
+- 10 combinatorial types
+- 5 recreational types
+- CLI: `check`, `find`, `range`, `list`, `info` commands (5 total)
+- GitHub Actions CI across Python 3.8–3.13
+- PyPI publish via OIDC trusted publishing

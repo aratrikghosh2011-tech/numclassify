@@ -453,3 +453,82 @@ def most_special_in_range(start: int, end: int, verbose: bool = False) -> int:
             pct = (i + 1) / total * 100
             print(f"  most_special_in_range: {i+1}/{total} ({pct:.1f}%) — best so far: {best_n} ({best_count} props)")
     return best_n
+
+
+# ---------------------------------------------------------------------------
+# v0.6.0 — Discoverability API
+# ---------------------------------------------------------------------------
+
+def similar_numbers(
+    n: int,
+    top_k: int = 5,
+    search_range: int = 500,
+) -> list:
+    """
+    Return the top_k integers near n most similar to it by shared properties.
+
+    Similarity = Jaccard index on the set of True handcrafted properties
+    (excludes figurate types to avoid noise).
+
+    Returns list of dicts: [{number, similarity, shared_properties}]
+
+    May be slow for large search_range; default 500 is reasonable.
+    """
+    def handcrafted_props(x: int) -> frozenset:
+        result = set()
+        with _REGISTRY_LOCK:
+            snapshot = dict(REGISTRY)
+        for key, entry in snapshot.items():
+            if key != _normalize(entry.name):
+                continue
+            cat = entry.category.lower().replace(' ', '_')
+            if 'figurate' in cat or 'polygonal' in cat or 'centered' in cat:
+                continue
+            try:
+                if entry.func(x):
+                    result.add(entry.name)
+            except Exception:
+                pass
+        return frozenset(result)
+
+    n_props = handcrafted_props(n)
+    if not n_props:
+        return []
+
+    candidates = []
+    lo = max(1, n - search_range)
+    hi = n + search_range
+
+    for x in range(lo, hi + 1):
+        if x == n:
+            continue
+        x_props = handcrafted_props(x)
+        union = n_props | x_props
+        if not union:
+            continue
+        jaccard = len(n_props & x_props) / len(union)
+        if jaccard > 0:
+            candidates.append({
+                "number": x,
+                "similarity": round(jaccard, 4),
+                "shared_properties": sorted(n_props & x_props),
+            })
+
+    candidates.sort(key=lambda d: (-d["similarity"], abs(d["number"] - n)))
+    return candidates[:top_k]
+
+
+def specialness_percentile(n: int, sample_size: int = 1000) -> float:
+    """
+    Return the percentile rank of n's notable_score vs a random sample.
+
+    Returns a float in [0, 100]: 95.0 means n scores higher than 95% of random integers.
+    """
+    import random
+    from numclassify import classify
+
+    n_score = classify(n)["notable_score"]
+    sample = random.sample(range(1, 10001), min(sample_size, 10000))
+    scores = [classify(x)["notable_score"] for x in sample]
+    rank = sum(1 for s in scores if s < n_score)
+    return round(100 * rank / len(scores), 1)

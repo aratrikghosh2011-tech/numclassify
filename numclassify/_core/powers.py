@@ -113,8 +113,18 @@ def is_perfect_cube(n: int) -> bool:
     return is_perfect_power_check(n, 3)
 
 
+def _explain_perfect_fourth(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    root = round(n ** 0.25)
+    for r in [root - 1, root, root + 1]:
+        if r >= 0 and r ** 4 == n:
+            return f"{n} = {r}^4 -> YES"
+    return f"{n}: no integer r with r^4 = {n} -> NO"
+
 @register(name="Perfect Fourth Power", category="powers", oeis="A000583",
-          description="n = k^4 for some positive integer k.")
+          description="n = k^4 for some positive integer k.",
+          explain=_explain_perfect_fourth)
 def is_perfect_fourth(n: int) -> bool:
     """Return True if n is a perfect fourth power.
 
@@ -131,8 +141,18 @@ def is_perfect_fourth(n: int) -> bool:
     return is_perfect_power_check(n, 4)
 
 
+def _explain_perfect_fifth(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    root = round(n ** 0.2)
+    for r in [root - 1, root, root + 1]:
+        if r >= 0 and r ** 5 == n:
+            return f"{n} = {r}^5 -> YES"
+    return f"{n}: no integer r with r^5 = {n} -> NO"
+
 @register(name="Perfect Fifth Power", category="powers", oeis="A000584",
-          description="n = k^5 for some positive integer k.")
+          description="n = k^5 for some positive integer k.",
+          explain=_explain_perfect_fifth)
 def is_perfect_fifth(n: int) -> bool:
     """Return True if n is a perfect fifth power.
 
@@ -149,8 +169,19 @@ def is_perfect_fifth(n: int) -> bool:
     return is_perfect_power_check(n, 5)
 
 
+def _explain_perfect_power(n: int) -> str:
+    if n <= 1:
+        return f"{n}: trivially {'a perfect power' if n == 1 else 'not applicable'} -> {'YES' if n == 1 else 'NO'}"
+    for exp in range(2, int(math.log2(n)) + 2):
+        root = round(n ** (1 / exp))
+        for r in [root - 1, root, root + 1]:
+            if r >= 2 and r ** exp == n:
+                return f"{n} = {r}^{exp} -> YES"
+    return f"{n}: no integer base^exp representation found -> NO"
+
 @register(name="Perfect Power", category="powers", oeis="A001597",
-          description="n = k^m for some integers k > 1, m > 1.")
+          description="n = k^m for some integers k > 1, m > 1.",
+          explain=_explain_perfect_power)
 def is_perfect_power(n: int) -> bool:
     """Return True if n is a perfect power (k^m, k>1, m>1).
 
@@ -170,8 +201,19 @@ def is_perfect_power(n: int) -> bool:
     return False
 
 
+def _explain_sum_of_two_squares(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    for a in range(int(math.isqrt(n)) + 1):
+        b2 = n - a * a
+        b = int(math.isqrt(b2))
+        if b * b == b2:
+            return f"{n} = {a}^2 + {b}^2 = {a*a} + {b*b} -> YES"
+    return f"{n}: no pair (a,b) with a^2 + b^2 = {n} found -> NO"
+
 @register(name="Sum of Two Squares", category="powers", oeis="A001481",
-          description="n = a^2 + b^2 for non-negative integers a, b.")
+          description="n = a^2 + b^2 for non-negative integers a, b.",
+          explain=_explain_sum_of_two_squares)
 def is_sum_of_two_squares(n: int) -> bool:
     """Return True if n can be expressed as the sum of two squares.
 
@@ -202,8 +244,22 @@ def is_sum_of_two_squares(n: int) -> bool:
     return False
 
 
+def _explain_sum_of_two_cubes(n: int) -> str:
+    if n < 2:
+        return f"{n} < 2 -> NO"
+    a = 1
+    while a ** 3 < n:
+        rem = n - a ** 3
+        b = round(rem ** (1.0 / 3))
+        for r in range(max(1, b - 1), b + 2):
+            if r ** 3 == rem:
+                return f"{n} = {a}^3 + {r}^3 = {a**3} + {r**3} = {n} -> YES"
+        a += 1
+    return f"{n}: cannot be expressed as sum of two positive cubes -> NO"
+
 @register(name="Sum of Two Cubes", category="powers", oeis="A003325",
-          description="n = a^3 + b^3 for positive integers a, b.")
+          description="n = a^3 + b^3 for positive integers a, b.",
+          explain=_explain_sum_of_two_cubes)
 def is_sum_of_two_cubes(n: int) -> bool:
     """Return True if n can be expressed as the sum of two positive cubes.
 
@@ -228,8 +284,20 @@ def is_sum_of_two_cubes(n: int) -> bool:
     return False
 
 
+def _explain_sum_of_three_squares(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    if n == 0:
+        return "0 = 0^2 + 0^2 + 0^2 -> YES"
+    temp = n
+    while temp % 4 == 0:
+        temp //= 4
+    result = temp % 8 != 7
+    return f"{n}: after removing factors of 4, n' = {temp}; {temp} % 8 = {temp % 8} {'!= 7 -> YES (by Legendre)' if result else '= 7 -> NO (by Legendre)'}"
+
 @register(name="Sum of Three Squares", category="powers", oeis="A000443",
-          description="n = a^2 + b^2 + c^2 (by Legendre's three-square theorem).")
+          description="n = a^2 + b^2 + c^2 (by Legendre's three-square theorem).",
+          explain=_explain_sum_of_three_squares)
 def is_sum_of_three_squares(n: int) -> bool:
     """Return True if n can be expressed as the sum of three squares.
 
@@ -306,8 +374,18 @@ def is_taxicab(n: int) -> bool:
     return ways >= 2
 
 
+def _explain_power_of_2(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -> NO"
+    is_pow = (n & (n - 1)) == 0
+    if is_pow:
+        exp = n.bit_length() - 1
+        return f"{n} = 2^{exp} -> YES"
+    return f"{n} is not a power of 2 -> NO"
+
 @register(name="Power of 2", category="powers", oeis="A000079",
-          description="n = 2^k for some non-negative integer k.")
+          description="n = 2^k for some non-negative integer k.",
+          explain=_explain_power_of_2)
 def is_power_of_2(n: int) -> bool:
     """Return True if n is a power of 2.
 
@@ -322,8 +400,17 @@ def is_power_of_2(n: int) -> bool:
     return n > 0 and (n & (n - 1)) == 0
 
 
+def _explain_power_of_3(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -> NO"
+    temp = n
+    while temp % 3 == 0:
+        temp //= 3
+    return f"{n}: dividing out 3s gives {temp}; {'= 1 -> YES' if temp == 1 else '!= 1 -> NO'}"
+
 @register(name="Power of 3", category="powers", oeis="A000244",
-          description="n = 3^k for some non-negative integer k.")
+          description="n = 3^k for some non-negative integer k.",
+          explain=_explain_power_of_3)
 def is_power_of_3(n: int) -> bool:
     """Return True if n is a power of 3.
 
@@ -342,8 +429,17 @@ def is_power_of_3(n: int) -> bool:
     return n == 1
 
 
+def _explain_power_of_10(n: int) -> str:
+    if n <= 0:
+        return f"{n} <= 0 -> NO"
+    temp = n
+    while temp % 10 == 0:
+        temp //= 10
+    return f"{n}: dividing out 10s gives {temp}; {'= 1 -> YES' if temp == 1 else '!= 1 -> NO'}"
+
 @register(name="Power of 10", category="powers", oeis="A011557",
-          description="n = 10^k for some non-negative integer k.")
+          description="n = 10^k for some non-negative integer k.",
+          explain=_explain_power_of_10)
 def is_power_of_10(n: int) -> bool:
     """Return True if n is a power of 10.
 
@@ -362,8 +458,25 @@ def is_power_of_10(n: int) -> bool:
     return n == 1
 
 
+def _explain_sum_of_squares_of_primes(n: int) -> str:
+    if n < 4:
+        return f"{n} < 4 -> NO"
+    from numclassify._core.primes import is_prime as _ip
+    limit = math.isqrt(n)
+    p1 = 2
+    while p1 <= limit:
+        if _ip(p1):
+            rem = n - p1 * p1
+            if rem > 0:
+                p2 = math.isqrt(rem)
+                if p2 * p2 == rem and _ip(p2):
+                    return f"{n} = {p1}^2 + {p2}^2 = {p1*p1} + {p2*p2} -> YES"
+        p1 += 1 if p1 == 2 else 2
+    return f"{n}: no representation as sum of squares of two primes -> NO"
+
 @register(name="Sum of Squares of Primes", category="powers",
-          description="n = p1^2 + p2^2 for primes p1, p2.")
+          description="n = p1^2 + p2^2 for primes p1, p2.",
+          explain=_explain_sum_of_squares_of_primes)
 def is_sum_of_squares_of_primes(n: int) -> bool:
     """Return True if n = p1^2 + p2^2 for primes p1, p2.
 

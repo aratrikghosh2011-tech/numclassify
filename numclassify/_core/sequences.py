@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import Set
 
 from numclassify._registry import register
+from numclassify._explain_templates import sequence_membership_template
 
 _LIMIT = 10 ** 9
 
@@ -236,6 +237,60 @@ _KOLAKOSKI: Set[int] = _gen_kolakoski()
 _SYLVESTER: Set[int] = _gen_sylvester()
 
 # ---------------------------------------------------------------------------
+# Sequence generators for explain templates
+# ---------------------------------------------------------------------------
+
+def _fib_up_to(n: int) -> list:
+    seq = [0, 1]
+    while seq[-1] < n:
+        seq.append(seq[-1] + seq[-2])
+    return seq
+
+def _tribonacci_up_to(n: int) -> list:
+    seq = [0, 0, 1]
+    while seq[-1] < n:
+        seq.append(seq[-1] + seq[-2] + seq[-3])
+    return seq
+
+def _tetranacci_up_to(n: int) -> list:
+    seq = [0, 0, 0, 1]
+    while seq[-1] < n:
+        seq.append(seq[-1] + seq[-2] + seq[-3] + seq[-4])
+    return seq
+
+def _pell_up_to(n: int) -> list:
+    seq = [0, 1]
+    while seq[-1] < n:
+        seq.append(2 * seq[-1] + seq[-2])
+    return seq
+
+def _jacobsthal_up_to(n: int) -> list:
+    seq = [0, 1]
+    while seq[-1] < n:
+        seq.append(seq[-1] + 2 * seq[-2])
+    return seq
+
+def _padovan_up_to(n: int) -> list:
+    seq = [1, 1, 1]
+    while seq[-1] < n:
+        seq.append(seq[-2] + seq[-3])
+    return seq
+
+def _perrin_up_to(n: int) -> list:
+    seq = [3, 0, 2]
+    while seq[-1] < n:
+        seq.append(seq[-2] + seq[-3])
+    return seq
+
+def _motzkin_up_to(n: int) -> list:
+    seq = [1, 1]
+    while seq[-1] < n:
+        k = len(seq) - 1
+        nxt = ((2 * k + 2) * seq[-1] + 3 * seq[-2]) // (k + 3)
+        seq.append(nxt)
+    return seq
+
+# ---------------------------------------------------------------------------
 # Registered classifiers
 # ---------------------------------------------------------------------------
 
@@ -295,8 +350,13 @@ def is_lucas(n: int) -> bool:
     return n >= 0 and n in _LUCAS
 
 
+_explain_tribonacci = sequence_membership_template(
+    lambda n: _tribonacci_up_to(n), "Tribonacci"
+)
+
 @register(name="Tribonacci", category="sequences", oeis="A000073",
-          description="Member of the Tribonacci sequence.")
+          description="Member of the Tribonacci sequence.",
+          explain=_explain_tribonacci)
 def is_tribonacci(n: int) -> bool:
     """Return True if n is a Tribonacci number.
 
@@ -311,8 +371,13 @@ def is_tribonacci(n: int) -> bool:
     return n >= 0 and n in _TRIBONACCI
 
 
+_explain_tetranacci = sequence_membership_template(
+    lambda n: _tetranacci_up_to(n), "Tetranacci"
+)
+
 @register(name="Tetranacci", category="sequences", oeis="A000288",
-          description="Member of the Tetranacci sequence.")
+          description="Member of the Tetranacci sequence.",
+          explain=_explain_tetranacci)
 def is_tetranacci(n: int) -> bool:
     """Return True if n is a Tetranacci number.
 
@@ -327,8 +392,13 @@ def is_tetranacci(n: int) -> bool:
     return n >= 0 and n in _TETRANACCI
 
 
+_explain_pell = sequence_membership_template(
+    lambda n: _pell_up_to(n), "Pell"
+)
+
 @register(name="Pell", category="sequences", oeis="A000129",
-          description="Member of the Pell sequence.")
+          description="Member of the Pell sequence.",
+          explain=_explain_pell)
 def is_pell(n: int) -> bool:
     """Return True if n is a Pell number.
 
@@ -343,8 +413,13 @@ def is_pell(n: int) -> bool:
     return n >= 0 and n in _PELL
 
 
+_explain_jacobsthal = sequence_membership_template(
+    lambda n: _jacobsthal_up_to(n), "Jacobsthal"
+)
+
 @register(name="Jacobsthal", category="sequences", oeis="A001045",
-          description="Member of the Jacobsthal sequence.")
+          description="Member of the Jacobsthal sequence.",
+          explain=_explain_jacobsthal)
 def is_jacobsthal(n: int) -> bool:
     """Return True if n is a Jacobsthal number.
 
@@ -359,8 +434,13 @@ def is_jacobsthal(n: int) -> bool:
     return n >= 0 and n in _JACOBSTHAL
 
 
+_explain_padovan = sequence_membership_template(
+    lambda n: _padovan_up_to(n), "Padovan"
+)
+
 @register(name="Padovan", category="sequences", oeis="A000931",
-          description="Member of the Padovan sequence.")
+          description="Member of the Padovan sequence.",
+          explain=_explain_padovan)
 def is_padovan(n: int) -> bool:
     """Return True if n is a Padovan number.
 
@@ -375,8 +455,13 @@ def is_padovan(n: int) -> bool:
     return n >= 0 and n in _PADOVAN
 
 
+_explain_perrin = sequence_membership_template(
+    lambda n: _perrin_up_to(n), "Perrin"
+)
+
 @register(name="Perrin", category="sequences", oeis="A001608",
-          description="Member of the Perrin sequence.")
+          description="Member of the Perrin sequence.",
+          explain=_explain_perrin)
 def is_perrin(n: int) -> bool:
     """Return True if n is a Perrin number.
 
@@ -466,8 +551,13 @@ def is_bell(n: int) -> bool:
     return n >= 0 and n in _BELL
 
 
+_explain_motzkin = sequence_membership_template(
+    lambda n: _motzkin_up_to(n), "Motzkin"
+)
+
 @register(name="Motzkin", category="sequences", oeis="A001006",
-          description="Member of the Motzkin sequence.")
+          description="Member of the Motzkin sequence.",
+          explain=_explain_motzkin)
 def is_motzkin(n: int) -> bool:
     """Return True if n is a Motzkin number.
 
@@ -482,8 +572,27 @@ def is_motzkin(n: int) -> bool:
     return n >= 0 and n in _MOTZKIN
 
 
+def _explain_recaman(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -- not applicable"
+    seen = set()
+    seq = [0]
+    seen.add(0)
+    for i in range(1, max(n * 2, 200)):
+        candidate = seq[-1] - i
+        if candidate > 0 and candidate not in seen:
+            seq.append(candidate)
+        else:
+            seq.append(seq[-1] + i)
+        seen.add(seq[-1])
+        if seq[-1] > n * 3:
+            break
+    found = n in seen
+    return f"{n} {'is' if found else 'is not'} in the Recaman sequence -> {'YES' if found else 'NO'}"
+
 @register(name="Recaman", category="sequences", oeis="A005132",
-          description="Member of the Recaman sequence.")
+          description="Member of the Recaman sequence.",
+          explain=_explain_recaman)
 def is_recaman(n: int) -> bool:
     """Return True if n appears in the Recaman sequence.
 
@@ -498,8 +607,32 @@ def is_recaman(n: int) -> bool:
     return n >= 0 and n in _RECAMAN
 
 
+def _explain_look_and_say(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -- not applicable"
+    seen = {1}
+    term = "1"
+    while int(term) <= n:
+        seen.add(int(term))
+        if int(term) == n:
+            return f"{n} appears in the look-and-say sequence -> YES"
+        new_term = []
+        i = 0
+        while i < len(term):
+            ch = term[i]
+            count = 1
+            while i + count < len(term) and term[i + count] == ch:
+                count += 1
+            new_term.append(str(count) + ch)
+            i += count
+        term = "".join(new_term)
+        if len(term) > 10:
+            break
+    return f"{n} does not appear in the look-and-say sequence -> NO"
+
 @register(name="Look and Say", category="sequences", oeis="A005150",
-          description="Member of the look-and-say sequence.")
+          description="Member of the look-and-say sequence.",
+          explain=_explain_look_and_say)
 def is_look_and_say(n: int) -> bool:
     """Return True if n is a term in the look-and-say sequence.
 
@@ -514,8 +647,14 @@ def is_look_and_say(n: int) -> bool:
     return n >= 0 and n in _LOOK_AND_SAY
 
 
+def _explain_kolakoski(n: int) -> str:
+    if n == 1 or n == 2:
+        return f"{n} is {'1' if n == 1 else '2'} -- the Kolakoski sequence only contains 1 and 2 -> YES"
+    return f"{n} is not in {{1, 2}}; Kolakoski only contains 1 and 2 -> NO"
+
 @register(name="Kolakoski", category="sequences", oeis="A000002",
-          description="Member of the Kolakoski sequence (only 1 and 2).")
+          description="Member of the Kolakoski sequence (only 1 and 2).",
+          explain=_explain_kolakoski)
 def is_kolakoski(n: int) -> bool:
     """Return True if n appears in the Kolakoski sequence.
 
@@ -532,8 +671,21 @@ def is_kolakoski(n: int) -> bool:
     return n in _KOLAKOSKI
 
 
+def _explain_sylvester(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -- not applicable"
+    a = 2
+    seq = []
+    while a <= n:
+        seq.append(a)
+        if a == n:
+            return f"{n} is a term in Sylvester's sequence: {seq} -> YES"
+        a = a * (a - 1) + 1
+    return f"{n} is not in Sylvester's sequence (terms: {seq}) -> NO"
+
 @register(name="Sylvester", category="sequences", oeis="A000058",
-          description="Member of the Sylvester sequence.")
+          description="Member of the Sylvester sequence.",
+          explain=_explain_sylvester)
 def is_sylvester(n: int) -> bool:
     """Return True if n is a term in the Sylvester sequence.
 

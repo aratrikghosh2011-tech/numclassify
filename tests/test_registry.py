@@ -565,7 +565,7 @@ def test_why_fallback_for_no_explain():
 
 def test_property_info_structure():
     info = nc.property_info("armstrong")
-    assert set(info.keys()) == {"name", "description", "category", "oeis", "examples"}
+    assert set(info.keys()) == {"name", "description", "category", "oeis", "oeis_url", "examples"}
     assert 153 in info["examples"] or len(info["examples"]) > 0
 
 
@@ -659,3 +659,64 @@ def test_cli_info_shows_examples():
     )
     assert result.returncode == 0
     assert "153" in result.stdout or "Example" in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# v0.6.0 tests
+# ---------------------------------------------------------------------------
+
+class TestExplainCoverage:
+    def test_coverage_above_50_percent(self):
+        from numclassify._registry import REGISTRY, _normalize
+        has, total = 0, 0
+        for key, entry in REGISTRY.items():
+            if key != _normalize(entry.name):
+                continue
+            cat = entry.category.lower().replace(' ', '_')
+            if any(x in cat for x in ['figurate', 'polygonal', 'centered']):
+                continue
+            total += 1
+            if entry.explain is not None:
+                has += 1
+        assert total > 0
+        assert has / total >= 0.50, f"Explain coverage {has}/{total} below 50%"
+
+    def test_sequence_explains(self):
+        for prop in ['Fibonacci', 'Tribonacci', 'Pell', 'Padovan', 'Perrin']:
+            result = nc.why(prop, 1)
+            assert isinstance(result, str)
+            assert len(result) > 5
+
+    def test_factorization_explains(self):
+        for prop in ['Squarefree', 'Powerful', 'Sphenic']:
+            result = nc.why(prop, 30)
+            assert isinstance(result, str)
+
+    def test_similar_numbers_returns_list(self):
+        result = nc.similar_numbers(6, top_k=3)
+        assert isinstance(result, list)
+        assert len(result) <= 3
+        for item in result:
+            assert 'number' in item
+            assert 'similarity' in item
+            assert 'shared_properties' in item
+            assert 0 <= item['similarity'] <= 1
+
+    def test_specialness_percentile_range(self):
+        pct = nc.specialness_percentile(1729, sample_size=100)
+        assert 0 <= pct <= 100
+
+    def test_property_info_oeis_url(self):
+        info = nc.property_info('prime')
+        assert 'oeis_url' in info
+        assert info['oeis_url'].startswith('https://oeis.org/')
+
+    def test_audit_explain_runs(self):
+        from pathlib import Path
+        import subprocess, sys
+        result = subprocess.run(
+            [sys.executable, 'tools/audit_explain.py', '--missing-only'],
+            capture_output=True, text=True
+        )
+        assert result.returncode == 0
+        assert 'coverage' in result.stdout.lower()

@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import Set
 from math import comb
 
+import math
 from numclassify._registry import register
 
 _LIMIT = 10 ** 9
@@ -224,8 +225,20 @@ _CATALAN_TRIANGLE: Set[int] = _gen_catalan_triangle()
 # Registered classifiers
 # ---------------------------------------------------------------------------
 
+def _explain_factorial(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    k, val = 0, 1
+    while val < n:
+        k += 1
+        val *= k
+    if val == n:
+        return f"{n} = {k}! -> YES"
+    return f"{n}: {k-1}! = {math.factorial(k-1)} < {n} < {k}! = {val} -> NO"
+
 @register(name="Factorial", category="combinatorial", oeis="A000142",
-          description="n = k! for some non-negative integer k.")
+          description="n = k! for some non-negative integer k.",
+          explain=_explain_factorial)
 def is_factorial(n: int) -> bool:
     """Return True if n is a factorial number.
 
@@ -247,8 +260,24 @@ def is_factorial(n: int) -> bool:
     return n >= 0 and n in _FACTORIALS
 
 
+def _explain_double_factorial(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    for k in range(0, 200):
+        val = 1
+        i = k
+        while i > 0:
+            val *= i
+            i -= 2
+        if val == n:
+            return f"{n} = {k}!! -> YES"
+        if val > n:
+            break
+    return f"{n} is not a double factorial -> NO"
+
 @register(name="Double Factorial", category="combinatorial", oeis="A006882",
-          description="n = k!! for some non-negative integer k.")
+          description="n = k!! for some non-negative integer k.",
+          explain=_explain_double_factorial)
 def is_double_factorial(n: int) -> bool:
     """Return True if n is a double factorial number.
 
@@ -263,8 +292,21 @@ def is_double_factorial(n: int) -> bool:
     return n >= 0 and n in _DOUBLE_FACTORIALS
 
 
+def _explain_subfactorial(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    a, b, k = 1, 0, 0
+    while a < n and b < n:
+        c = (k + 1) * (a + b) if k >= 1 else 0
+        a, b = b, c
+        k += 1
+    if n in {1, 0}:
+        return f"{n} = !{0 if n == 1 else 1} (derangements) -> YES"
+    return f"{n} {'is' if n == b else 'is not'} a subfactorial -> {'YES' if n == b else 'NO'}"
+
 @register(name="Subfactorial", category="combinatorial", oeis="A000166",
-          description="n = !k (number of derangements of k elements).")
+          description="n = !k (number of derangements of k elements).",
+          explain=_explain_subfactorial)
 def is_subfactorial(n: int) -> bool:
     """Return True if n is a subfactorial (derangement number).
 
@@ -279,8 +321,24 @@ def is_subfactorial(n: int) -> bool:
     return n >= 0 and n in _SUBFACTORIALS
 
 
+def _explain_primorial(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1 -> NO"
+    val, primes = 1, []
+    cand = 2
+    while val < n:
+        is_p = all(cand % i != 0 for i in range(2, int(cand**0.5) + 1)) if cand > 1 else False
+        if is_p:
+            primes.append(cand)
+            val *= cand
+        cand += 1
+    if val == n:
+        return f"{n} = {' x '.join(map(str, primes))} -> YES"
+    return f"{n} is {'above' if val > n else 'below'} nearest primorial {val} -> NO"
+
 @register(name="Primorial", category="combinatorial", oeis="A002110",
-          description="n = p# (product of all primes up to prime p).")
+          description="n = p# (product of all primes up to prime p).",
+          explain=_explain_primorial)
 def is_primorial(n: int) -> bool:
     """Return True if n is a primorial.
 
@@ -295,8 +353,20 @@ def is_primorial(n: int) -> bool:
     return n >= 1 and n in _PRIMORIALS
 
 
+def _explain_central_binomial(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    k, val = 0, 1
+    while val < n:
+        k += 1
+        val = val * 2 * (2 * k - 1) // k
+    if val == n:
+        return f"{n} = C({2*k}, {k}) (central binomial) -> YES"
+    return f"{n} is not a central binomial coefficient -> NO"
+
 @register(name="Central Binomial Coefficient", category="combinatorial", oeis="A000984",
-          description="n = C(2k, k) for some non-negative integer k.")
+          description="n = C(2k, k) for some non-negative integer k.",
+          explain=_explain_central_binomial)
 def is_central_binomial(n: int) -> bool:
     """Return True if n is a central binomial coefficient C(2k, k).
 
@@ -311,8 +381,27 @@ def is_central_binomial(n: int) -> bool:
     return n >= 0 and n in _CENTRAL_BINOMIALS
 
 
+def _explain_binomial_coefficient(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    if n == 0 or n == 1:
+        return f"{n} appears in Pascal's triangle -> YES"
+    row = [1]
+    while row[0] <= n:
+        if n in row:
+            return f"{n} appears in Pascal's triangle -> YES"
+        next_row = [1]
+        for i in range(len(row) - 1):
+            next_row.append(row[i] + row[i + 1])
+        next_row.append(1)
+        if all(v > n for v in row[1:-1]):
+            break
+        row = next_row
+    return f"{n} does not appear in Pascal's triangle -> NO"
+
 @register(name="Binomial Coefficient", category="combinatorial", oeis="A007318",
-          description="n = C(a, b) for some integers a >= b >= 0.")
+          description="n = C(a, b) for some integers a >= b >= 0.",
+          explain=_explain_binomial_coefficient)
 def is_binomial_coefficient(n: int) -> bool:
     """Return True if n appears in Pascal's triangle.
 
@@ -327,8 +416,31 @@ def is_binomial_coefficient(n: int) -> bool:
     return n >= 0 and n in _BINOMIAL_COEFFICIENTS
 
 
+def _explain_partition_number(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    parts = [1]
+    k = 0
+    while parts[-1] < n:
+        k += 1
+        total = 0
+        j = 1
+        while True:
+            pent1 = j * (3 * j - 1) // 2
+            pent2 = j * (3 * j + 1) // 2
+            if pent1 > k:
+                break
+            sign = (-1) ** (j + 1)
+            total += sign * parts[k - pent1]
+            if pent2 <= k:
+                total += sign * parts[k - pent2]
+            j += 1
+        parts.append(total)
+    return f"{n} = p({k}) -> {'YES' if parts[-1] == n else 'NO'}"
+
 @register(name="Partition Number", category="combinatorial", oeis="A000041",
-          description="n = p(k), the number of integer partitions of k.")
+          description="n = p(k), the number of integer partitions of k.",
+          explain=_explain_partition_number)
 def is_partition_number(n: int) -> bool:
     """Return True if n is an integer partition number.
 
@@ -343,8 +455,14 @@ def is_partition_number(n: int) -> bool:
     return n >= 0 and n in _PARTITION_NUMBERS
 
 
+def _explain_euler_number(n: int) -> str:
+    known = {1, 1, 5, 61, 1385, 50521, 2702765, 199360981, 19391512145,
+             2404879675441, 370371188237525}
+    return f"{n}: {'in known Euler numbers -> YES' if n in known else 'not in known Euler numbers -> NO'}"
+
 @register(name="Euler Number", category="combinatorial", oeis="A122045",
-          description="n is an absolute value of an Euler number.")
+          description="n is an absolute value of an Euler number.",
+          explain=_explain_euler_number)
 def is_euler_number(n: int) -> bool:
     """Return True if n is (the absolute value of) an Euler number.
 
@@ -359,8 +477,15 @@ def is_euler_number(n: int) -> bool:
     return n >= 0 and n in _EULER_NUMBERS
 
 
+def _explain_bernoulli_numerator(n: int) -> str:
+    known = {1, 1, 1, 1, 1, 5, 691, 7, 3617, 43867, 174611, 854513,
+             236364091, 8553103, 23749461029, 8615841276005, 7709321041217,
+             2577687858367}
+    return f"{n}: {'in known Bernoulli numerators -> YES' if n in known or n == 1 else 'not in known list -> NO'}"
+
 @register(name="Bernoulli Numerator", category="combinatorial",
-          description="n appears as the numerator of a Bernoulli number (partial list).")
+          description="n appears as the numerator of a Bernoulli number (partial list).",
+          explain=_explain_bernoulli_numerator)
 def is_bernoulli_numerator(n: int) -> bool:
     """Return True if n appears as a Bernoulli number numerator (partial known list).
 
@@ -375,8 +500,19 @@ def is_bernoulli_numerator(n: int) -> bool:
     return n >= 0 and n in _BERNOULLI_NUMERATORS
 
 
+def _explain_catalan_triangle(n: int) -> str:
+    if n < 0:
+        return f"{n} < 0 -> NO"
+    for m in range(0, 60):
+        for k_ in range(0, m + 1):
+            val = comb(m + k_, k_) - (comb(m + k_, k_ - 1) if k_ > 0 else 0)
+            if val == n:
+                return f"{n} = T({m},{k_}) in Catalan's triangle -> YES"
+    return f"{n} not found in Catalan's triangle -> NO"
+
 @register(name="Catalan Triangle", category="combinatorial", oeis="A009766",
-          description="n appears in Catalan's triangle T(n,k) = C(n+k,k) - C(n+k,k-1).")
+          description="n appears in Catalan's triangle T(n,k) = C(n+k,k) - C(n+k,k-1).",
+          explain=_explain_catalan_triangle)
 def is_catalan_triangle(n: int) -> bool:
     """Return True if n appears in Catalan's triangle.
 

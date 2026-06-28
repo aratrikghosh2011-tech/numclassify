@@ -22,7 +22,7 @@ nav:
   - Home: index.md
   - API Reference: api.md
   - CLI: cli.md
-  - Changelog: changelog.md
+  - Changelog: ../CHANGELOG.md
   - Playground: playground.html
 
 markdown_extensions:

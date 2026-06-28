@@ -60,6 +60,8 @@ from numclassify._registry import (                   # noqa: F401
     count_properties,
     most_special_in_range,
     get_exam_types,
+    similar_numbers,
+    specialness_percentile,
 )
 
 # ---------------------------------------------------------------------------
@@ -140,6 +142,7 @@ def property_info(name: str) -> dict:
         "description": entry.description,
         "category": entry.category,
         "oeis": entry.oeis,
+        "oeis_url": f"https://oeis.org/{entry.oeis}" if entry.oeis else "",
         "examples": examples,
     }
 
@@ -347,6 +350,8 @@ __all__ = [
     "why",
     "property_info",
     "find",
+    "similar_numbers",
+    "specialness_percentile",
 ]
 
 # Clean up internal names that leak into dir(nc)

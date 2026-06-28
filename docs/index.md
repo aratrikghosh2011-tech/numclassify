@@ -55,19 +55,20 @@ nc.find(1, 1000, has=["harshad", "palindrome"])
 
 ## Categories
 
-| Category | Count | Examples |
-|----------|-------|----------|
-| Polygonal figurate | ~1003 | Triangular, Square, Pentagonal |
-| Centered polygonal | ~998 | Centered Triangular, Centered Hexagonal |
-| Prime families | 40 | Twin, Mersenne, Sophie Germain, Safe |
-| Digital invariants | 13 | Armstrong, Harshad, Disarium, Happy |
-| Divisor-based | 27 | Perfect, Abundant, Weird, Practical |
-| Sequences | 16 | Fibonacci, Lucas, Catalan, Bell |
-| Powers | 13 | Perfect Square, Taxicab, Powerful |
-| Number theory | 14 | Evil, Carmichael, Autobiographical |
-| Combinatorial | 10 | Factorial, Primorial, Subfactorial |
-| Recreational | 6 | Kaprekar, Automorphic, Palindrome |
-| Exam types | 8 | Strong, Sunny, Buzz, Magic, Fascinating |
+<!-- category-table:start -->
+| Category | Count |
+|---|---|
+| Polygonal figurate | ~1003 |
+| Centered polygonal | ~998 |
+| Prime families | 40 |
+| Digital invariants | 13 |
+| Divisor-based | 27 |
+| Sequences | 16 |
+| Powers | 13 |
+| Combinatorial | 10 |
+| Recreational | 6 |
+| **Total** | **2140** |
+<!-- category-table:end -->
 
 ---
 
