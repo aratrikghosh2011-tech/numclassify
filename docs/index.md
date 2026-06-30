@@ -2,7 +2,7 @@
 
 **Given a number, what is it?**
 
-Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.
+Most number-theory libraries  --  `labmath`, `eulerlib`, `pyntlib`  --  compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.
 
 ```
 153   →  Armstrong, Harshad, Triangular, Deficient, ...
@@ -20,7 +20,7 @@ Try it live: **[numclassify Playground](playground.html)**
 pip install numclassify
 ```
 
-Python 3.8–3.13. No external dependencies.
+Python 3.8 - 3.13. No external dependencies.
 
 ---
 

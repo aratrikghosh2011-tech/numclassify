@@ -7,14 +7,14 @@ each registered with metadata via a decorator.
 
 `numclassify/_registry.py` is the backbone. It defines:
 
-- `NumberType` — a dataclass holding each registered type's metadata:
+- `NumberType`  --  a dataclass holding each registered type's metadata:
   name, category, predicate function, OEIS ID, description, aliases,
   an optional `explain` function, and an `exam_tag` boolean.
-- `REGISTRY` — a flat dict mapping every normalized name and alias to its
+- `REGISTRY`  --  a flat dict mapping every normalized name and alias to its
   `NumberType`. A type with 3 aliases appears 3 times in `REGISTRY` but
   is counted once toward the 2140 unique types.
 - `@register(name, category, oeis, description, aliases, explain, exam_tag)`
-  — the decorator that registers a predicate function. Every `is_*`
+   --  the decorator that registers a predicate function. Every `is_*`
   function in the `_core/` modules uses this.
 
 ## Adding a new type
@@ -61,8 +61,8 @@ category in the source.
 ## Explanation engine
 
 `_explain_templates.py` provides two reusable template factories:
-- `digit_power_template(power_fn)` — for digit-transform properties
-- `divisor_sum_template(target_fn, compare)` — for divisor-comparison properties
+- `digit_power_template(power_fn)`  --  for digit-transform properties
+- `divisor_sum_template(target_fn, compare)`  --  for divisor-comparison properties
 
 Templates return `Callable[[int], str]` so they're drop-in replacements
 for hand-written `explain=` lambdas. 33 of 139 handcrafted types currently

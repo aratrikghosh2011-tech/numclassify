@@ -19,7 +19,7 @@ Classifies a single integer. Returns a dict:
 ```
 
 `notable_score` excludes `figurate` and `figurate_centered` hits. Use it when displaying
-a score to humans — otherwise n=1 (which is the first k-gonal number for every k) shows
+a score to humans  --  otherwise n=1 (which is the first k-gonal number for every k) shows
 a score of 2000+.
 
 ## classify_batch(numbers)
@@ -47,8 +47,8 @@ nc.find_by_property(start=1, end=1000, Perfect=True)
 
 Memory-safe generator over a range. Yields one result dict per integer.
 
-- `min_score` — skip numbers with `notable_score` below this threshold
-- `has_property` — skip numbers that don't have this property as True
+- `min_score`  --  skip numbers with `notable_score` below this threshold
+- `has_property`  --  skip numbers that don't have this property as True
 
 ```python
 for result in nc.stream(1, 1_000_000, min_score=20):
@@ -156,7 +156,7 @@ nc.find(1, 10000, any_of=["perfect", "amicable"])
 
 ## register
 
-Decorator to add a custom number type. Registered types appear everywhere — `classify()`,
+Decorator to add a custom number type. Registered types appear everywhere  --  `classify()`,
 `find_by_property()`, the CLI, all of it.
 
 ```python
@@ -170,10 +170,10 @@ def is_my_type(n: int) -> bool:
 
 Parameters:
 
-- `name` — display name (required)
-- `category` — category string (required)
-- `oeis` — OEIS sequence ID, e.g. `"A000040"` (optional)
-- `description` — one-line description (optional)
+- `name`  --  display name (required)
+- `category`  --  category string (required)
+- `oeis`  --  OEIS sequence ID, e.g. `"A000040"` (optional)
+- `description`  --  one-line description (optional)
 
 ## Convenience booleans
 

@@ -9,15 +9,15 @@
 
 ## What's new in v0.6.0
 
-- **`similar_numbers(n, top_k=5)`** — find integers mathematically closest to n by shared properties
-- **`specialness_percentile(n)`** — how rare is your number? Returns its percentile rank
-- **Explanation engine** — `why()` now covers 116/139 types (83.5%), up from 33
-- **`property_info()`** — now includes `oeis_url` field
-- **Developer tools** — `tools/audit_explain.py`, `tools/generate_docs.py`, `tools/scaffold_type.py`, `tools/release.py`
+- **`similar_numbers(n, top_k=5)`**  --  find integers mathematically closest to n by shared properties
+- **`specialness_percentile(n)`**  --  how rare is your number? Returns its percentile rank
+- **Explanation engine**  --  `why()` now covers 116/139 types (83.5%), up from 33
+- **`property_info()`**  --  now includes `oeis_url` field
+- **Developer tools**  --  `tools/audit_explain.py`, `tools/generate_docs.py`, `tools/scaffold_type.py`, `tools/release.py`
 
 **Given a number, what is it?**
 
-Most number-theory libraries — `labmath`, `eulerlib`, `pyntlib` — compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it a number and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.
+Most number-theory libraries  --  `labmath`, `eulerlib`, `pyntlib`  --  compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it a number and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.
 
 ## Why I built this
 
@@ -61,7 +61,7 @@ Python 3.8+ required. No external dependencies.
 
 ## Quick Start
 
-The standout feature is `why()` — it explains the reasoning, not just the result:
+The standout feature is `why()`  --  it explains the reasoning, not just the result:
 
 ```python
 import numclassify as nc
@@ -179,7 +179,7 @@ numclassify query 1 1000 --has prime palindrome
 
 ## Custom Types
 
-The `@register` decorator lets you add your own number types. Once registered, the type appears everywhere — `classify()`, `find_by_property()`, the CLI, all of it.
+The `@register` decorator lets you add your own number types. Once registered, the type appears everywhere  --  `classify()`, `find_by_property()`, the CLI, all of it.
 
 ```python
 from numclassify import register
@@ -205,7 +205,7 @@ See [`examples/`](examples/) for runnable scripts covering all major features.
 | `classify_batch(numbers)` | Classify a list; returns list of dicts |
 | `random_number(max_n)` | Classify a randomly selected number |
 | `find_by_property(start, end, **filters)` | Numbers in range matching property filters |
-| `stream(start, end, min_score, has_property)` | Generator — memory-safe range classification |
+| `stream(start, end, min_score, has_property)` | Generator  --  memory-safe range classification |
 | `get_all_properties(n)` | Dict of every type mapped to True/False |
 | `get_true_properties(n)` | Dict mapping each True property name to `True` |
 | `print_properties(n)` | Pretty-print property table to stdout |
@@ -228,11 +228,11 @@ Full docs: [aratrikghosh2011-tech.github.io/numclassify](https://aratrikghosh201
 
 ## More
 
-- [Contributing](CONTRIBUTING.md) — how to add new number types
-- [Security](SECURITY.md) — reporting vulnerabilities
-- [Performance](PERFORMANCE.md) — benchmarks and complexity notes
-- [Architecture](ARCHITECTURE.md) — registry internals and module map
-- [Changelog](CHANGELOG.md) — full version history
+- [Contributing](CONTRIBUTING.md)  --  how to add new number types
+- [Security](SECURITY.md)  --  reporting vulnerabilities
+- [Performance](PERFORMANCE.md)  --  benchmarks and complexity notes
+- [Architecture](ARCHITECTURE.md)  --  registry internals and module map
+- [Changelog](CHANGELOG.md)  --  full version history
 
 ## License
 
