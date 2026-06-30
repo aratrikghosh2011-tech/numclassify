@@ -1,4 +1,4 @@
-﻿/* â”€â”€ Robot Guide â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Robot Guide ────────────────────────────────────────────────────────── */
 
 #guide-overlay {
   position: fixed;
@@ -30,7 +30,7 @@
   pointer-events: all;
 }
 
-/* Robot character â€” pure CSS, no images */
+/* Robot character — pure CSS, no images */
 #guide-robot {
   flex-shrink: 0;
   width: 48px;

@@ -973,7 +973,7 @@
 <span class="p">}</span>
 </code></pre></div>
 <p><code>notable_score</code> excludes <code>figurate</code> and <code>figurate_centered</code> hits. Use it when displaying
-a score to humans — otherwise n=1 (which is the first k-gonal number for every k) shows
+a score to humans  --  otherwise n=1 (which is the first k-gonal number for every k) shows
 a score of 2000+.</p>
 <h2 id="classify_batchnumbers">classify_batch(numbers)</h2>
 <p>Classify a list of integers. Returns a list of dicts in the same format as <code>classify()</code>.</p>
@@ -989,8 +989,8 @@ a score of 2000+.</p>
 <h2 id="streamstart-end-min_scorenone-has_propertynone">stream(start, end, min_score=None, has_property=None)</h2>
 <p>Memory-safe generator over a range. Yields one result dict per integer.</p>
 <ul>
-<li><code>min_score</code> — skip numbers with <code>notable_score</code> below this threshold</li>
-<li><code>has_property</code> — skip numbers that don't have this property as True</li>
+<li><code>min_score</code>  --  skip numbers with <code>notable_score</code> below this threshold</li>
+<li><code>has_property</code>  --  skip numbers that don't have this property as True</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">nc</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1_000_000</span><span class="p">,</span> <span class="n">min_score</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
@@ -1057,7 +1057,7 @@ for progress output on large ranges.</p>
 </code></pre></div>
 <p><code>has</code> and <code>any_of</code> cannot be combined in the same call.</p>
 <h2 id="register">register</h2>
-<p>Decorator to add a custom number type. Registered types appear everywhere — <code>classify()</code>,
+<p>Decorator to add a custom number type. Registered types appear everywhere  --  <code>classify()</code>,
 <code>find_by_property()</code>, the CLI, all of it.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">numclassify</span><span class="w"> </span><span class="kn">import</span> <span class="n">register</span>
 
@@ -1068,10 +1068,10 @@ for progress output on large ranges.</p>
 </code></pre></div>
 <p>Parameters:</p>
 <ul>
-<li><code>name</code> — display name (required)</li>
-<li><code>category</code> — category string (required)</li>
-<li><code>oeis</code> — OEIS sequence ID, e.g. <code>"A000040"</code> (optional)</li>
-<li><code>description</code> — one-line description (optional)</li>
+<li><code>name</code>  --  display name (required)</li>
+<li><code>category</code>  --  category string (required)</li>
+<li><code>oeis</code>  --  OEIS sequence ID, e.g. <code>"A000040"</code> (optional)</li>
+<li><code>description</code>  --  one-line description (optional)</li>
 </ul>
 <h2 id="convenience-booleans">Convenience booleans</h2>
 <div class="highlight"><pre><span></span><code><span class="n">nc</span><span class="o">.</span><span class="n">is_prime</span><span class="p">(</span><span class="mi">17</span><span class="p">)</span>       <span class="c1"># True</span>
