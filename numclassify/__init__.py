@@ -358,4 +358,5 @@ __all__ = [
 del (_primes, _figurate, _digital, _recreational,
      _divisors, _sequences, _powers, _number_theory,
      _combinatorial, _exam_types, _core, _registry,
-     Optional, List, _version, _PackageNotFoundError)
+     Optional, List, _version, _PackageNotFoundError,
+     annotations)

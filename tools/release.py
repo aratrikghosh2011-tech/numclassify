@@ -112,6 +112,17 @@ def run_generate_docs():
         print("  [OK] generate_docs.py ran successfully")
 
 
+def run_health_check():
+    print("\nRunning repo health check...")
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "tools" / "check_repo.py"), "--fast"],
+        cwd=str(ROOT)
+    )
+    if result.returncode != 0:
+        err("Health check failed. Fix issues before releasing.")
+    print("  [OK] Health check passed")
+
+
 def run_tests():
     print("\nRunning tests...")
     result = subprocess.run(
@@ -138,6 +149,7 @@ def main():
     update_readme(version)
     fix_playground_hardcode()
     run_generate_docs()
+    run_health_check()
     run_tests()
 
     print(f"""
