@@ -250,6 +250,8 @@ json.dumps(m)
     $('version-text').textContent = '?';
   }
 
+  populatePracticeTypes();
+
   setProgress(100, 'Ready!');
   await new Promise(r => setTimeout(r, 400));
 
