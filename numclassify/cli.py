@@ -30,6 +30,9 @@ why <type_name> <n> [--json]
 
 query <start> <end> [--has TYPE...] [--not-has TYPE...] [--any-of TYPE...] [--json]
     Query a range with multi-property AND/OR/NOT logic.
+
+quiz <type_name> [--count N] [--seed N] [--list-types]
+    Practice mode: guess whether numbers have a property, then see the working.
 """
 
 from __future__ import annotations
@@ -297,6 +300,58 @@ def cmd_why(args: argparse.Namespace) -> None:
 
     print()
     print(explanation)
+    print()
+
+
+def cmd_quiz(args: argparse.Namespace) -> None:
+    """Handle: numclassify quiz <type_name> [--count N] [--seed N] [--list-types]."""
+    nc, registry, _ = _lazy_import()
+
+    if getattr(args, "list_types", False):
+        print("\n  Practice types:")
+        for t in nc.PRACTICE_TYPES:
+            print(f"    {t}")
+        print()
+        return
+
+    if args.type_name is None:
+        _die("type_name is required unless --list-types is set")
+        return
+
+    key = _resolve_type(args.type_name, registry)
+
+    try:
+        questions = nc.practice_set(key, count=args.count, seed=args.seed)
+    except ValueError as e:
+        _die(str(e))
+        return
+
+    print()
+    print(f"  PRACTICE: {key} ({len(questions)} questions, range 1-200)")
+    print(f"  Answer YES or NO for each. Press Enter after each guess.")
+    print()
+
+    score = 0
+    for i, q in enumerate(questions, 1):
+        n = q["number"]
+        correct = q["answer"]
+        guess_raw = input(f"  [{i}/{len(questions)}] Is {n} a {key} number? (y/n): ").strip().lower()
+        guess = guess_raw in ("y", "yes")
+
+        if guess == correct:
+            score += 1
+            print(f"    Correct.")
+        else:
+            print(f"    Wrong. {n} is {'a' if correct else 'NOT a'} {key} number.")
+
+        working = nc.why_hidden(key, n)
+        print(f"    Working: {working}")
+        verdict = "YES" if correct else "NO"
+        print(f"    Answer: {verdict}")
+        print()
+
+    pct = round(100 * score / len(questions), 1) if questions else 0
+    print(f"  Score: {score}/{len(questions)} ({pct}%)")
     print()
 
 
@@ -593,6 +648,25 @@ def build_parser() -> argparse.ArgumentParser:
     p_why.add_argument("n", type=int, help="The integer to explain.")
     p_why.add_argument("--json", action="store_true", help="Output as JSON.")
     p_why.set_defaults(func=cmd_why)
+
+    # -- quiz ----------------------------------------------------------------
+    p_quiz = sub.add_parser(
+        "quiz",
+        help="Practice mode: guess whether numbers have a property, then see the working.",
+    )
+    p_quiz.add_argument(
+        "type_name",
+        nargs="?",
+        default=None,
+        help="Number type to practice (e.g. armstrong, perfect, prime). Run with --list-types to see all.",
+    )
+    p_quiz.add_argument("--count", type=int, default=10, help="Number of questions (default 10).")
+    p_quiz.add_argument("--seed", type=int, default=None, help="Random seed for a reproducible quiz.")
+    p_quiz.add_argument(
+        "--list-types", action="store_true",
+        help="List all types available in practice mode and exit.",
+    )
+    p_quiz.set_defaults(func=cmd_quiz)
 
     # -- info ----------------------------------------------------------------
     p_info = sub.add_parser(

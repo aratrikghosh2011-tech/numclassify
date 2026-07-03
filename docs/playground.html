@@ -47,6 +47,7 @@
       <button class="tab" onclick="switchTab('compare')">Compare</button>
       <button class="tab" onclick="switchTab('notd')">Today's Number</button>
       <button class="tab" onclick="switchTab('why')">Why</button>
+      <button class="tab" onclick="switchTab('practice')">Practice</button>
     </div>
 
     <!-- CLASSIFY -->
@@ -183,6 +184,31 @@
           <div class="divider"></div>
           <div class="why-output" id="why-output"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- PRACTICE -->
+    <div class="tab-panel" id="tab-practice">
+      <div class="card">
+        <div class="card-title">PRACTICE MODE</div>
+        <p style="color:var(--text-muted);font-size:13px;margin-bottom:12px;">Guess whether each number has the property. See the working after you answer.</p>
+        <div class="input-row">
+          <select id="practice-type" style="flex:1;padding:12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--bg-input);color:var(--text);font-size:14px;"></select>
+        </div>
+        <div class="input-row" style="margin-top:10px;">
+          <input type="number" id="practice-count" value="10" min="4" max="30" step="2" style="width:100px;">
+          <button class="btn" onclick="startPractice()">Start Practice</button>
+        </div>
+        <div id="practice-area" style="display:none;margin-top:20px;">
+          <div id="practice-progress" style="color:var(--text-muted);font-size:13px;margin-bottom:12px;"></div>
+          <div id="practice-question" style="font-size:1.3em;margin:16px 0;"></div>
+          <div class="input-row">
+            <button class="btn" onclick="answerPractice(true)">YES</button>
+            <button class="btn btn-ghost" onclick="answerPractice(false)">NO</button>
+          </div>
+          <div id="practice-feedback" style="margin-top:16px;"></div>
+        </div>
+        <div id="practice-summary" style="display:none;margin-top:20px;"></div>
       </div>
     </div>
 

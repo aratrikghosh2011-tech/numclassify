@@ -176,7 +176,7 @@ def check_no_leaked_names():
             'count_properties', 'most_special_in_range', 'find_in_range',
             'find_all_in_range', 'find_any_in_range', 'register',
             'is_prime', 'is_armstrong', 'is_perfect',
-            'why', 'property_info', 'find', 'get_exam_types',
+            'why', 'why_hidden', 'practice_set', 'PRACTICE_TYPES', 'property_info', 'find', 'get_exam_types',
             'similar_numbers', 'specialness_percentile',
         }
         leaked = set(public) - ALLOWED

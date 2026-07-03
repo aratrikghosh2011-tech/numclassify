@@ -532,3 +532,94 @@ def specialness_percentile(n: int, sample_size: int = 1000) -> float:
     scores = [classify(x)["notable_score"] for x in sample]
     rank = sum(1 for s in scores if s < n_score)
     return round(100 * rank / len(scores), 1)
+
+
+# ---------------------------------------------------------------------------
+# v0.8.0 — Practice / Quiz mode
+# ---------------------------------------------------------------------------
+
+PRACTICE_TYPES = [
+    "Armstrong", "Perfect", "Prime", "Harshad", "Niven", "Palindromic Prime",
+    "Circular Prime", "Emirp", "Fibonacci", "Buzz", "Spy", "Automorphic",
+    "Neon", "Duck", "Disarium", "Kaprekar", "Happy", "Sunny", "Strong",
+    "Twin Prime", "Abundant", "Deficient",
+]
+"""
+Types included in practice/quiz mode. Restricted to the ICSE Class 10
+Computer Applications syllabus so a beginner isn't quizzed on advanced
+research-level types (Wolstenholme primes, Wall-Sun-Sun primes, etc).
+Verified against REGISTRY before use -- all 22 names resolve correctly.
+"""
+
+PRACTICE_RANGE = (1, 200)
+"""
+Fixed range for all practice questions regardless of property. Every
+question is answerable by hand (digit sums, small divisor lists, trial
+division up to sqrt(200) ~ 14) without a calculator. Not scaled per
+property: consistent difficulty framing matters more than exact
+per-type difficulty matching at this level.
+"""
+
+
+def practice_set(
+    property_name: str,
+    count: int = 10,
+    seed: int = None,
+) -> list:
+    """
+    Generate a balanced random practice set for a given property.
+
+    Returns count numbers from PRACTICE_RANGE, sampled to be roughly
+    50/50 YES/NO for the property (within rounding for small counts or
+    rare properties). Raises ValueError if property_name is not in
+    PRACTICE_TYPES.
+
+    Args:
+        property_name: must be one of PRACTICE_TYPES (case-insensitive,
+            resolved the same way as why()/property_info()).
+        count: how many questions to generate. Default 10.
+        seed: optional RNG seed for a reproducible worksheet (e.g. a
+            teacher generating the same quiz for a whole class).
+
+    Returns:
+        List of dicts: [{"number": int, "answer": bool}, ...]
+        The "answer" key lets CLI/playground score the student's guess
+        but should NOT be shown before they answer.
+    """
+    import random as _random
+
+    key = _normalize(property_name)
+    allowed_keys = {_normalize(t) for t in PRACTICE_TYPES}
+    if key not in allowed_keys:
+        raise ValueError(
+            f"'{property_name}' is not available in practice mode. "
+            f"Available: {', '.join(PRACTICE_TYPES)}"
+        )
+
+    entry = REGISTRY[key]
+    func = entry.func
+    lo, hi = PRACTICE_RANGE
+
+    rng = _random.Random(seed)
+
+    yes_pool = [n for n in range(lo, hi + 1) if func(n)]
+    no_pool = [n for n in range(lo, hi + 1) if not func(n)]
+
+    half = count // 2
+    remainder = count - half
+
+    if len(yes_pool) < half:
+        chosen_yes = yes_pool
+        chosen_no = rng.sample(no_pool, min(count - len(chosen_yes), len(no_pool)))
+    elif len(no_pool) < remainder:
+        chosen_no = no_pool
+        chosen_yes = rng.sample(yes_pool, min(count - len(chosen_no), len(yes_pool)))
+    else:
+        chosen_yes = rng.sample(yes_pool, half)
+        chosen_no = rng.sample(no_pool, remainder)
+
+    combined = [{"number": n, "answer": True} for n in chosen_yes] + \
+               [{"number": n, "answer": False} for n in chosen_no]
+    rng.shuffle(combined)
+
+    return combined

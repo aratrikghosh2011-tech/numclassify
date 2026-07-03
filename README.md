@@ -7,13 +7,13 @@
 [![License](https://img.shields.io/badge/license-MIT-FF9933?style=flat-square)](LICENSE)
 [![Coverage](https://img.shields.io/badge/coverage-69%25-e05d44?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
 
-## What's new in v0.6.0
+## What's new in v0.8.0
 
-- **`similar_numbers(n, top_k=5)`**  --  find integers mathematically closest to n by shared properties
-- **`specialness_percentile(n)`**  --  how rare is your number? Returns its percentile rank
-- **Explanation engine**  --  `why()` now covers 116/139 types (83.5%), up from 33
-- **`property_info()`**  --  now includes `oeis_url` field
-- **Developer tools**  --  `tools/audit_explain.py`, `tools/generate_docs.py`, `tools/scaffold_type.py`, `tools/release.py`
+- **`why_hidden(property, n)`**  --  explanation with verdict stripped, for practice/quiz mode
+- **`practice_set(property, count, seed)`**  --  balanced random YES/NO question generator
+- **`PRACTICE_TYPES`**  --  allowlist of 22 ICSE Class 10 syllabus types
+- **CLI `numclassify quiz`**  --  interactive practice mode
+- **Playground Practice tab**  --  guess-then-reveal quiz flow
 
 **Given a number, what is it?**
 
@@ -152,6 +152,10 @@ numclassify info armstrong
 # Explain why a number has a property
 numclassify why armstrong 153
 
+# Practice mode: guess before you see the answer
+numclassify quiz armstrong --count 10
+numclassify quiz --list-types
+
 # Multi-property query with AND/OR/NOT logic
 numclassify query 1 1000 --has prime palindrome
 ```
@@ -194,6 +198,24 @@ nc.get_true_properties(42)  # [..., 'my_type', ...]
 ```
 
 See [`examples/`](examples/) for runnable scripts covering all major features.
+
+---
+
+## Practice mode
+
+Learn number classification by guessing, not by calling a function.
+
+    numclassify quiz armstrong --count 10
+    numclassify quiz --list-types
+
+Guess YES or NO for each number, then see the actual math (divisors, digit
+sums, factorizations) before the verdict. Built for ICSE Class 10 Computer
+Applications topics: Armstrong, Perfect, Prime, Harshad, Circular Prime,
+Emirp, Fibonacci, Buzz, Spy, Automorphic, Neon, Duck, Disarium, Kaprekar,
+Happy, Sunny, Strong, Twin Prime, Abundant, Deficient.
+
+Also in the [playground](https://aratrikghosh2011-tech.github.io/numclassify/playground.html)
+under the Practice tab.
 
 ---
 

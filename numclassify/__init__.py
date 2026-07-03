@@ -62,6 +62,8 @@ from numclassify._registry import (                   # noqa: F401
     get_exam_types,
     similar_numbers,
     specialness_percentile,
+    practice_set,
+    PRACTICE_TYPES,
 )
 
 # ---------------------------------------------------------------------------
@@ -105,6 +107,31 @@ def why(property_name: str, n: int) -> str:
             return f"{n} is NOT {entry.name}: {explanation}"
     status = "is" if is_true else "is NOT"
     return f"{n} {status} {entry.name}. {entry.description}"
+
+
+def why_hidden(property_name: str, n: int) -> str:
+    """
+    Like why(), but strips the final verdict (YES/NO) so the explanation
+    can be shown to a student BEFORE they commit to an answer. Used by
+    practice/quiz mode.
+
+    The convention across all explain= functions is that the verdict
+    appears as the literal substring "YES" or "NO" near the end of the
+    string, usually preceded by " -> ". This function truncates at the
+    first occurrence of " -> " if present, otherwise strips a trailing
+    "YES"/"NO" token. If neither pattern is found, returns the full
+    explanation unchanged (fail-open: an unusual explain= string should
+    not crash practice mode, worst case it leaks the verdict for that
+    one type).
+    """
+    full = why(property_name, n)
+
+    if " -> " in full:
+        return full.rsplit(" -> ", 1)[0].strip()
+
+    import re
+    stripped = re.sub(r'\s*(YES|NO)\s*$', '', full).strip()
+    return stripped
 
 
 def property_info(name: str) -> dict:
@@ -348,10 +375,13 @@ __all__ = [
     "find_by_property",
     "stream",
     "why",
+    "why_hidden",
     "property_info",
     "find",
     "similar_numbers",
     "specialness_percentile",
+    "practice_set",
+    "PRACTICE_TYPES",
 ]
 
 # Clean up internal names that leak into dir(nc)

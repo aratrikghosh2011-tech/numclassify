@@ -5,6 +5,17 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic V
 
 ---
 
+## [0.8.0] - 2026-07-03
+
+### Added
+- `why_hidden(property, n)`: explanation with verdict stripped, for practice mode
+- `practice_set(property, count, seed)`: balanced random YES/NO question generator
+- `PRACTICE_TYPES`: allowlist of 22 ICSE Class 10 syllabus types
+- CLI `numclassify quiz <type> [--count N] [--seed N] [--list-types]`
+- Playground Practice tab: guess-then-reveal quiz flow reusing why_hidden() and practice_set()
+
+---
+
 ## [0.6.0] - 2026-06-27
 
 ### Added

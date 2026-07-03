@@ -3,6 +3,7 @@ tests/test_new_api.py
 Edge case tests for v0.6.0 additions:
   similar_numbers(), specialness_percentile(), property_info() oeis_url.
 """
+import re
 import pytest
 import numclassify as nc
 
@@ -129,3 +130,69 @@ class TestPropertyInfoOeisUrl:
             assert info['name'] is not None
         except (ValueError, KeyError):
             pass
+
+
+class TestWhyHidden:
+    def test_strips_yes_verdict(self):
+        result = nc.why_hidden("Perfect", 6)
+        assert not re.search(r'\bYES\b', result)
+
+    def test_strips_no_verdict(self):
+        result = nc.why_hidden("Perfect", 7)
+        assert not re.search(r'\bNO\b', result)
+
+    def test_still_shows_working(self):
+        result = nc.why_hidden("Perfect", 6)
+        assert len(result) > 5
+        assert any(c.isdigit() for c in result)
+
+    def test_armstrong_hidden(self):
+        result = nc.why_hidden("Armstrong", 153)
+        assert not re.search(r'\bYES\b', result)
+        assert '153' in result
+
+    def test_all_practice_types_hide_verdict(self):
+        for t in nc.PRACTICE_TYPES:
+            for n in [1, 6, 7, 28, 153]:
+                result = nc.why_hidden(t, n)
+                assert isinstance(result, str)
+
+
+class TestPracticeSet:
+    def test_returns_correct_count(self):
+        assert len(nc.practice_set("Prime", count=10)) == 10
+
+    def test_result_structure(self):
+        for item in nc.practice_set("Perfect", count=6):
+            assert 'number' in item and 'answer' in item
+            assert isinstance(item['number'], int)
+            assert isinstance(item['answer'], bool)
+            assert 1 <= item['number'] <= 200
+
+    def test_roughly_balanced(self):
+        result = nc.practice_set("Prime", count=20)
+        yes_count = sum(1 for r in result if r['answer'])
+        assert 6 <= yes_count <= 14
+
+    def test_rare_property_doesnt_crash(self):
+        # Perfect numbers under 200: only 6 and 28.
+        result = nc.practice_set("Perfect", count=10)
+        assert len(result) == 10
+
+    def test_invalid_type_raises(self):
+        with pytest.raises(ValueError):
+            nc.practice_set("Wolstenholme Prime", count=5)
+
+    def test_seed_reproducible(self):
+        r1 = nc.practice_set("Prime", count=10, seed=42)
+        r2 = nc.practice_set("Prime", count=10, seed=42)
+        assert r1 == r2
+
+    def test_no_duplicate_numbers(self):
+        result = nc.practice_set("Prime", count=10)
+        numbers = [r['number'] for r in result]
+        assert len(numbers) == len(set(numbers))
+
+    def test_all_practice_types_work(self):
+        for t in nc.PRACTICE_TYPES:
+            assert len(nc.practice_set(t, count=6)) == 6

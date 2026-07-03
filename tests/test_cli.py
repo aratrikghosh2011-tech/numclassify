@@ -266,6 +266,30 @@ class TestCmdQuery:
 
 
 # ---------------------------------------------------------------------------
+# quiz command
+# ---------------------------------------------------------------------------
+
+class TestCmdQuiz:
+    def test_quiz_list_types(self):
+        _, out, _ = run('quiz', '--list-types')
+        assert 'armstrong' in out.lower()
+
+    def test_quiz_runs_with_piped_input(self):
+        import subprocess, sys
+        result = subprocess.run(
+            [sys.executable, '-m', 'numclassify', 'quiz', 'prime', '--count', '4', '--seed', '1'],
+            input='y\ny\ny\ny\n',
+            capture_output=True, text=True, timeout=20
+        )
+        assert result.returncode == 0
+        assert 'Score:' in result.stdout
+
+    def test_quiz_invalid_type(self):
+        code, _, _ = run('quiz', 'wolstenholme prime', '--count', '2', expect_fail=True)
+        assert code != 0
+
+
+# ---------------------------------------------------------------------------
 # no-args (footer)
 # ---------------------------------------------------------------------------
 

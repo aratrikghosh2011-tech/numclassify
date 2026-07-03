@@ -395,6 +395,98 @@ function onNotdDateChange(input) {
   computeNOTD(input.value);
 }
 
+// ── Practice ──────────────────────────────────────────────────────────────
+
+let practiceState = {
+  questions: [],
+  current: 0,
+  score: 0,
+  type: null,
+};
+
+function populatePracticeTypes() {
+  const select = document.getElementById('practice-type');
+  if (!select || select.options.length > 0) return;
+  const typesResult = pyodide.runPython(`
+_result = __import__('json').dumps(nc.PRACTICE_TYPES)
+_result
+  `);
+  const types = JSON.parse(typesResult);
+  types.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    select.appendChild(opt);
+  });
+}
+
+function startPractice() {
+  const type = document.getElementById('practice-type').value;
+  const count = parseInt(document.getElementById('practice-count').value, 10) || 10;
+
+  const resultJson = pyodide.runPython(`
+_result = __import__('json').dumps(nc.practice_set(${JSON.stringify(type)}, count=${count}))
+_result
+  `);
+  const questions = JSON.parse(resultJson);
+
+  practiceState = { questions, current: 0, score: 0, type };
+
+  document.getElementById('practice-area').style.display = 'block';
+  document.getElementById('practice-summary').style.display = 'none';
+  document.getElementById('practice-feedback').textContent = '';
+
+  showPracticeQuestion();
+}
+
+function showPracticeQuestion() {
+  const { questions, current, type } = practiceState;
+  if (current >= questions.length) {
+    finishPractice();
+    return;
+  }
+  const q = questions[current];
+  document.getElementById('practice-progress').textContent =
+    `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('practice-question').textContent =
+    `Is ${q.number} a ${type} number?`;
+  document.getElementById('practice-feedback').innerHTML = '';
+}
+
+function answerPractice(guess) {
+  const { questions, current, type } = practiceState;
+  const q = questions[current];
+  const correct = q.answer === guess;
+
+  if (correct) practiceState.score++;
+
+  const workingJson = pyodide.runPython(`
+_result = __import__('json').dumps(nc.why_hidden(${JSON.stringify(type)}, ${q.number}))
+_result
+  `);
+  const working = JSON.parse(workingJson);
+  const verdict = q.answer ? 'YES' : 'NO';
+
+  const feedbackEl = document.getElementById('practice-feedback');
+  feedbackEl.innerHTML =
+    '<div>' + (correct ? 'Correct.' : 'Wrong. Answer: ' + verdict + '.') + '</div>' +
+    '<div style="margin-top: 8px; opacity: 0.8;">Working: ' + working + '</div>';
+
+  practiceState.current++;
+
+  setTimeout(showPracticeQuestion, 2000);
+}
+
+function finishPractice() {
+  const { score, questions } = practiceState;
+  const pct = questions.length ? Math.round(100 * score / questions.length) : 0;
+
+  document.getElementById('practice-area').style.display = 'none';
+  const summaryEl = document.getElementById('practice-summary');
+  summaryEl.style.display = 'block';
+  summaryEl.innerHTML = '<div>Score: ' + score + '/' + questions.length + ' (' + pct + '%)</div>';
+}
+
 // ── Copy & Share & Download ──────────────────────────────────────────────
 
 async function copyResults() {
@@ -579,6 +671,7 @@ const SHORTCUT_MAP = {
   s: 'search',
   n: 'notd',
   w: 'why',
+  p: 'practice',
 };
 
 function setupShortcuts() {
@@ -620,6 +713,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   $('input-why-number')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') doWhy();
+  });
+  $('practice-count')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') startPractice();
   });
 
   // Restore theme
