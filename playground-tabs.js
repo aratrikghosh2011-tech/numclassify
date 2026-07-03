@@ -626,7 +626,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('nc_theme');
   if (savedTheme) {
     document.documentElement.setAttribute('data-theme', savedTheme);
-    if ($('theme-icon')) $('theme-icon').textContent = savedTheme === 'light' ? '☀️' : '🌙';
+    if ($('theme-icon')) $('theme-icon').textContent = savedTheme === 'light' ? 'Light' : 'Dark';
   }
 
   setupAutocomplete('input-property', 'ac-dropdown', prop => { $('input-property').value = prop; doSearch(); });
