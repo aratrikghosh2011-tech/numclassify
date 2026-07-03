@@ -7,37 +7,38 @@ that pytest alone cannot detect.
 Usage:
     python tools/check_repo.py          # full check
     python tools/check_repo.py --fast   # skip slow checks
-    python tools/check_repo.py --fix    # auto-fix what can be fixed
 
 Exit code: 0 if all checks pass, 1 if any fail.
 """
 import sys
 import re
-import os
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent
 ERRORS = []
 WARNINGS = []
 
+
 def err(msg):
     ERRORS.append(msg)
     print(f"  FAIL: {msg}")
+
 
 def warn(msg):
     WARNINGS.append(msg)
     print(f"  WARN: {msg}")
 
+
 def ok(msg):
     print(f"  OK:   {msg}")
 
 
-# ---- Check 1: No BOM in any source file ----
 def check_no_bom():
     print("\n[1] BOM check")
     extensions = ['.py', '.js', '.css', '.html', '.md', '.toml', '.yml', '.yaml']
+    found = False
     for path in ROOT.rglob('*'):
-        if any(part.startswith('.') for part in path.parts):
+        if any(part.startswith('.') or part == '__pycache__' for part in path.parts):
             continue
         if path.suffix not in extensions:
             continue
@@ -45,28 +46,30 @@ def check_no_bom():
             raw = path.read_bytes()
             if raw[:3] == b'\xef\xbb\xbf':
                 err(f"BOM found: {path.relative_to(ROOT)}")
+                found = True
         except Exception:
             pass
-    if not any('BOM' in e for e in ERRORS):
+    if not found:
         ok("No BOM in any source file")
 
 
-# ---- Check 2: No double CRLF ----
 def check_no_double_crlf():
     print("\n[2] Line ending check")
+    found = False
     for path in ROOT.glob('docs/*.js'):
         raw = path.read_bytes()
         if b'\r\r\n' in raw:
             err(f"Double CRLF in: {path.relative_to(ROOT)}")
-    if not any('CRLF' in e for e in ERRORS):
+            found = True
+    if not found:
         ok("No double CRLF in JS files")
 
 
-# ---- Check 3: No mojibake in JS/HTML files ----
 def check_no_mojibake():
     print("\n[3] Mojibake check")
-    BAD = ['\u00e2\u20ac', '\u00f0\u0178', '\u00e2\u0152', '\u00c2\u00a0\u00c2']
+    BAD = ['\u00e2\u20ac', '\u00f0\u0178', '\u00e2\u0152', '\u00e2\u02dc']
     files = list(ROOT.glob('docs/*.js')) + list(ROOT.glob('docs/*.css')) + [ROOT / 'docs' / 'playground.html']
+    found = False
     for path in files:
         if not path.exists():
             continue
@@ -75,13 +78,13 @@ def check_no_mojibake():
             hits = sum(text.count(b) for b in BAD)
             if hits:
                 err(f"Mojibake ({hits} hits) in: {path.relative_to(ROOT)}")
+                found = True
         except Exception as e:
             warn(f"Could not read {path.relative_to(ROOT)}: {e}")
-    if not any('Mojibake' in e for e in ERRORS):
+    if not found:
         ok("No mojibake in playground files")
 
 
-# ---- Check 4: Version consistency ----
 def check_version_consistency():
     print("\n[4] Version consistency")
     import tomllib
@@ -93,10 +96,8 @@ def check_version_consistency():
     except Exception as e:
         err(f"Cannot read version from pyproject.toml: {e}")
         return
-
     ok(f"pyproject.toml version: {toml_version}")
 
-    # Check __init__.py does NOT hardcode a version (fallback "0.0.0" is allowed)
     init = (ROOT / 'numclassify' / '__init__.py').read_text(encoding='utf-8')
     hardcoded = [h for h in re.findall(r'__version__\s*=\s*["\'][\d.]+["\']', init)
                  if '0.0.0' not in h]
@@ -105,7 +106,6 @@ def check_version_consistency():
     else:
         ok("__init__.py uses importlib.metadata for version (fallback 0.0.0 ignored)")
 
-    # Check playground.html subtitle count
     html_path = ROOT / 'docs' / 'playground.html'
     if html_path.exists():
         html = html_path.read_text(encoding='utf-8')
@@ -116,7 +116,6 @@ def check_version_consistency():
         if '2140+' in html:
             ok("playground.html subtitle count: 2140+")
 
-    # Check README "What's new" matches pyproject version
     readme = (ROOT / 'README.md').read_text(encoding='utf-8')
     readme_versions = re.findall(r"What's new in v([\d.]+)", readme)
     if readme_versions:
@@ -125,7 +124,6 @@ def check_version_consistency():
         else:
             ok(f"README 'What's new' matches version: v{toml_version}")
 
-    # Check CHANGELOG has entry for current version
     changelog = (ROOT / 'CHANGELOG.md').read_text(encoding='utf-8')
     if f'[{toml_version}]' not in changelog:
         err(f"CHANGELOG.md missing entry for [{toml_version}]")
@@ -133,28 +131,23 @@ def check_version_consistency():
         ok(f"CHANGELOG.md has entry for [{toml_version}]")
 
 
-# ---- Check 5: No emoji in JS files ----
 def check_no_emoji_in_js():
     print("\n[5] Emoji check in JS files")
-    EMOJI_RANGES = [
-        (0x1F300, 0x1FFFF),
-        (0x2600, 0x27BF),
-        (0x1F000, 0x1F02F),
-    ]
+    EMOJI_RANGES = [(0x1F300, 0x1FFFF), (0x2600, 0x27BF), (0x1F000, 0x1F02F)]
+
     def has_emoji(text):
-        return any(
-            any(lo <= ord(c) <= hi for lo, hi in EMOJI_RANGES)
-            for c in text
-        )
+        return any(any(lo <= ord(c) <= hi for lo, hi in EMOJI_RANGES) for c in text)
+
+    found = False
     for path in ROOT.glob('docs/*.js'):
         text = path.read_text(encoding='utf-8', errors='replace')
         if has_emoji(text):
             err(f"Emoji found in JS file: {path.relative_to(ROOT)}")
-    if not any('Emoji' in e for e in ERRORS):
+            found = True
+    if not found:
         ok("No emoji in JS files")
 
 
-# ---- Check 6: Registry count vs docs ----
 def check_registry_count():
     print("\n[6] Registry count vs docs")
     try:
@@ -172,7 +165,6 @@ def check_registry_count():
         warn(f"Could not check registry count: {e}")
 
 
-# ---- Check 7: No leaked internal names in public API ----
 def check_no_leaked_names():
     print("\n[7] Public API leak check")
     try:
@@ -196,7 +188,6 @@ def check_no_leaked_names():
         warn(f"Could not check public API: {e}")
 
 
-# ---- Check 8: CLI commands respond without crashing ----
 def check_cli_smoke():
     print("\n[8] CLI smoke check")
     import subprocess
@@ -212,18 +203,22 @@ def check_cli_smoke():
         ['numclassify'],
     ]
     for cmd in commands:
-        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
-        if result.returncode != 0:
-            err(f"CLI failed: {' '.join(cmd)}\n    stderr: {result.stderr[:200]}")
-        else:
-            ok(f"CLI OK: {' '.join(cmd)}")
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+            if result.returncode != 0:
+                err(f"CLI failed: {' '.join(cmd)}\n    stderr: {result.stderr[:200]}")
+            else:
+                ok(f"CLI OK: {' '.join(cmd)}")
+        except FileNotFoundError:
+            err(f"CLI command not found: {' '.join(cmd)} (is the package installed?)")
+        except subprocess.TimeoutExpired:
+            err(f"CLI timed out: {' '.join(cmd)}")
 
 
 def main():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--fast', action='store_true', help='Skip slow checks')
-    parser.add_argument('--fix', action='store_true', help='Auto-fix what can be fixed')
     args = parser.parse_args()
 
     print("=" * 60)

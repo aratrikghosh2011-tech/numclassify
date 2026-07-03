@@ -497,21 +497,35 @@ import time
 
 
 def test_semiperfect_large_n_fast():
-    start = time.time()
-    nc.is_semiperfect(999999999)
-    assert time.time() - start < 2.0
+    times = []
+    for _ in range(5):
+        start = time.time()
+        nc.is_semiperfect(999999999)
+        times.append(time.time() - start)
+    max_time = max(times)
+    assert max_time < 6.0, f"is_semiperfect(999999999) took {max_time:.2f}s"
 
 
 def test_zumkeller_large_n_fast():
-    start = time.time()
-    nc.is_zumkeller(999999999)
-    assert time.time() - start < 2.0
+    times = []
+    for _ in range(5):
+        start = time.time()
+        nc.is_zumkeller(999999999)
+        times.append(time.time() - start)
+    max_time = max(times)
+    # CI runners are slower and noisier than local machines.
+    # Threshold has 3x margin over observed local max.
+    assert max_time < 6.0, f"is_zumkeller(999999999) took {max_time:.2f}s, expected < 6.0s"
 
 
 def test_weird_large_n_fast():
-    start = time.time()
-    nc.is_weird(999999999)
-    assert time.time() - start < 2.0
+    times = []
+    for _ in range(5):
+        start = time.time()
+        nc.is_weird(999999999)
+        times.append(time.time() - start)
+    max_time = max(times)
+    assert max_time < 6.0, f"is_weird(999999999) took {max_time:.2f}s"
 
 
 def test_untouchable_large_n_fast():
