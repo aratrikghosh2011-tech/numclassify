@@ -87,15 +87,31 @@ def check_no_mojibake():
 
 def check_version_consistency():
     print("\n[4] Version consistency")
-    import tomllib
+    try:
+        import tomllib as _toml
+    except ModuleNotFoundError:
+        try:
+            import tomli as _toml
+        except ModuleNotFoundError:
+            _toml = None
 
     toml_path = ROOT / 'pyproject.toml'
-    try:
-        with open(toml_path, 'rb') as f:
-            toml_version = tomllib.load(f)['project']['version']
-    except Exception as e:
-        err(f"Cannot read version from pyproject.toml: {e}")
-        return
+    if _toml is not None:
+        try:
+            with open(toml_path, 'rb') as f:
+                toml_version = _toml.load(f)['project']['version']
+        except Exception as e:
+            err(f"Cannot read version from pyproject.toml: {e}")
+            return
+    else:
+        # Fallback: regex extract version = "X.Y.Z"
+        text = toml_path.read_text(encoding='utf-8')
+        m = re.search(r'^version\s*=\s*"([^"]+)"', text, re.MULTILINE)
+        if m:
+            toml_version = m.group(1)
+        else:
+            err("Cannot read version from pyproject.toml (no tomllib/tomli)")
+            return
     ok(f"pyproject.toml version: {toml_version}")
 
     init = (ROOT / 'numclassify' / '__init__.py').read_text(encoding='utf-8')
