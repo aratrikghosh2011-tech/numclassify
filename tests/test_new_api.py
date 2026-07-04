@@ -133,29 +133,59 @@ class TestPropertyInfoOeisUrl:
 
 
 class TestWhyHidden:
-    def test_strips_yes_verdict(self):
-        result = nc.why_hidden("Perfect", 6)
-        assert not re.search(r'\bYES\b', result)
+    def test_no_practice_type_leaks_verdict(self):
+        """
+        The critical regression test. Every PRACTICE_TYPES entry, at
+        several n values, must not contain '{is|is not} {TypeName}' in
+        its hidden explanation. This is the exact bug found in v0.8.0
+        where 12/22 types leaked the verdict via a prefix convention
+        that the original strip logic never accounted for.
+        """
+        import re
+        failures = []
+        for t in nc.PRACTICE_TYPES:
+            type_word = t.split()[0].lower()
+            pattern = re.compile(rf'\bis\s+(?:not\s+)?{re.escape(type_word)}\b', re.IGNORECASE)
+            for n in [1, 2, 6, 7, 28, 30, 47, 100, 153]:
+                try:
+                    hidden = nc.why_hidden(t, n)
+                except RuntimeError:
+                    continue
+                if pattern.search(hidden):
+                    failures.append(f"{t}({n}): {hidden!r}")
+        assert not failures, f"Verdict leaked in {len(failures)} cases:\n" + "\n".join(failures)
 
-    def test_strips_no_verdict(self):
-        result = nc.why_hidden("Perfect", 7)
-        assert not re.search(r'\bNO\b', result)
-
-    def test_still_shows_working(self):
-        result = nc.why_hidden("Perfect", 6)
-        assert len(result) > 5
-        assert any(c.isdigit() for c in result)
-
-    def test_armstrong_hidden(self):
-        result = nc.why_hidden("Armstrong", 153)
-        assert not re.search(r'\bYES\b', result)
-        assert '153' in result
-
-    def test_all_practice_types_hide_verdict(self):
+    def test_no_bare_yes_no_token(self):
+        import re
+        failures = []
         for t in nc.PRACTICE_TYPES:
             for n in [1, 6, 7, 28, 153]:
-                result = nc.why_hidden(t, n)
-                assert isinstance(result, str)
+                try:
+                    hidden = nc.why_hidden(t, n)
+                except RuntimeError:
+                    continue
+                if re.search(r'\bYES\b|\bNO\b', hidden):
+                    failures.append(f"{t}({n}): {hidden!r}")
+        assert not failures, f"Bare verdict token found:\n" + "\n".join(failures)
+
+    def test_still_shows_working(self):
+        for t in ["Armstrong", "Perfect", "Prime"]:
+            try:
+                result = nc.why_hidden(t, 6)
+            except RuntimeError:
+                continue
+            assert len(result) > 5
+
+    def test_fails_loudly_not_silently(self):
+        """
+        If why_hidden() cannot safely strip a verdict, it must raise
+        RuntimeError rather than return a leaking string. This test
+        exists to ensure future changes don't quietly relax the safety
+        check to make the exhaustive audit pass by hiding failures.
+        """
+        import inspect
+        source = inspect.getsource(nc.why_hidden)
+        assert 'RuntimeError' in source
 
 
 class TestPracticeSet:

@@ -335,7 +335,13 @@ def cmd_quiz(args: argparse.Namespace) -> None:
     for i, q in enumerate(questions, 1):
         n = q["number"]
         correct = q["answer"]
-        guess_raw = input(f"  [{i}/{len(questions)}] Is {n} a {key} number? (y/n): ").strip().lower()
+        try:
+            guess_raw = input(f"  [{i}/{len(questions)}] Is {n} a {key} number? (y/n): ").strip().lower()
+        except EOFError:
+            print()
+            print(f"  Quiz ended early (no more input). Final score: {score}/{i - 1}")
+            print()
+            return
         guess = guess_raw in ("y", "yes")
 
         if guess == correct:
@@ -344,7 +350,10 @@ def cmd_quiz(args: argparse.Namespace) -> None:
         else:
             print(f"    Wrong. {n} is {'a' if correct else 'NOT a'} {key} number.")
 
-        working = nc.why_hidden(key, n)
+        try:
+            working = nc.why_hidden(key, n)
+        except RuntimeError:
+            working = "(explanation not available for quiz mode)"
         print(f"    Working: {working}")
         verdict = "YES" if correct else "NO"
         print(f"    Answer: {verdict}")

@@ -5,6 +5,26 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic V
 
 ---
 
+## [0.8.1] - 2026-07-04
+
+### Fixed
+- `why_hidden()` leaked verdict for 12/22 practice types (Armstrong, Perfect, Prime, Harshad, Niven, Fibonacci, Neon, Disarium, Strong, Twin Prime, Abundant, Deficient) by not stripping the prefix `"{n} is {Type}"` / `"{n} is NOT {Type}"` convention used by `_core/*.py` explain functions
+- CLI `quiz` command crashes with unhandled `EOFError` traceback when piped input runs out before question count
+- `publish.yml` had no test gate — tag push bypassed all verification
+- `docs.yml` deployed to GitHub Pages without CI passing
+
+### Added
+- `PRACTICE_TYPES` drift check in `tools/check_repo.py` — warns if an allowlist entry no longer resolves in REGISTRY
+- Em dash scan for YAML/Markdown files in `tools/check_repo.py`
+- Test `test_cmd_quiz_handles_early_eof_cleanly` for graceful EOF exit
+
+### Changed
+- `why_hidden()` now strips both prefix and suffix verdict conventions with safety check that raises `RuntimeError` on ambiguity
+- `publish.yml` requires `test` job to pass before publishing
+- `docs.yml` requires `test` job to pass before deploying
+
+---
+
 ## [0.8.0] - 2026-07-03
 
 ### Added

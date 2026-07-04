@@ -27,6 +27,7 @@ Public API
 
 from __future__ import annotations
 
+import re as _re
 from importlib.metadata import version as _version, PackageNotFoundError as _PackageNotFoundError
 try:
     __version__ = _version("numclassify")
@@ -109,29 +110,139 @@ def why(property_name: str, n: int) -> str:
     return f"{n} {status} {entry.name}. {entry.description}"
 
 
+def _strip_prefix_convention(text: str) -> str:
+    """Strip "{n} is [NOT] {Type} because:" or "{n} is [NOT] {Type}:", return remainder."""
+    m = _re.match(
+        r'^-?\d+\s+is\s+(?:NOT\s+)?[A-Za-z][A-Za-z \-]*?(?:because)?:\s*',
+        text
+    )
+    return text[m.end():] if m else text
+
+
+def _strip_suffix_convention(text: str) -> str:
+    """Strip trailing " -> YES" / " -> NO" (possibly chained) and bare trailing YES/NO."""
+    while " -> " in text:
+        candidate = text.rsplit(" -> ", 1)[0].strip()
+        tail = text.rsplit(" -> ", 1)[1].strip()
+        if tail.upper() in ("YES", "NO"):
+            text = candidate
+        else:
+            break
+    # Strip bare trailing YES/NO only when preceded by whitespace, so
+    # that "prime=YES" is not mangled into "prime=".
+    return _re.sub(r'\s+\b(YES|NO)\b\s*$', '', text).strip()
+
+
+def _lowercase_yes_no(text: str) -> str:
+    """Replace bare YES/NO tokens with lowercase in reasoning steps."""
+    return _re.sub(r'\b(YES|NO)\b', lambda m: m.group(1).lower(), text)
+
+
+_SPECIAL_CASE_STRIPPERS = {
+    "prime": lambda full: _lowercase_yes_no(
+        _re.sub(
+            r'\s*--\s*it\s+is\s+prime\s*$'
+            r'|'
+            r'^-?\d+\s+is\s+(?:NOT\s+)?Prime(?:\s+because)?:\s*'
+            r'|'
+            r'\s+is\s+prime',
+            ' ', full, flags=_re.IGNORECASE
+        ).strip()
+    ),
+    "sunny": lambda full: _lowercase_yes_no(
+        _re.sub(
+            r'\s*->\s*(?:not\s+)?Sunny\s*$', '',
+            _strip_suffix_convention(
+                _re.sub(
+                    r'^-?\d+\s+is\s+(?:NOT\s+)?Sunny(?:\s+because)?:\s*',
+                    '', full, flags=_re.IGNORECASE
+                ).strip()
+            ),
+            flags=_re.IGNORECASE
+        ).strip()
+    ),
+    "buzz": lambda full: (
+        _lowercase_yes_no(
+            _strip_prefix_convention(
+                _strip_suffix_convention(full)
+            )
+        )
+    ),
+    "palindromic_prime": lambda full: (
+        _lowercase_yes_no(
+            _strip_prefix_convention(
+                _strip_suffix_convention(full)
+            )
+        )
+    ),
+}
+
+
 def why_hidden(property_name: str, n: int) -> str:
     """
-    Like why(), but strips the final verdict (YES/NO) so the explanation
-    can be shown to a student BEFORE they commit to an answer. Used by
-    practice/quiz mode.
+    Like why(), but strips the verdict so the explanation can be shown to
+    a student BEFORE they commit to an answer. Used by practice/quiz mode.
 
-    The convention across all explain= functions is that the verdict
-    appears as the literal substring "YES" or "NO" near the end of the
-    string, usually preceded by " -> ". This function truncates at the
-    first occurrence of " -> " if present, otherwise strips a trailing
-    "YES"/"NO" token. If neither pattern is found, returns the full
-    explanation unchanged (fail-open: an unusual explain= string should
-    not crash practice mode, worst case it leaks the verdict for that
-    one type).
+    Two verdict conventions exist across explain= functions and both must
+    be stripped:
+
+    1. Prefix convention (most _core/*.py functions):
+       "{n} is {Type} because: {reasoning}"
+       "{n} is NOT {Type}: {reasoning}"
+       The "is / is NOT {Type}" clause directly states the answer.
+
+    2. Suffix convention (_explain_templates.py factories):
+       "{reasoning} -> YES" / "{reasoning} -> NO"
+
+    This function strips whichever pattern(s) are present and returns
+    only the reasoning. If after both strips the result is still
+    suspiciously short or still contains a bare YES/NO token that looks
+    like a verdict fragment, it raises RuntimeError rather than silently
+    leaking the answer.
     """
+    from numclassify._registry import _normalize
+
     full = why(property_name, n)
 
-    if " -> " in full:
-        return full.rsplit(" -> ", 1)[0].strip()
+    # Check special-case strippers first.
+    key = _normalize(property_name)
+    if key in _SPECIAL_CASE_STRIPPERS:
+        result = _SPECIAL_CASE_STRIPPERS[key](full)
+        if not result:
+            raise RuntimeError(
+                f"why_hidden() stripped everything for '{property_name}' at "
+                f"n={n}. Original: {full!r}"
+            )
+        return result
 
-    import re
-    stripped = re.sub(r'\s*(YES|NO)\s*$', '', full).strip()
-    return stripped
+    result = full
+
+    # Strip prefix convention.
+    result = _strip_prefix_convention(result)
+
+    # Strip suffix convention.
+    result = _strip_suffix_convention(result)
+
+    # Safety check: if the property name itself still appears in the
+    # remaining text alongside "is"/"NOT", the strip failed. Fail loudly.
+    type_word = property_name.split()[0].lower()
+    danger_pattern = _re.compile(
+        rf'\bis\s+(?:not\s+)?{_re.escape(type_word)}\b', _re.IGNORECASE
+    )
+    if danger_pattern.search(result):
+        raise RuntimeError(
+            f"why_hidden() could not safely strip the verdict for "
+            f"'{property_name}' at n={n}. Refusing to return a possibly "
+            f"leaking explanation. Original: {full!r}"
+        )
+
+    if not result:
+        raise RuntimeError(
+            f"why_hidden() stripped everything for '{property_name}' at "
+            f"n={n}. Original: {full!r}"
+        )
+
+    return result
 
 
 def property_info(name: str) -> dict:

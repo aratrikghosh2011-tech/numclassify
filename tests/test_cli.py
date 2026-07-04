@@ -284,6 +284,17 @@ class TestCmdQuiz:
         assert result.returncode == 0
         assert 'Score:' in result.stdout
 
+    def test_quiz_handles_early_eof_cleanly(self):
+        import subprocess, sys
+        result = subprocess.run(
+            [sys.executable, '-m', 'numclassify', 'quiz', 'prime', '--count', '5', '--seed', '1'],
+            input='y\n',
+            capture_output=True, text=True, timeout=20
+        )
+        assert result.returncode == 0
+        assert 'Traceback' not in result.stderr
+        assert 'ended early' in result.stdout.lower() or 'Score' in result.stdout
+
     def test_quiz_invalid_type(self):
         code, _, _ = run('quiz', 'wolstenholme prime', '--count', '2', expect_fail=True)
         assert code != 0

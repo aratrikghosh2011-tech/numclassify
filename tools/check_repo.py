@@ -204,6 +204,68 @@ def check_no_leaked_names():
         warn(f"Could not check public API: {e}")
 
 
+def check_practice_types():
+    print("\n[9] PRACTICE_TYPES drift check")
+    try:
+        sys.path.insert(0, str(ROOT))
+        from numclassify._registry import REGISTRY, _normalize
+        from numclassify import PRACTICE_TYPES
+
+        missing = [t for t in PRACTICE_TYPES if _normalize(t) not in REGISTRY]
+        if missing:
+            err(f"PRACTICE_TYPES references types not in REGISTRY: {missing}")
+        else:
+            ok(f"All {len(PRACTICE_TYPES)} PRACTICE_TYPES resolve correctly")
+
+        import numclassify as nc
+        import re
+        leaked = []
+        for t in PRACTICE_TYPES:
+            type_word = t.split()[0].lower()
+            pattern = re.compile(rf'\bis\s+(?:not\s+)?{re.escape(type_word)}\b', re.IGNORECASE)
+            for n in [6, 7]:
+                try:
+                    hidden = nc.why_hidden(t, n)
+                except RuntimeError:
+                    continue
+                if pattern.search(hidden):
+                    leaked.append(f"{t}({n})")
+        if leaked:
+            err(f"why_hidden() leaks verdict for: {leaked}")
+        else:
+            ok("why_hidden() spot-check: no verdict leaks in PRACTICE_TYPES")
+    except Exception as e:
+        warn(f"Could not check PRACTICE_TYPES: {e}")
+
+
+def check_no_em_dash_in_source():
+    print("\n[10] Em dash check (comments, YAML, docs)")
+    EXTENSIONS = ['.yml', '.yaml', '.md']
+    found = False
+    for path in ROOT.rglob('*'):
+        if any(part.startswith('.') or part == '__pycache__' or part == 'node_modules' for part in path.parts):
+            continue
+        if path.suffix not in EXTENSIONS:
+            continue
+        try:
+            text = path.read_text(encoding='utf-8', errors='replace')
+        except Exception:
+            continue
+        in_code_block = False
+        for i, line in enumerate(text.split('\n'), 1):
+            if line.strip().startswith('```'):
+                in_code_block = not in_code_block
+                continue
+            if in_code_block:
+                continue
+            if '\u2014' in line or ' -- ' in line and path.suffix in ('.yml', '.yaml'):
+                if '\u2014' in line:
+                    warn(f"Em dash in {path.relative_to(ROOT)}:{i}")
+                    found = True
+    if not found:
+        ok("No em dashes found in YAML/docs (outside code blocks)")
+
+
 def check_cli_smoke():
     print("\n[8] CLI smoke check")
     import subprocess
@@ -248,6 +310,8 @@ def main():
     check_no_emoji_in_js()
     check_registry_count()
     check_no_leaked_names()
+    check_practice_types()
+    check_no_em_dash_in_source()
     if not args.fast:
         check_cli_smoke()
 

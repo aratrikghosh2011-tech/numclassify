@@ -6,7 +6,33 @@ on:
       - "v*"
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov hatchling
+          pip install -e .
+
+      - name: Run tests with coverage gate
+        run: |
+          python -m pytest tests/ -v \
+            --cov=numclassify \
+            --cov-report=term-missing \
+            --cov-fail-under=75
+
+      - name: Repo health check
+        run: python tools/check_repo.py --fast
+
   publish:
+    needs: test
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -17,7 +43,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Build
         run: |
@@ -26,9 +52,9 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        # Uses OIDC trusted publishing — no API token needed.
-        # Before this workflow can run, go to pypi.org → Your account →
-        # Publishing → Add a new publisher, and fill in:
+        # Uses OIDC trusted publishing. No API token needed.
+        # Requires a one-time setup at pypi.org: Your account,
+        # Publishing, Add a new publisher, with:
         #   GitHub owner:    aratrikghosh2011-tech
         #   Repository:      numclassify
         #   Workflow name:   publish.yml
