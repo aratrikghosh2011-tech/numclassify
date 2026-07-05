@@ -5,6 +5,13 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic V
 
 ---
 
+## [0.8.3] - 2026-07-05
+
+### Fixed
+- CI test failure on Python <3.11: `test_version_heading_matches_pyproject` imported `tomllib` without fallback to `tomli`
+
+---
+
 ## [0.8.2] - 2026-07-05
 
 ### Added

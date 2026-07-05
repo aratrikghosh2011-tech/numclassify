@@ -10,7 +10,7 @@
 <!-- coverage-badge:end -->
 
 <!-- version-heading:start -->
-## What's new in v0.8.2
+## What's new in v0.8.3
 <!-- version-heading:end -->
 
 - **`why_hidden(property, n)`**  --  explanation with verdict stripped, for practice/quiz mode
