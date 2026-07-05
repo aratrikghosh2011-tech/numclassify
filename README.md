@@ -5,9 +5,13 @@
 [![Python](https://img.shields.io/pypi/pyversions/numclassify?style=flat-square&color=FF9933)](https://pypi.org/project/numclassify/)
 [![Tests](https://img.shields.io/github/actions/workflow/status/aratrikghosh2011-tech/numclassify/ci.yml?label=tests&style=flat-square&color=FF9933)](https://github.com/aratrikghosh2011-tech/numclassify/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-FF9933?style=flat-square)](LICENSE)
-[![Coverage](https://img.shields.io/badge/coverage-69%25-e05d44?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
+<!-- coverage-badge:start -->
+[![Coverage](https://img.shields.io/badge/coverage-58%25-orange?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
+<!-- coverage-badge:end -->
 
-## What's new in v0.8.0
+<!-- version-heading:start -->
+## What's new in v0.8.2
+<!-- version-heading:end -->
 
 - **`why_hidden(property, n)`**  --  explanation with verdict stripped, for practice/quiz mode
 - **`practice_set(property, count, seed)`**  --  balanced random YES/NO question generator
@@ -169,14 +173,14 @@ numclassify query 1 1000 --has prime palindrome
 |---|---|
 | Polygonal figurate | ~1003 |
 | Centered polygonal | ~998 |
-| Prime families | 40 |
+| Prime families | 41 |
 | Digital invariants | 13 |
 | Divisor-based | 27 |
 | Sequences | 16 |
 | Powers | 13 |
 | Combinatorial | 10 |
 | Recreational | 6 |
-| **Total** | **2140** |
+| **Total** | **2141** |
 <!-- category-table:end -->
 
 ---

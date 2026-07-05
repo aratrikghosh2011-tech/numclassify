@@ -110,17 +110,22 @@ def run_generate_docs():
         print(f"  [WARN] generate_docs.py failed:\n{result.stderr}")
     else:
         print("  [OK] generate_docs.py ran successfully")
+        print(result.stdout)
 
 
 def run_health_check():
-    print("\nRunning repo health check...")
+    print("\nRunning repo health check (strict mode)...")
+    subprocess.run(
+        [sys.executable, "-m", "pytest", "tests/", "-q",
+         "--cov=numclassify", "--cov-report=json"],
+        cwd=str(ROOT)
+    )
     result = subprocess.run(
-        [sys.executable, str(ROOT / "tools" / "check_repo.py"), "--fast"],
+        [sys.executable, str(ROOT / "tools" / "check_repo.py"), "--strict"],
         cwd=str(ROOT)
     )
     if result.returncode != 0:
-        err("Health check failed. Fix issues before releasing.")
-    print("  [OK] Health check passed")
+        err("Strict health check failed. Fix issues before releasing -- see errors above.")
 
 
 def run_tests():

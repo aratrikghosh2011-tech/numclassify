@@ -180,6 +180,43 @@ def _digit_sum(n: int) -> int:
 # Registered classifiers
 # ---------------------------------------------------------------------------
 
+
+def _explain_composite(n: int) -> str:
+    if n <= 1:
+        return "composite numbers must be greater than 1"
+    if _is_prime(n):
+        return "prime numbers have no divisors other than 1 and themselves"
+    return f"{n} has divisors other than 1 and itself"
+
+
+@register(
+    name="Composite",
+    category="primes",
+    oeis="A002808",
+    description=(
+        "A positive integer greater than 1 that is not prime, i.e. it "
+        "has at least one divisor other than 1 and itself. Examples: "
+        "4, 6, 8, 9, 10."
+    ),
+    aliases=["composite_number"],
+    explain=_explain_composite,
+    exam_tag=True,
+)
+def is_composite(n: int) -> bool:
+    """Return True if n is a composite number (not prime, not 1, not <= 0).
+
+    Parameters
+    ----------
+    n : int
+
+    Returns
+    -------
+    bool
+    """
+    if n <= 1:
+        return False
+    return not _is_prime(n)
+
 def _explain_evil(n: int) -> str:
     if n < 0:
         return f"{n} < 0, cannot be evil"

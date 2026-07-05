@@ -58,7 +58,7 @@ def _explain_strong(n: int) -> str:
         "A number equal to the sum of the factorials of its digits. "
         "Also called a factorion. Examples: 1, 2, 145, 40585."
     ),
-    aliases=["strong_number", "factorion"],
+    aliases=["strong_number", "factorion", "special", "special_number"],
     explain=_explain_strong,
     exam_tag=True,
 )

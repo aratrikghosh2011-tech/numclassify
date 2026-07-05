@@ -5,6 +5,20 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic V
 
 ---
 
+## [0.8.2] - 2026-07-05
+
+### Added
+- `Composite` number type — positive integer greater than 1 that is not prime (OEIS A002808)
+- `"special"` / `"special_number"` aliases for the existing `Strong` number type (ICSE term, sum of factorial of digits)
+- Doc-drift automation: `tools/generate_docs.py` now owns the version heading, coverage badge, and prints public API count
+- `--strict` flag for `tools/check_repo.py` — upgrades version-mismatch warnings to hard failures; adds coverage-badge freshness check; called by `release.py` before tagging
+
+### Changed
+- `PRACTICE_TYPES` expanded from 22 to 23 entries with `Composite`
+- `release.py` runs `pytest --cov --cov-report=json` before `check_repo.py --strict`; prints `generate_docs.py` output
+
+---
+
 ## [0.8.1] - 2026-07-04
 
 ### Fixed

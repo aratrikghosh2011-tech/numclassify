@@ -17,6 +17,14 @@ from pathlib import Path
 ROOT = Path(__file__).parent.parent
 ERRORS = []
 WARNINGS = []
+STRICT_MODE = False
+
+
+def warn_or_err(msg):
+    if STRICT_MODE:
+        err(msg)
+    else:
+        warn(msg)
 
 
 def err(msg):
@@ -136,7 +144,7 @@ def check_version_consistency():
     readme_versions = re.findall(r"What's new in v([\d.]+)", readme)
     if readme_versions:
         if readme_versions[0] != toml_version:
-            warn(f"README 'What's new' says v{readme_versions[0]}, pyproject says v{toml_version}")
+            warn_or_err(f"README 'What's new' says v{readme_versions[0]}, pyproject says v{toml_version}")
         else:
             ok(f"README 'What's new' matches version: v{toml_version}")
 
@@ -293,14 +301,46 @@ def check_cli_smoke():
             err(f"CLI timed out: {' '.join(cmd)}")
 
 
+def check_coverage_badge_freshness():
+    if not STRICT_MODE:
+        return
+    print("\n[11] Coverage badge freshness (strict mode only)")
+    import json
+    import re
+    cov_path = ROOT / 'coverage.json'
+    if not cov_path.exists():
+        err("coverage.json not found. Run 'pytest --cov=numclassify --cov-report=json' before --strict check.")
+        return
+    try:
+        data = json.loads(cov_path.read_text(encoding='utf-8'))
+        actual_pct = int(data['totals']['percent_covered'])
+    except (KeyError, json.JSONDecodeError) as e:
+        err(f"Could not parse coverage.json: {e}")
+        return
+
+    readme = (ROOT / 'README.md').read_text(encoding='utf-8')
+    match = re.search(r'coverage-(\d+)%25-', readme)
+    if not match:
+        err("Could not find coverage badge pattern in README.md")
+        return
+    badge_pct = int(match.group(1))
+    if abs(badge_pct - actual_pct) > 2:
+        err(f"README coverage badge says {badge_pct}%, actual coverage is {actual_pct}%. Run tools/generate_docs.py before release.")
+    else:
+        ok(f"Coverage badge matches actual coverage: {actual_pct}%")
+
+
 def main():
+    global STRICT_MODE
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--fast', action='store_true', help='Skip slow checks')
+    parser.add_argument('--strict', action='store_true', help='Treat drift warnings as hard failures (use before release)')
     args = parser.parse_args()
+    STRICT_MODE = args.strict
 
     print("=" * 60)
-    print("numclassify repo health check")
+    print(f"numclassify repo health check{' (STRICT)' if STRICT_MODE else ''}")
     print("=" * 60)
 
     check_no_bom()
@@ -312,6 +352,7 @@ def main():
     check_no_leaked_names()
     check_practice_types()
     check_no_em_dash_in_source()
+    check_coverage_badge_freshness()
     if not args.fast:
         check_cli_smoke()
 

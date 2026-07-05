@@ -71,6 +71,59 @@ def update_file(path: Path, table: str, marker: str):
         path.write_text(new_content, encoding='utf-8')
         print(f"  UPDATED: {path}")
 
+def get_public_api_count():
+    import numclassify as nc
+    return len([x for x in dir(nc) if not x.startswith('_')])
+
+
+def get_pyproject_version():
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib
+    with open('pyproject.toml', 'rb') as f:
+        return tomllib.load(f)['project']['version']
+
+
+def build_version_heading(version: str) -> str:
+    return f"## What's new in v{version}"
+
+
+def coverage_color(pct: float) -> str:
+    if pct >= 90:
+        return 'brightgreen'
+    elif pct >= 75:
+        return 'green'
+    elif pct >= 60:
+        return 'yellow'
+    elif pct >= 40:
+        return 'orange'
+    else:
+        return 'red'
+
+
+def build_coverage_badge(pct: float) -> str:
+    color = coverage_color(pct)
+    pct_int = int(pct)
+    return (
+        f"[![Coverage](https://img.shields.io/badge/coverage-{pct_int}%25-{color}"
+        f"?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)"
+    )
+
+
+def read_coverage_from_json(path='coverage.json'):
+    import json
+    from pathlib import Path
+    p = Path(path)
+    if not p.exists():
+        return None
+    try:
+        data = json.loads(p.read_text(encoding='utf-8'))
+        return data['totals']['percent_covered']
+    except (KeyError, json.JSONDecodeError):
+        return None
+
+
 def main():
     root = Path(__file__).parent.parent
     counts, fig, cen = count_by_category()
@@ -95,6 +148,35 @@ def main():
         and 'polygonal' not in e.category.lower()
     )
     print(f"Explain coverage: {handcrafted_with}/{handcrafted_total} ({100*handcrafted_with/handcrafted_total:.1f}%)")
+
+    version = get_pyproject_version()
+    version_heading = build_version_heading(version)
+    readme_path = root / "README.md"
+    if readme_path.exists():
+        content = readme_path.read_text(encoding='utf-8')
+        new_content = replace_between_markers(content, "version-heading", version_heading)
+        if new_content != content:
+            readme_path.write_text(new_content, encoding='utf-8')
+            print(f"  UPDATED: README.md version heading -> v{version}")
+        else:
+            print(f"  UNCHANGED: README.md version heading")
+
+    api_count = get_public_api_count()
+    print(f"\nPublic API count: {api_count} names")
+
+    coverage_pct = read_coverage_from_json()
+    if coverage_pct is not None:
+        badge = build_coverage_badge(coverage_pct)
+        if readme_path.exists():
+            content = readme_path.read_text(encoding='utf-8')
+            new_content = replace_between_markers(content, "coverage-badge", badge)
+            if new_content != content:
+                readme_path.write_text(new_content, encoding='utf-8')
+                print(f"  UPDATED: README.md coverage badge -> {int(coverage_pct)}%")
+            else:
+                print(f"  UNCHANGED: README.md coverage badge")
+    else:
+        print(f"  SKIPPED: coverage badge (no coverage.json -- run pytest --cov-report=json first)")
 
 if __name__ == "__main__":
     main()

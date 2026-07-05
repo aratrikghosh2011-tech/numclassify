@@ -539,16 +539,16 @@ def specialness_percentile(n: int, sample_size: int = 1000) -> float:
 # ---------------------------------------------------------------------------
 
 PRACTICE_TYPES = [
-    "Armstrong", "Perfect", "Prime", "Harshad", "Niven", "Palindromic Prime",
-    "Circular Prime", "Emirp", "Fibonacci", "Buzz", "Spy", "Automorphic",
-    "Neon", "Duck", "Disarium", "Kaprekar", "Happy", "Sunny", "Strong",
-    "Twin Prime", "Abundant", "Deficient",
+    "Armstrong", "Perfect", "Prime", "Composite", "Harshad", "Niven",
+    "Palindromic Prime", "Circular Prime", "Emirp", "Fibonacci", "Buzz", "Spy",
+    "Automorphic", "Neon", "Duck", "Disarium", "Kaprekar", "Happy", "Sunny",
+    "Strong", "Twin Prime", "Abundant", "Deficient",
 ]
 """
 Types included in practice/quiz mode. Restricted to the ICSE Class 10
 Computer Applications syllabus so a beginner isn't quizzed on advanced
 research-level types (Wolstenholme primes, Wall-Sun-Sun primes, etc).
-Verified against REGISTRY before use -- all 22 names resolve correctly.
+Verified against REGISTRY before use -- all 23 names resolve correctly.
 """
 
 PRACTICE_RANGE = (1, 200)

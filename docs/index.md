@@ -60,14 +60,14 @@ nc.find(1, 1000, has=["harshad", "palindrome"])
 |---|---|
 | Polygonal figurate | ~1003 |
 | Centered polygonal | ~998 |
-| Prime families | 40 |
+| Prime families | 41 |
 | Digital invariants | 13 |
 | Divisor-based | 27 |
 | Sequences | 16 |
 | Powers | 13 |
 | Combinatorial | 10 |
 | Recreational | 6 |
-| **Total** | **2140** |
+| **Total** | **2141** |
 <!-- category-table:end -->
 
 ---

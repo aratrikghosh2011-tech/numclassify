@@ -613,10 +613,11 @@ def test_find_any_of():
 def test_exam_types_category_works():
     from numclassify._registry import get_exam_types
     exam_entries = get_exam_types()
-    assert len(exam_entries) == 8
+    assert len(exam_entries) == 9
     names = {e.name for e in exam_entries}
     assert "Strong" in names
     assert "Magic" in names
+    assert "Composite" in names
 
 
 # ---------------------------------------------------------------------------
