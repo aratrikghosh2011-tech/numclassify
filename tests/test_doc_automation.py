@@ -17,7 +17,10 @@ class TestGenerateDocs:
         assert result.returncode == 0, result.stderr
 
     def test_version_heading_matches_pyproject(self):
-        import tomllib
+        try:
+            import tomllib
+        except ImportError:
+            import tomli as tomllib
         with open('pyproject.toml', 'rb') as f:
             version = tomllib.load(f)['project']['version']
         readme = Path('README.md').read_text(encoding='utf-8')
