@@ -32,7 +32,11 @@ jobs:
           python -m pytest tests/ -v \
             --cov=numclassify \
             --cov-report=term-missing \
+            --cov-report=json \
             --cov-fail-under=75
+
+      - name: Check coverage badge freshness
+        run: python tools/check_repo.py --strict --fast
 
       - name: CLI smoke check
         run: |

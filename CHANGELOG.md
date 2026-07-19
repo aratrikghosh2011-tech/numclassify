@@ -5,6 +5,23 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic V
 
 ---
 
+## [0.8.4] - 2026-07-19
+
+### Fixed
+- `cli.py`: dead import `count_divisors` → `num_divisors`; the broken import was silently caught by a broad `except Exception:`, causing every `numclassify check --full` to fall back to an O(n) divisor loop instead of the intended O(sqrt n) fast path
+- `_core/sequences.py`: Catalan number generation (both `_gen_catalan` and `_explain_catalan`) used `Fraction // int`, which degrades to plain `int` — hardened both sites to use explicit `Fraction` construction so the type contract is structural, not accidental
+
+### Added
+- `tools/check_repo.py [12]`: static broken-import check (`check_no_broken_imports`) that scans every `from numclassify.X import Y` statement in the package and verifies the attribute exists — prevents silent regressions of the `count_divisors` class of bug
+- Regression tests in `test_edge_cases_sweep.py` for the fast divisor path, broken-import scanning, and Catalan Fraction precision
+
+### Changed
+- `pyproject.toml`: version 0.8.3 → 0.8.4
+- README coverage badge: 58% → 80% (stale badge regenerated via `tools/generate_docs.py`)
+- `.github/workflows/ci.yml`: `pytest` step now writes `coverage.json`; new `Check coverage badge freshness` step runs `check_repo.py --strict --fast` to fail CI if badge drifts from real coverage
+
+---
+
 ## [0.8.3] - 2026-07-05
 
 ### Fixed

@@ -6,11 +6,11 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/aratrikghosh2011-tech/numclassify/ci.yml?label=tests&style=flat-square&color=FF9933)](https://github.com/aratrikghosh2011-tech/numclassify/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-FF9933?style=flat-square)](LICENSE)
 <!-- coverage-badge:start -->
-[![Coverage](https://img.shields.io/badge/coverage-58%25-orange?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
+[![Coverage](https://img.shields.io/badge/coverage-80%25-green?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
 <!-- coverage-badge:end -->
 
 <!-- version-heading:start -->
-## What's new in v0.8.3
+## What's new in v0.8.4
 <!-- version-heading:end -->
 
 - **`why_hidden(property, n)`**  --  explanation with verdict stripped, for practice/quiz mode
