@@ -301,6 +301,49 @@ def check_cli_smoke():
             err(f"CLI timed out: {' '.join(cmd)}")
 
 
+def check_no_broken_imports():
+    print("\n[12] Broken import check")
+    import ast
+    import importlib
+
+    found = False
+    for path in ROOT.rglob('numclassify/**/*.py'):
+        if '__pycache__' in str(path):
+            continue
+        try:
+            src = path.read_text(encoding='utf-8')
+            tree = ast.parse(src, filename=str(path))
+        except (SyntaxError, UnicodeDecodeError) as e:
+            warn(f"Could not parse {path.relative_to(ROOT)}: {e}")
+            continue
+
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ImportFrom) or not node.module:
+                continue
+            if node.level > 0:
+                module_name = f"numclassify.{node.module}" if not node.module.startswith('numclassify') else node.module
+            else:
+                module_name = node.module
+            if not module_name.startswith('numclassify'):
+                continue
+            for alias in node.names:
+                name = alias.name
+                if name == '*':
+                    continue
+                try:
+                    mod = importlib.import_module(module_name)
+                    if not hasattr(mod, name):
+                        err(
+                            f"{path.relative_to(ROOT)}:{node.lineno}: "
+                            f"imports '{name}' from '{module_name}' but it does not exist there"
+                        )
+                        found = True
+                except ImportError as e:
+                    warn(f"{path.relative_to(ROOT)}:{node.lineno}: could not import '{module_name}' to verify: {e}")
+    if not found:
+        ok("No broken internal imports found")
+
+
 def check_coverage_badge_freshness():
     if not STRICT_MODE:
         return
@@ -350,6 +393,7 @@ def main():
     check_no_emoji_in_js()
     check_registry_count()
     check_no_leaked_names()
+    check_no_broken_imports()
     check_practice_types()
     check_no_em_dash_in_source()
     check_coverage_badge_freshness()

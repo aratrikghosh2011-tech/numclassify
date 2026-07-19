@@ -145,8 +145,8 @@ def _computed_extras(n: int) -> Dict[str, int]:
         ds = sum(int(d) for d in str(abs(n))) if n != 0 else 0
         dr = ds  # fallback
     try:
-        from numclassify._core.divisors import count_divisors
-        nd = count_divisors(n)
+        from numclassify._core.divisors import num_divisors
+        nd = num_divisors(n)
     except Exception:
         nd = sum(1 for i in range(1, abs(n) + 1) if n % i == 0) if n != 0 else 0
     return {"digit_sum": ds, "digital_root": dr, "num_divisors": nd}

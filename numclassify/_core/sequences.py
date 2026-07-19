@@ -106,11 +106,11 @@ def _gen_catalan() -> Set[int]:
     s: Set[int] = set()
     # C(n) = C(2n,n)/(n+1); iterative: C(0)=1, C(n+1)=C(n)*2*(2n+1)/(n+2)
     from fractions import Fraction
-    c = Fraction(1)
+    c: Fraction = Fraction(1)
     n = 0
     while int(c) <= _LIMIT:
         s.add(int(c))
-        c = c * 2 * (2 * n + 1) // (n + 2)
+        c = Fraction(c.numerator * 2 * (2 * n + 1), c.denominator * (n + 2))
         n += 1
     return s
 
@@ -480,12 +480,12 @@ def _explain_catalan(n: int) -> str:
     if n < 0:
         return f"{n} < 0, cannot be Catalan"
     from fractions import Fraction
-    c = Fraction(1, 1)
+    c: Fraction = Fraction(1, 1)
     k = 0
     prev = 0
     while int(c) < n:
         prev = int(c)
-        c = c * 2 * (2 * k + 1) // (k + 2)
+        c = Fraction(c.numerator * 2 * (2 * k + 1), c.denominator * (k + 2))
         k += 1
     if int(c) == n:
         return f"{n} = C({k})  --  a Catalan number"
