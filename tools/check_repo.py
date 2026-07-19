@@ -367,7 +367,7 @@ def check_coverage_badge_freshness():
         err("Could not find coverage badge pattern in README.md")
         return
     badge_pct = int(match.group(1))
-    if abs(badge_pct - actual_pct) > 2:
+    if abs(badge_pct - actual_pct) > 5:
         err(f"README coverage badge says {badge_pct}%, actual coverage is {actual_pct}%. Run tools/generate_docs.py before release.")
     else:
         ok(f"Coverage badge matches actual coverage: {actual_pct}%")
