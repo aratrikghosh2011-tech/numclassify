@@ -13,7 +13,7 @@ def run(*args, expect_fail=False, timeout=20):
     """Run numclassify CLI and return (returncode, stdout, stderr)."""
     result = subprocess.run(
         [sys.executable, '-m', 'numclassify'] + list(args),
-        capture_output=True, text=True, timeout=timeout
+        capture_output=True, text=True, errors='replace', timeout=timeout
     )
     if not expect_fail:
         assert result.returncode == 0, (
@@ -312,3 +312,87 @@ class TestCmdNoArgs:
     def test_no_args_shows_version(self):
         _, out, _ = run()
         assert 'v0.' in out or 'version' in out.lower() or 'numclassify' in out.lower()
+
+
+class TestCmdQuizExtended:
+    def test_quiz_without_type_name_fails(self):
+        code, _, _ = run('quiz', expect_fail=True)
+        assert code != 0
+
+    def test_quiz_all_correct(self):
+        result = subprocess.run(
+            [sys.executable, '-m', 'numclassify', 'quiz', 'perfect', '--count', '3', '--seed', '42'],
+            input='y\ny\ny\n',
+            capture_output=True, text=True, timeout=20
+        )
+        assert result.returncode == 0
+        assert 'Score:' in result.stdout
+
+    def test_quiz_mixed_answers(self):
+        result = subprocess.run(
+            [sys.executable, '-m', 'numclassify', 'quiz', 'prime', '--count', '4', '--seed', '7'],
+            input='y\nn\ny\nn\n',
+            capture_output=True, text=True, timeout=20
+        )
+        assert result.returncode == 0
+        assert 'Score:' in result.stdout
+        assert 'Working:' in result.stdout
+
+
+class TestCmdCheckExtended:
+    def test_check_full_output(self):
+        result = subprocess.run(
+            [sys.executable, '-m', 'numclassify', 'check', '28', '--full'],
+            capture_output=True, text=True, errors='replace', timeout=20
+        )
+        assert result.returncode == 0
+        assert '28' in result.stdout
+
+    def test_check_full_json(self):
+        _, out, _ = run('check', '28', '--json')
+        data = json.loads(out)
+        assert 'true_properties' in data
+
+
+class TestCmdRangeExtended:
+    def test_range_filter_json(self):
+        _, out, _ = run('range', '1', '20', '--filter', 'prime', '--json')
+        data = json.loads(out)
+        assert isinstance(data, list)
+
+    def test_range_filter_no_matches(self):
+        _, out, _ = run('range', '1', '10', '--filter', 'weird')
+        assert 'weird' in out.lower() or 'No' in out
+
+
+class TestCmdFindExtended:
+    def test_find_no_results(self):
+        _, out, _ = run('find', 'wall_sun_sun_prime', '--limit', '3')
+        assert 'no' in out.lower() or 'No' in out
+
+    def test_find_json_output(self):
+        _, out, _ = run('find', 'prime', '--limit', '3', '--json')
+        data = json.loads(out)
+        assert isinstance(data, list)
+
+    def test_find_without_limit(self):
+        _, out, _ = run('find', 'prime')
+        assert '2' in out or '3' in out
+
+
+class TestCmdWhyExtended:
+    def test_why_json_output(self):
+        _, out, _ = run('why', 'prime', '7', '--json')
+        data = json.loads(out)
+        assert 'explanation' in data
+
+
+class TestCmdQueryExtended:
+    def test_query_not_has_json(self):
+        _, out, _ = run('query', '1', '30', '--not-has', 'prime', '--json')
+        data = json.loads(out)
+        assert isinstance(data, list)
+
+    def test_query_any_of(self):
+        _, out, _ = run('query', '1', '20', '--any-of', 'prime', 'perfect')
+        assert 'matches' in out.lower() or 'No matches' in out

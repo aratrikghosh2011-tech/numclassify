@@ -3,6 +3,26 @@
 Read this before touching code. Every section below exists because
 something broke this exact way at least once.
 
+## Before every push
+
+```bash
+python tools/pre_push.py
+```
+
+**Must pass before any `git push` to `main`.** CI failures caught after
+push waste a full Actions run across 6 Python versions (3.8–3.13).
+This script replicates the same checks and completes in under 3 minutes
+locally, catching test failures, coverage drops, repo-health drift, and
+CLI regressions before they ever reach the runner.
+
+The script runs, in order:
+1. `pytest` with coverage gate (75%)
+2. `check_repo.py --strict --fast` (hard failures on drift)
+3. `check_repo.py --fast` (warnings allowed)
+4. CLI smoke check (8 commands via subprocess)
+
+First failure stops the script with a non-zero exit.
+
 ## Build & install
 
 ```bash

@@ -626,6 +626,20 @@ def is_primorial_prime(n: int) -> bool:
     return False
 
 
+def _explain_cullen_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    k = 1
+    while True:
+        cullen = k * (2 ** k) + 1
+        if cullen == n:
+            return f"{n} = {k}*2^{k} + 1 -> YES"
+        if cullen > n:
+            break
+        k += 1
+    return f"{n} is not of the form k*2^k + 1 for any k -> NO"
+
+
 @register(
     name="Cullen Prime",
     category="primes",
@@ -634,6 +648,7 @@ def is_primorial_prime(n: int) -> bool:
         "A prime of the form n·2^n + 1 for some positive integer n."
     ),
     aliases=["cullen_prime"],
+    explain=_explain_cullen_prime,
 )
 def is_cullen_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Cullen prime.
@@ -680,6 +695,20 @@ def is_cullen_prime(n: int) -> bool:
     return False
 
 
+def _explain_woodall_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    k = 1
+    while True:
+        woodall = k * (2 ** k) - 1
+        if woodall == n:
+            return f"{n} = {k}*2^{k} - 1 -> YES"
+        if woodall > n:
+            break
+        k += 1
+    return f"{n} is not of the form k*2^k - 1 for any k -> NO"
+
+
 @register(
     name="Woodall Prime",
     category="primes",
@@ -688,6 +717,7 @@ def is_cullen_prime(n: int) -> bool:
         "A prime of the form n·2^n − 1 for some positive integer n."
     ),
     aliases=["woodall_prime"],
+    explain=_explain_woodall_prime,
 )
 def is_woodall_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Woodall prime.
@@ -848,6 +878,18 @@ def _build_leyland_set(max_base: int = 20) -> frozenset:
 _LEYLAND_NUMBERS: frozenset = _build_leyland_set(20)
 
 
+def _explain_leyland_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    if n in _LEYLAND_NUMBERS:
+        for x in range(2, 21):
+            for y in range(2, x + 1):
+                if x ** y + y ** x == n:
+                    return f"{n} = {x}^{y} + {y}^{x} -> YES"
+        return f"{n} is in the Leyland set -> YES"
+    return f"{n} is not a Leyland number (bases up to 20) -> NO"
+
+
 @register(
     name="Leyland Prime",
     category="primes",
@@ -856,6 +898,7 @@ _LEYLAND_NUMBERS: frozenset = _build_leyland_set(20)
         "A prime of the form x^y + y^x for integers x, y > 1."
     ),
     aliases=["leyland_prime"],
+    explain=_explain_leyland_prime,
 )
 def is_leyland_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Leyland prime.
@@ -1792,6 +1835,15 @@ def is_permutable_prime(n: int) -> bool:
     return True
 
 
+def _explain_repunit_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    s = str(n)
+    if all(c == "1" for c in s):
+        return f"{n} consists entirely of digit 1 (repunit R_{len(s)}) -> YES"
+    return f"{n} contains digits other than 1 -> NO"
+
+
 @register(
     name="Repunit Prime",
     category="primes",
@@ -1801,6 +1853,7 @@ def is_permutable_prime(n: int) -> bool:
         "(a repunit that is prime)."
     ),
     aliases=["repunit_prime"],
+    explain=_explain_repunit_prime,
 )
 def is_repunit_prime(n: int) -> bool:
     """Return ``True`` if *n* is a repunit prime.
@@ -1982,6 +2035,16 @@ def is_eisenstein_prime(n: int) -> bool:
     return n == 3 or n % 3 == 2
 
 
+def _explain_wilson_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    if n in {5, 13, 563}:
+        return f"{n} is a known Wilson prime ((p-1)! == -1 mod p^2) -> YES"
+    if n > 600:
+        return f"{n} > 600 (computation guard) -> NO"
+    return f"{n} is prime but not a known Wilson prime (only 5, 13, 563 are known) -> NO"
+
+
 @register(
     name="Wilson Prime",
     category="primes",
@@ -1991,6 +2054,7 @@ def is_eisenstein_prime(n: int) -> bool:
         "Only three are known: 5, 13, 563."
     ),
     aliases=["wilson_prime"],
+    explain=_explain_wilson_prime,
 )
 def is_wilson_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Wilson prime.
