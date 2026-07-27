@@ -514,6 +514,23 @@ def is_fermat_prime(n: int) -> bool:
     return n in {3, 5, 17, 257, 65537}
 
 
+def _explain_factorial_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    factorial = 1
+    k = 1
+    while True:
+        factorial *= k
+        if factorial - 1 == n:
+            return f"{n} = {k}! - 1 -> YES"
+        if factorial + 1 == n:
+            return f"{n} = {k}! + 1 -> YES"
+        if factorial > n + 1:
+            break
+        k += 1
+    return f"{n} is not of the form k! - 1 or k! + 1 for any small k -> NO"
+
+
 @register(
     name="Factorial Prime",
     category="primes",
@@ -522,6 +539,7 @@ def is_fermat_prime(n: int) -> bool:
         "A prime of the form n! + 1 or n! − 1 for some positive integer n."
     ),
     aliases=["factorial_prime"],
+    explain=_explain_factorial_prime,
 )
 def is_factorial_prime(n: int) -> bool:
     """Return ``True`` if *n* is a factorial prime.
@@ -570,6 +588,21 @@ def is_factorial_prime(n: int) -> bool:
     return False
 
 
+def _explain_primorial_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    primorial = 1
+    for p in primes_up_to(n + 1):
+        primorial *= p
+        if primorial - 1 == n:
+            return f"{n} = {p}# - 1 -> YES"
+        if primorial + 1 == n:
+            return f"{n} = {p}# + 1 -> YES"
+        if primorial > n + 1:
+            break
+    return f"{n} is not of the form p# - 1 or p# + 1 for any small p -> NO"
+
+
 @register(
     name="Primorial Prime",
     category="primes",
@@ -579,6 +612,7 @@ def is_factorial_prime(n: int) -> bool:
         "(product of all primes up to p)."
     ),
     aliases=["primorial_prime"],
+    explain=_explain_primorial_prime,
 )
 def is_primorial_prime(n: int) -> bool:
     """Return ``True`` if *n* is a primorial prime.
@@ -762,6 +796,20 @@ def is_woodall_prime(n: int) -> bool:
     return False
 
 
+def _explain_carol_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    k = 1
+    while True:
+        carol = (2 ** k - 1) ** 2 - 2
+        if carol == n:
+            return f"{n} = (2^{k} - 1)^2 - 2 -> YES"
+        if carol > n:
+            break
+        k += 1
+    return f"{n} is not of the form (2^k - 1)^2 - 2 for any k -> NO"
+
+
 @register(
     name="Carol Prime",
     category="primes",
@@ -770,6 +818,7 @@ def is_woodall_prime(n: int) -> bool:
         "A prime of the form (2^n − 1)^2 − 2 for some positive integer n."
     ),
     aliases=["carol_prime"],
+    explain=_explain_carol_prime,
 )
 def is_carol_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Carol prime.
@@ -814,6 +863,20 @@ def is_carol_prime(n: int) -> bool:
     return False
 
 
+def _explain_kynea_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    k = 1
+    while True:
+        kynea = (2 ** k + 1) ** 2 - 2
+        if kynea == n:
+            return f"{n} = (2^{k} + 1)^2 - 2 -> YES"
+        if kynea > n:
+            break
+        k += 1
+    return f"{n} is not of the form (2^k + 1)^2 - 2 for any k -> NO"
+
+
 @register(
     name="Kynea Prime",
     category="primes",
@@ -822,6 +885,7 @@ def is_carol_prime(n: int) -> bool:
         "A prime of the form (2^n + 1)^2 − 2 for some positive integer n."
     ),
     aliases=["kynea_prime"],
+    explain=_explain_kynea_prime,
 )
 def is_kynea_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Kynea prime.
@@ -941,6 +1005,23 @@ def is_leyland_prime(n: int) -> bool:
     return n in _LEYLAND_NUMBERS
 
 
+def _explain_pierpont_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    m = n - 1
+    a = 0
+    b = 0
+    while m % 2 == 0:
+        m //= 2
+        a += 1
+    while m % 3 == 0:
+        m //= 3
+        b += 1
+    if m == 1:
+        return f"{n} = 2^{a} * 3^{b} + 1 -> YES"
+    return f"{n} is not of the form 2^a * 3^b + 1 for any a, b -> NO"
+
+
 @register(
     name="Pierpont Prime",
     category="primes",
@@ -949,6 +1030,7 @@ def is_leyland_prime(n: int) -> bool:
         "A prime of the form 2^u · 3^v + 1 for non-negative integers u, v."
     ),
     aliases=["pierpont_prime"],
+    explain=_explain_pierpont_prime,
 )
 def is_pierpont_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Pierpont prime.
@@ -997,6 +1079,26 @@ def is_pierpont_prime(n: int) -> bool:
     return m == 1
 
 
+def _explain_wagstaff_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    p = 3
+    while True:
+        numerator = (2 ** p) + 1
+        if numerator % 3 != 0:
+            p = next_prime(p)
+            if 2 ** p > 3 * n + 1:
+                break
+            continue
+        candidate = numerator // 3
+        if candidate == n:
+            return f"{n} = (2^{p} + 1) / 3 -> YES"
+        if candidate > n:
+            break
+        p = next_prime(p)
+    return f"{n} is not of the form (2^q + 1) / 3 for any prime q -> NO"
+
+
 @register(
     name="Wagstaff Prime",
     category="primes",
@@ -1005,6 +1107,7 @@ def is_pierpont_prime(n: int) -> bool:
         "A prime of the form (2^p + 1) / 3 where p is an odd prime."
     ),
     aliases=["wagstaff_prime"],
+    explain=_explain_wagstaff_prime,
 )
 def is_wagstaff_prime(n: int) -> bool:
     """Return ``True`` if *n* is a Wagstaff prime.
@@ -1174,6 +1277,26 @@ def is_sexy_prime(n: int) -> bool:
     return is_prime(n + 6) or is_prime(n - 6)
 
 
+def _explain_prime_triplet(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    p2 = is_prime(n + 2)
+    p4 = is_prime(n + 4)
+    p6 = is_prime(n + 6)
+    if p2 and p6:
+        return f"{n} is the smallest of ({n}, {n+2}, {n+6}) -> YES"
+    if p4 and p6:
+        return f"{n} is the smallest of ({n}, {n+4}, {n+6}) -> YES"
+    parts = []
+    if not p2:
+        parts.append(f"n+2={n+2} is not prime")
+    if not p4:
+        parts.append(f"n+4={n+4} is not prime")
+    if not p6:
+        parts.append(f"n+6={n+6} is not prime")
+    return f"{n} does not form a prime triplet: {'; '.join(parts)} -> NO"
+
+
 @register(
     name="Prime Triplet",
     category="primes",
@@ -1183,6 +1306,7 @@ def is_sexy_prime(n: int) -> bool:
         "(p, p+2, p+6) or (p, p+4, p+6)."
     ),
     aliases=["prime_triplet"],
+    explain=_explain_prime_triplet,
 )
 def is_prime_triplet(n: int) -> bool:
     """Return ``True`` if *n* belongs to a prime triplet.
@@ -2272,6 +2396,15 @@ def _lucky_numbers_up_to(n: int) -> frozenset:
     return frozenset(sieve)
 
 
+def _explain_lucky_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    lucky = _lucky_numbers_up_to(n)
+    if n in lucky:
+        return f"{n} survived the lucky number sieve and is prime -> YES"
+    return f"{n} did not survive the lucky number sieve -> NO"
+
+
 @register(
     name="Lucky Prime",
     category="primes",
@@ -2280,6 +2413,7 @@ def _lucky_numbers_up_to(n: int) -> frozenset:
         "A number that is both prime and a lucky number."
     ),
     aliases=["lucky_prime"],
+    explain=_explain_lucky_prime,
 )
 def is_lucky_prime(n: int) -> bool:
     """Return ``True`` if *n* is a lucky prime.
