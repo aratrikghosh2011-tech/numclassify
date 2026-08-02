@@ -8,6 +8,9 @@
 <!-- coverage-badge:start -->
 [![Coverage](https://img.shields.io/badge/coverage-79%25-green?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
 <!-- coverage-badge:end -->
+<!-- explain-badge:start -->
+[![Explain](https://img.shields.io/badge/explain-95%25-brightgreen?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/numclassify/_core)
+<!-- explain-badge:end -->
 
 <!-- version-heading:start -->
 ## What's new in v0.8.4

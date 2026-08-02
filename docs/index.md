@@ -1,5 +1,9 @@
 # numclassify
 
+<!-- explain-badge:start -->
+[![Explain](https://img.shields.io/badge/explain-95%25-brightgreen?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/numclassify/_core)
+<!-- explain-badge:end -->
+
 **Given a number, what is it?**
 
 Most number-theory libraries  --  `labmath`, `eulerlib`, `pyntlib`  --  compute things: factor integers, find GCDs, generate primes. `numclassify` solves a different problem. Hand it an integer and it tells you every named mathematical type that number belongs to, across 2140+ categories, with zero external dependencies.

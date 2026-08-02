@@ -111,6 +111,15 @@ def build_coverage_badge(pct: float) -> str:
     )
 
 
+def build_explain_badge(pct: float) -> str:
+    color = coverage_color(pct)
+    pct_int = int(pct)
+    return (
+        f"[![Explain](https://img.shields.io/badge/explain-{pct_int}%25-{color}"
+        f"?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/numclassify/_core)"
+    )
+
+
 def read_coverage_from_json(path='coverage.json'):
     import json
     from pathlib import Path
@@ -147,7 +156,21 @@ def main():
         and 'figurate' not in e.category.lower()
         and 'polygonal' not in e.category.lower()
     )
-    print(f"Explain coverage: {handcrafted_with}/{handcrafted_total} ({100*handcrafted_with/handcrafted_total:.1f}%)")
+    explain_pct = 100 * handcrafted_with / handcrafted_total
+    print(f"Explain coverage: {handcrafted_with}/{handcrafted_total} ({explain_pct:.1f}%)")
+
+    explain_badge = build_explain_badge(explain_pct)
+    for path in (root / "docs" / "index.md", root / "README.md"):
+        if not path.exists():
+            print(f"  SKIP: {path} not found")
+            continue
+        content = path.read_text(encoding='utf-8')
+        new_content = replace_between_markers(content, "explain-badge", explain_badge)
+        if new_content != content:
+            path.write_text(new_content, encoding='utf-8')
+            print(f"  UPDATED: {path} explain badge -> {int(explain_pct)}%")
+        else:
+            print(f"  UNCHANGED: {path} explain badge")
 
     version = get_pyproject_version()
     version_heading = build_version_heading(version)

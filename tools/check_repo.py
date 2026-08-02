@@ -373,6 +373,47 @@ def check_coverage_badge_freshness():
         ok(f"Coverage badge matches actual coverage: {actual_pct}%")
 
 
+def check_explain_badge_freshness():
+    if not STRICT_MODE:
+        return
+    print("\n[13] Explain badge freshness (strict mode only)")
+    try:
+        sys.path.insert(0, str(ROOT))
+        from numclassify._registry import REGISTRY, _normalize
+    except Exception as e:
+        err(f"Could not import registry to compute explain coverage: {e}")
+        return
+
+    handcrafted_with = sum(
+        1 for k, e in REGISTRY.items()
+        if k == _normalize(e.name)
+        and 'figurate' not in e.category.lower()
+        and 'polygonal' not in e.category.lower()
+        and e.explain is not None
+    )
+    handcrafted_total = sum(
+        1 for k, e in REGISTRY.items()
+        if k == _normalize(e.name)
+        and 'figurate' not in e.category.lower()
+        and 'polygonal' not in e.category.lower()
+    )
+    if handcrafted_total == 0:
+        err("No handcrafted types found; cannot compute explain coverage.")
+        return
+    actual_pct = int(100 * handcrafted_with / handcrafted_total)
+
+    readme = (ROOT / 'README.md').read_text(encoding='utf-8')
+    match = re.search(r'explain-(\d+)%25-', readme)
+    if not match:
+        err("Could not find explain badge pattern in README.md")
+        return
+    badge_pct = int(match.group(1))
+    if abs(badge_pct - actual_pct) > 5:
+        err(f"README explain badge says {badge_pct}%, actual explain coverage is {actual_pct}%. Run tools/generate_docs.py before release.")
+    else:
+        ok(f"Explain badge matches actual coverage: {actual_pct}%")
+
+
 def main():
     global STRICT_MODE
     import argparse
@@ -397,6 +438,7 @@ def main():
     check_practice_types()
     check_no_em_dash_in_source()
     check_coverage_badge_freshness()
+    check_explain_badge_freshness()
     if not args.fast:
         check_cli_smoke()
 
