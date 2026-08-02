@@ -1803,6 +1803,19 @@ def is_circular_prime(n: int) -> bool:
     return True
 
 
+def _explain_truncatable_prime_left(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    s = str(n)
+    chain_vals = [n]
+    for i in range(1, len(s)):
+        truncated = int(s[i:])
+        if not is_prime(truncated):
+            return f"{' -> '.join(map(str, chain_vals))} -> but {chain_vals[-1]}'s truncation {truncated} is not prime -> NO"
+        chain_vals.append(truncated)
+    return f"{' -> '.join(map(str, chain_vals))}, all prime -> YES"
+
+
 @register(
     name="Left-Truncatable Prime",
     category="primes",
@@ -1812,6 +1825,7 @@ def is_circular_prime(n: int) -> bool:
         "leftmost digit."
     ),
     aliases=["truncatable_prime_left"],
+    explain=_explain_truncatable_prime_left,
 )
 def is_truncatable_prime_left(n: int) -> bool:
     """Return ``True`` if *n* is a left-truncatable prime.
@@ -1855,6 +1869,19 @@ def is_truncatable_prime_left(n: int) -> bool:
     return True
 
 
+def _explain_truncatable_prime_right(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    chain_vals = [n]
+    m = n // 10
+    while m > 0:
+        if not is_prime(m):
+            return f"{' -> '.join(map(str, chain_vals))} -> but {chain_vals[-1]}'s truncation {m} is not prime -> NO"
+        chain_vals.append(m)
+        m //= 10
+    return f"{' -> '.join(map(str, chain_vals))}, all prime -> YES"
+
+
 @register(
     name="Right-Truncatable Prime",
     category="primes",
@@ -1864,6 +1891,7 @@ def is_truncatable_prime_left(n: int) -> bool:
         "rightmost digit."
     ),
     aliases=["truncatable_prime_right"],
+    explain=_explain_truncatable_prime_right,
 )
 def is_truncatable_prime_right(n: int) -> bool:
     """Return ``True`` if *n* is a right-truncatable prime.
@@ -1904,6 +1932,23 @@ def is_truncatable_prime_right(n: int) -> bool:
     return True
 
 
+def _explain_permutable_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    if n >= 1_000_000:
+        return f"{n} >= 1,000,000 (guard limit, too expensive to check all permutations) -> NO"
+    digits = str(n)
+    if len(digits) == 1:
+        return f"{n} is a single digit, trivially permutable -> YES"
+    perms = set(itertools.permutations(digits))
+    for perm in perms:
+        candidate = int("".join(perm))
+        if not is_prime(candidate):
+            return f"{n}'s permutation {candidate} is not prime -> NO"
+    uniq = sorted({int("".join(p)) for p in perms})
+    return f"all {len(uniq)} unique permutations of {n} ({', '.join(map(str, uniq))}) are prime -> YES"
+
+
 @register(
     name="Permutable Prime",
     category="primes",
@@ -1912,6 +1957,7 @@ def is_truncatable_prime_right(n: int) -> bool:
         "A prime for which every permutation of its digits is also prime."
     ),
     aliases=["permutable_prime"],
+    explain=_explain_permutable_prime,
 )
 def is_permutable_prime(n: int) -> bool:
     """Return ``True`` if *n* is a permutable prime (absolute prime).

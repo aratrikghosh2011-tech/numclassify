@@ -363,6 +363,15 @@ def is_trimorphic(n: int) -> bool:
 # Twisted Prime
 # ---------------------------------------------------------------------------
 
+def _explain_twisted_prime(n: int) -> str:
+    if not is_prime(n):
+        return f"{n} is not prime -> NO"
+    ds = _digit_sum(n)
+    if is_prime(ds):
+        return f"{n} is prime, digit sum {'+'.join(str(n))}={ds} is prime -> YES"
+    return f"{n} is prime, digit sum {'+'.join(str(n))}={ds} is not prime -> NO"
+
+
 @register(
     name="Twisted Prime",
     category="primes",
@@ -372,6 +381,7 @@ def is_trimorphic(n: int) -> bool:
     ),
     aliases=["twisted_prime"],
     exam_tag=True,
+    explain=_explain_twisted_prime,
 )
 def is_twisted_prime(n: int) -> bool:
     """Return True if n is prime and the sum of its digits is also prime.
