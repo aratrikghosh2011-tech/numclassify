@@ -6,10 +6,10 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/aratrikghosh2011-tech/numclassify/ci.yml?label=tests&style=flat-square&color=FF9933)](https://github.com/aratrikghosh2011-tech/numclassify/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-FF9933?style=flat-square)](LICENSE)
 <!-- coverage-badge:start -->
-[![Coverage](https://img.shields.io/badge/coverage-79%25-green?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
+[![Coverage](https://img.shields.io/badge/coverage-78%25-green?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
 <!-- coverage-badge:end -->
 <!-- explain-badge:start -->
-[![Explain](https://img.shields.io/badge/explain-95%25-brightgreen?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/numclassify/_core)
+[![Explain](https://img.shields.io/badge/explain-97%25-brightgreen?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/numclassify/_core)
 <!-- explain-badge:end -->
 
 <!-- version-heading:start -->

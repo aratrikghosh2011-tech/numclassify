@@ -121,6 +121,38 @@ def _is_perfect_power(n: int) -> bool:
     return False
 
 
+def _find_subset_sum(numbers: list[int], target: int) -> list[int] | None:
+    """Return a subset of numbers summing to target, or None if impossible.
+
+    Standard subset-sum with backtracking: a plain dict maps every
+    achievable sum to the (number added, prior sum) step that reached it,
+    then the actual subset is reconstructed by walking back from target.
+    Uses ordinary dicts instead of the bitmask trick so the subset itself
+    is recoverable. Proper divisor lists are small, so simple DP is fast.
+    """
+    if target < 0:
+        return None
+    dp = {0: (None, None)}
+    for num in numbers:
+        if num <= 0:
+            continue
+        for s in list(dp.keys()):
+            new_s = s + num
+            if new_s <= target and new_s not in dp:
+                dp[new_s] = (num, s)
+        if target in dp:
+            break
+    if target not in dp:
+        return None
+    subset = []
+    current = target
+    while current != 0:
+        num, prior = dp[current]
+        subset.append(num)
+        current = prior
+    return subset
+
+
 # ---------------------------------------------------------------------------
 # Precompute untouchable numbers up to 10000 via sieve
 # ---------------------------------------------------------------------------
@@ -240,8 +272,21 @@ def is_deficient(n: int) -> bool:
     return sigma(n) - n < n
 
 
+def _explain_semiperfect(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1 -> NO"
+    divs = proper_divisors(n)
+    if not divs:
+        return f"{n} has no proper divisors -> NO"
+    subset = _find_subset_sum(divs, n)
+    if subset is not None:
+        return f"{n}'s proper divisors {divs} include a subset {subset} that sums to {n} -> YES"
+    return f"{n}'s proper divisors {divs} (sum {sum(divs)}) have no subset summing to {n} -> NO"
+
+
 @register(name="Semiperfect", category="divisors", oeis="A005835",
-          description="Equal to the sum of some subset of its proper divisors.")
+          description="Equal to the sum of some subset of its proper divisors.",
+          explain=_explain_semiperfect)
 def is_semiperfect(n: int) -> bool:
     """Return True if n equals the sum of some subset of its proper divisors.
 
@@ -981,8 +1026,26 @@ def is_wasteful(n: int) -> bool:
     return _factorization_digit_count(n) > len(str(n))
 
 
+def _explain_zumkeller(n: int) -> str:
+    if n < 1:
+        return f"{n} < 1 -> NO"
+    divs_all = proper_divisors(n) + [n]
+    total = sum(divs_all)
+    if total % 2 != 0:
+        return f"{n}'s divisors {divs_all} sum to {total} (odd, cannot split evenly) -> NO"
+    target = total // 2
+    subset = _find_subset_sum(divs_all, target)
+    if subset is not None:
+        rest = list(divs_all)
+        for d in subset:
+            rest.remove(d)
+        return f"{n}'s divisors {divs_all} split into {subset} (sum {target}) and the rest {rest} (sum {target}) -> YES"
+    return f"{n}'s divisors {divs_all} (sum {total}) have no subset summing to exactly {target} -> NO"
+
+
 @register(name="Zumkeller", category="divisors", oeis="A083207",
-          description="Divisors can be partitioned into two sets with equal sum.")
+          description="Divisors can be partitioned into two sets with equal sum.",
+          explain=_explain_zumkeller)
 def is_zumkeller(n: int) -> bool:
     """Return True if the divisors of n can be split into two sets with equal sum.
 
