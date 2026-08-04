@@ -5,21 +5,45 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — [Semantic V
 
 ---
 
+## [0.8.5] - 2026-08-02
+
+### Added
+- `tools/pre_push.py`: local replica of the full CI gate (tests +
+  coverage, check_repo --strict --fast, check_repo --fast, CLI smoke
+  checks), run before every push to catch failures locally instead of
+  after a GitHub Actions run across the 6-version matrix
+- Explain coverage raised from 117/140 to 136/140 (97.1%) across 19
+  new explain= functions: Cullen, Woodall, Leyland, Repunit, Wilson,
+  Carol, Kynea, Factorial, Primorial, Pierpont, Wagstaff, Prime
+  Triplet, Lucky, Left-Truncatable, Right-Truncatable, Permutable,
+  Twisted primes, plus Semiperfect and Zumkeller (the latter two use a
+  new `_find_subset_sum()` helper for subset reconstruction, separate
+  from the existing bitmask-DP boolean check)
+- Explain-coverage badge added to README.md and docs/index.md,
+  alongside the existing test-coverage badge, with matching
+  `check_repo.py --strict` freshness enforcement
+- `cli.py` test coverage raised from 52% to 75%
+- Only 4 types remain without explain= functions: Gaussian,
+  Eisenstein, Wall-Sun-Sun, Wolstenholme prime, all deliberately
+  deprioritized (need number-theory background beyond a short
+  student-facing explanation)
+
+### Fixed
+- `_explain_permutable_prime`: guard order corrected to check
+  `is_prime(n)` before the `n >= 1,000,000` size guard, matching the
+  real `is_permutable_prime()` predicate's check order
+
+---
+
 ## [0.8.4] - 2026-07-19
 
 ### Fixed
 - `cli.py`: dead import `count_divisors` → `num_divisors`; the broken import was silently caught by a broad `except Exception:`, causing every `numclassify check --full` to fall back to an O(n) divisor loop instead of the intended O(sqrt n) fast path
 - `_core/sequences.py`: Catalan number generation (both `_gen_catalan` and `_explain_catalan`) used `Fraction // int`, which degrades to plain `int` — hardened both sites to use explicit `Fraction` construction so the type contract is structural, not accidental
-- `_explain_permutable_prime`: guard order corrected to check `is_prime(n)` before the `n >= 1,000,000` size guard, matching the real `is_permutable_prime()` predicate's check order
 
 ### Added
 - `tools/check_repo.py [12]`: static broken-import check (`check_no_broken_imports`) that scans every `from numclassify.X import Y` statement in the package and verifies the attribute exists — prevents silent regressions of the `count_divisors` class of bug
 - Regression tests in `test_edge_cases_sweep.py` for the fast divisor path, broken-import scanning, and Catalan Fraction precision
-- `tools/pre_push.py`: local replica of the full CI gate (tests + coverage, check_repo --strict --fast, check_repo --fast, CLI smoke checks), run before every push to catch failures locally instead of after a GitHub Actions run across the 6-version matrix
-- Explain coverage raised from 117/140 to 136/140 (97.1%) across 19 new explain= functions: Cullen, Woodall, Leyland, Repunit, Wilson, Carol, Kynea, Factorial, Primorial, Pierpont, Wagstaff, Prime Triplet, Lucky, Left-Truncatable, Right-Truncatable, Permutable, Twisted primes, plus Semiperfect and Zumkeller (the latter two use a new `_find_subset_sum()` helper for subset reconstruction, separate from the existing bitmask-DP boolean check)
-- Explain-coverage badge added to README.md and docs/index.md, alongside the existing test-coverage badge, with matching `check_repo.py --strict` freshness enforcement
-- `cli.py` test coverage raised from 52% to 75%
-- Only 4 types remain without explain= functions: Gaussian, Eisenstein, Wall-Sun-Sun, Wolstenholme prime, all deliberately deprioritized (need number-theory background beyond a short student-facing explanation)
 
 ### Changed
 - `pyproject.toml`: version 0.8.3 → 0.8.4
