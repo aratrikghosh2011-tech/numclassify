@@ -132,7 +132,7 @@ function getTagColor(category) {
   const colors = {
     primes: 'var(--cat-primes)',
     figurate: 'var(--cat-figurate)',
-    centered_figurate: 'var(--cat-centered_figurate)',
+    figurate_centered: 'var(--cat-centered_figurate)',
     digital_invariants: 'var(--cat-digital_invariants)',
     divisors: 'var(--cat-divisors)',
     sequences: 'var(--cat-sequences)',
@@ -249,8 +249,6 @@ json.dumps(m)
   } catch(e) {
     $('version-text').textContent = '?';
   }
-
-  populatePracticeTypes();
 
   setProgress(100, 'Ready!');
   await new Promise(r => setTimeout(r, 400));
