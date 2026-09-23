@@ -200,7 +200,7 @@ def check_no_leaked_names():
             'count_properties', 'most_special_in_range', 'find_in_range',
             'find_all_in_range', 'find_any_in_range', 'register',
             'is_prime', 'is_armstrong', 'is_perfect',
-            'why', 'why_hidden', 'practice_set', 'PRACTICE_TYPES', 'property_info', 'find', 'get_exam_types',
+            'why', 'property_info', 'find', 'get_exam_types',
             'similar_numbers', 'specialness_percentile',
         }
         leaked = set(public) - ALLOWED
@@ -210,40 +210,6 @@ def check_no_leaked_names():
             ok(f"Public API has {len(public)} names, no leaks")
     except Exception as e:
         warn(f"Could not check public API: {e}")
-
-
-def check_practice_types():
-    print("\n[9] PRACTICE_TYPES drift check")
-    try:
-        sys.path.insert(0, str(ROOT))
-        from numclassify._registry import REGISTRY, _normalize
-        from numclassify import PRACTICE_TYPES
-
-        missing = [t for t in PRACTICE_TYPES if _normalize(t) not in REGISTRY]
-        if missing:
-            err(f"PRACTICE_TYPES references types not in REGISTRY: {missing}")
-        else:
-            ok(f"All {len(PRACTICE_TYPES)} PRACTICE_TYPES resolve correctly")
-
-        import numclassify as nc
-        import re
-        leaked = []
-        for t in PRACTICE_TYPES:
-            type_word = t.split()[0].lower()
-            pattern = re.compile(rf'\bis\s+(?:not\s+)?{re.escape(type_word)}\b', re.IGNORECASE)
-            for n in [6, 7]:
-                try:
-                    hidden = nc.why_hidden(t, n)
-                except RuntimeError:
-                    continue
-                if pattern.search(hidden):
-                    leaked.append(f"{t}({n})")
-        if leaked:
-            err(f"why_hidden() leaks verdict for: {leaked}")
-        else:
-            ok("why_hidden() spot-check: no verdict leaks in PRACTICE_TYPES")
-    except Exception as e:
-        warn(f"Could not check PRACTICE_TYPES: {e}")
 
 
 def check_no_em_dash_in_source():
@@ -435,7 +401,6 @@ def main():
     check_registry_count()
     check_no_leaked_names()
     check_no_broken_imports()
-    check_practice_types()
     check_no_em_dash_in_source()
     check_coverage_badge_freshness()
     check_explain_badge_freshness()

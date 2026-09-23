@@ -68,20 +68,3 @@ class TestSpecialAndCompositeTypes:
             is_composite = props.get('Composite', False)
             assert is_composite == expected, f"n={n}: expected {expected}, got {is_composite}"
 
-    def test_composite_why_hidden_no_leak(self):
-        import numclassify as nc
-        import re
-        for n in [4, 6, 7, 8, 9]:
-            hidden = nc.why_hidden("Composite", n)
-            assert not re.search(r'\bis\s+(?:not\s+)?composite\b', hidden, re.IGNORECASE), (
-                f"Verdict leaked at n={n}: {hidden!r}"
-            )
-
-    def test_strong_why_hidden_no_leak(self):
-        import numclassify as nc
-        import re
-        for n in [1, 2, 145, 100]:
-            hidden = nc.why_hidden("Strong", n)
-            assert not re.search(r'\bis\s+(?:not\s+)?strong\b', hidden, re.IGNORECASE), (
-                f"Verdict leaked at n={n}: {hidden!r}"
-            )

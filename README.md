@@ -6,7 +6,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/aratrikghosh2011-tech/numclassify/ci.yml?label=tests&style=flat-square&color=FF9933)](https://github.com/aratrikghosh2011-tech/numclassify/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-FF9933?style=flat-square)](LICENSE)
 <!-- coverage-badge:start -->
-[![Coverage](https://img.shields.io/badge/coverage-78%25-green?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
+[![Coverage](https://img.shields.io/badge/coverage-77%25-green?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/tests)
 <!-- coverage-badge:end -->
 <!-- explain-badge:start -->
 [![Explain](https://img.shields.io/badge/explain-97%25-brightgreen?style=flat-square)](https://github.com/aratrikghosh2011-tech/numclassify/tree/main/numclassify/_core)
@@ -15,12 +15,6 @@
 <!-- version-heading:start -->
 ## What's new in v0.8.5
 <!-- version-heading:end -->
-
-- **`why_hidden(property, n)`**  --  explanation with verdict stripped, for practice/quiz mode
-- **`practice_set(property, count, seed)`**  --  balanced random YES/NO question generator
-- **`PRACTICE_TYPES`**  --  allowlist of 22 ICSE Class 10 syllabus types
-- **CLI `numclassify quiz`**  --  interactive practice mode
-- **Playground Practice tab**  --  guess-then-reveal quiz flow
 
 **Given a number, what is it?**
 
@@ -52,7 +46,7 @@ asks for.
 28    →  Perfect, Triangular, Hexagonal, Semiprime, ...
 ```
 
-Try it in your browser: **[numclassify Playground](docs/playground.html)**
+Try it in your browser: **[numclassify Playground](https://aratrikghosh2011-tech.github.io/numclassify/playground.html)**
 
 ---
 
@@ -159,10 +153,6 @@ numclassify info armstrong
 # Explain why a number has a property
 numclassify why armstrong 153
 
-# Practice mode: guess before you see the answer
-numclassify quiz armstrong --count 10
-numclassify quiz --list-types
-
 # Multi-property query with AND/OR/NOT logic
 numclassify query 1 1000 --has prime palindrome
 ```
@@ -205,24 +195,6 @@ nc.get_true_properties(42)  # [..., 'my_type', ...]
 ```
 
 See [`examples/`](examples/) for runnable scripts covering all major features.
-
----
-
-## Practice mode
-
-Learn number classification by guessing, not by calling a function.
-
-    numclassify quiz armstrong --count 10
-    numclassify quiz --list-types
-
-Guess YES or NO for each number, then see the actual math (divisors, digit
-sums, factorizations) before the verdict. Built for ICSE Class 10 Computer
-Applications topics: Armstrong, Perfect, Prime, Harshad, Circular Prime,
-Emirp, Fibonacci, Buzz, Spy, Automorphic, Neon, Duck, Disarium, Kaprekar,
-Happy, Sunny, Strong, Twin Prime, Abundant, Deficient.
-
-Also in the [playground](https://aratrikghosh2011-tech.github.io/numclassify/playground.html)
-under the Practice tab.
 
 ---
 

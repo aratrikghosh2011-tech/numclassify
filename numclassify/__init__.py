@@ -63,8 +63,6 @@ from numclassify._registry import (                   # noqa: F401
     get_exam_types,
     similar_numbers,
     specialness_percentile,
-    practice_set,
-    PRACTICE_TYPES,
 )
 
 # ---------------------------------------------------------------------------
@@ -176,73 +174,6 @@ _SPECIAL_CASE_STRIPPERS = {
         )
     ),
 }
-
-
-def why_hidden(property_name: str, n: int) -> str:
-    """
-    Like why(), but strips the verdict so the explanation can be shown to
-    a student BEFORE they commit to an answer. Used by practice/quiz mode.
-
-    Two verdict conventions exist across explain= functions and both must
-    be stripped:
-
-    1. Prefix convention (most _core/*.py functions):
-       "{n} is {Type} because: {reasoning}"
-       "{n} is NOT {Type}: {reasoning}"
-       The "is / is NOT {Type}" clause directly states the answer.
-
-    2. Suffix convention (_explain_templates.py factories):
-       "{reasoning} -> YES" / "{reasoning} -> NO"
-
-    This function strips whichever pattern(s) are present and returns
-    only the reasoning. If after both strips the result is still
-    suspiciously short or still contains a bare YES/NO token that looks
-    like a verdict fragment, it raises RuntimeError rather than silently
-    leaking the answer.
-    """
-    from numclassify._registry import _normalize
-
-    full = why(property_name, n)
-
-    # Check special-case strippers first.
-    key = _normalize(property_name)
-    if key in _SPECIAL_CASE_STRIPPERS:
-        result = _SPECIAL_CASE_STRIPPERS[key](full)
-        if not result:
-            raise RuntimeError(
-                f"why_hidden() stripped everything for '{property_name}' at "
-                f"n={n}. Original: {full!r}"
-            )
-        return result
-
-    result = full
-
-    # Strip prefix convention.
-    result = _strip_prefix_convention(result)
-
-    # Strip suffix convention.
-    result = _strip_suffix_convention(result)
-
-    # Safety check: if the property name itself still appears in the
-    # remaining text alongside "is"/"NOT", the strip failed. Fail loudly.
-    type_word = property_name.split()[0].lower()
-    danger_pattern = _re.compile(
-        rf'\bis\s+(?:not\s+)?{_re.escape(type_word)}\b', _re.IGNORECASE
-    )
-    if danger_pattern.search(result):
-        raise RuntimeError(
-            f"why_hidden() could not safely strip the verdict for "
-            f"'{property_name}' at n={n}. Refusing to return a possibly "
-            f"leaking explanation. Original: {full!r}"
-        )
-
-    if not result:
-        raise RuntimeError(
-            f"why_hidden() stripped everything for '{property_name}' at "
-            f"n={n}. Original: {full!r}"
-        )
-
-    return result
 
 
 def property_info(name: str) -> dict:
@@ -486,13 +417,10 @@ __all__ = [
     "find_by_property",
     "stream",
     "why",
-    "why_hidden",
     "property_info",
     "find",
     "similar_numbers",
     "specialness_percentile",
-    "practice_set",
-    "PRACTICE_TYPES",
 ]
 
 # Clean up internal names that leak into dir(nc)

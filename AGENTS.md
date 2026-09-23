@@ -37,9 +37,9 @@ python -m pytest tests/ -v --cov=numclassify --cov-report=term-missing --cov-fai
 ```
 
 Coverage gate is **75%** (enforced in CI), current actual is **80%**.
-10 test files under `tests/`. `cli.py` is the weakest-covered file at
-**58%** — the interactive quiz loop and several argparse branches are
-undertested. If you're looking for where to add tests next, start there.
+10 test files under `tests/`. `cli.py` is covered at **84%** — several
+argparse branches are undertested. If you're looking for where to add tests
+next, start there.
 
 Run tests before claiming anything is fixed. See "Verification discipline"
 below — this is not optional advice, it's the single most violated rule
@@ -98,14 +98,14 @@ import until a command actually runs.
 
 | Path | Purpose |
 |---|---|
-| `numclassify/_registry.py` | `NumberType` dataclass, `REGISTRY`, `@register`, `practice_set()`, `PRACTICE_TYPES`, query helpers |
-| `numclassify/__init__.py` | `why()`, `why_hidden()`, `property_info()`, `find()`, `classify()`, `stream()` — public API definition |
+| `numclassify/_registry.py` | `NumberType` dataclass, `REGISTRY`, `@register`, query helpers |
+| `numclassify/__init__.py` | `why()`, `property_info()`, `find()`, `classify()`, `stream()` — public API definition |
 | `numclassify/_core/figurate.py` | ~1996 figurate types **auto-generated** via loops `k=3..1000` and `k=21..1000` — don't hand-write |
 | `numclassify/_explain_templates.py` | 4 template factories: `digit_power_template`, `divisor_sum_template`, `sequence_membership_template`, `factorization_template` |
-| `numclassify/cli.py` | Argparse CLI with 9 commands (`quiz` added in v0.8.0) |
+| `numclassify/cli.py` | Argparse CLI with 8 commands |
 | `tools/scaffold_type.py` | Interactive generator for new type code |
 | `tools/generate_docs.py` | Rewrites README's category table, version heading, public API count, and coverage badge from live source + `coverage.json` — never hand-edit these sections |
-| `tools/check_repo.py` | 12 checks: BOM, CRLF, mojibake, version consistency, emoji in JS, registry count, API leaks, PRACTICE_TYPES drift, em dash scan, coverage badge freshness, broken imports, CLI smoke |
+| `tools/check_repo.py` | 11 checks: BOM, CRLF, mojibake, version consistency, emoji in JS, registry count, API leaks, em dash scan, coverage badge freshness, broken imports, CLI smoke |
 | `tools/release.py` | Bumps version, regenerates docs, checks changelog entry, runs `check_repo.py --strict` + full test suite, prints git commands. Does not tag or push automatically. |
 
 ## Conventions
@@ -128,9 +128,7 @@ import until a command actually runs.
 
 ## Two verdict conventions exist in explain= strings — know both
 
-Every `explain=` function encodes its YES/NO verdict one of two ways, and
-anything that processes explain text (like `why_hidden()`) must handle
-both or it will silently leak the answer:
+Every `explain=` function encodes its YES/NO verdict one of two ways:
 
 1. **Prefix convention** (most `_core/*.py` functions):
    `"{n} is {Type} because: {reasoning}"` or `"{n} is NOT {Type}: {reasoning}"`
@@ -139,29 +137,6 @@ both or it will silently leak the answer:
 2. **Suffix convention** (`_explain_templates.py` factories):
    `"{reasoning} -> YES"` / `"{reasoning} -> NO"`
    The verdict is a trailing token.
-
-`why_hidden()` in `__init__.py` strips both. A v0.8.0 bug shipped it only
-stripping the suffix convention, leaking the verdict for 12 of 22 practice
-types (including Armstrong, Perfect, Prime — the most common ones). Fixed
-in v0.8.1 with a fail-loud `RuntimeError` safety net: if the strip can't be
-verified safe, it raises instead of returning a possibly-leaking string.
-**If you write a new explain= function, run it through `why_hidden()` and
-grep the result for the type name before assuming it's safe.**
-
-## Practice/quiz mode
-
-23 types in `PRACTICE_TYPES` (`_registry.py:541`) are available for
-`numclassify quiz`. Adding a type there requires:
-1. The type must already be registered with a working `explain=`.
-2. Run the leak check: `why_hidden(type, n)` for several `n` values, grep
-   for `is [NOT] {type_word}` case-insensitively. Zero matches required.
-3. `check_repo.py`'s `check_practice_types()` re-verifies this on every run
-   but only catches drift after the fact — check it yourself before adding.
-
-`practice_set()` samples from a fixed range (1-200) and guarantees a
-roughly balanced YES/NO split per property, because naive random sampling
-skews heavily NO for rare properties (e.g. only two Perfect numbers exist
-below 200) and lets a student score well by always guessing NO.
 
 ## Verification discipline — read this before reporting anything as done
 
