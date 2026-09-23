@@ -52,7 +52,7 @@ asks for.
 28    →  Perfect, Triangular, Hexagonal, Semiprime, ...
 ```
 
-Try it in your browser: **[numclassify Playground](playground.html)**
+Try it in your browser: **[numclassify Playground](docs/playground.html)**
 
 ---
 
